@@ -7,7 +7,7 @@
 
 package frc.robot.common;
 
-import static frc.robot.common.Constants.Drivetrain.*;
+import static frc.robot.common.Constants.Intake.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -45,7 +45,7 @@ public class OCConfig {
      * @param motors Array of drive motors
      */
     public static void configMotors(CANSparkMax... motors){
-        configMotors(kDriveStallCurrentLimit, kDriveFreeCurrentLimit, motors);
+        configMotors(kStallLimit, kFreeLimit, motors);
     }
     /**
      * Configures each motor given with default settings.
