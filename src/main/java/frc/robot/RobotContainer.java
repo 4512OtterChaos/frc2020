@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.Paths;
 import frc.robot.common.Limelight;
 import frc.robot.common.OCController;
+import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
 import io.github.oblarg.oblog.Logger;
 
@@ -32,11 +33,15 @@ public class RobotContainer {
   private AddressableLEDBuffer ledBuffer;
   
   private SendableChooser<Command> commandChooser  = new SendableChooser<>();
+
+  private Testable[] testableSubsystems;
   
   public RobotContainer() {
     drivetrain = new Drivetrain();
 
     configureButtonBindings();
+
+    testableSubsystems = new Testable[]{drivetrain};
   }
   
   private void configureButtonBindings() {
@@ -60,4 +65,6 @@ public class RobotContainer {
 
     Logger.updateEntries();
   }
+
+  public Testable[] getTestableSubsystems(){return testableSubsystems;};
 }

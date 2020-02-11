@@ -40,7 +40,7 @@ public class Constants {
 
     public static class Shooter{
 
-        public static final int kStallLimit = 75;
+        public static final int kStallLimit = 80;
         public static final int kFreeLimit = 40;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
@@ -55,8 +55,8 @@ public class Constants {
     }
     public static class ShooterWrist{
 
-        public static final int kFreeLimit = 30;
-        public static final int kStallLimit = 50;
+        public static final int kFreeLimit = 27;
+        public static final int kStallLimit = 35;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
@@ -70,8 +70,38 @@ public class Constants {
     }
 
     public static class Intake{
+        public static final int kFreeLimit = 27;
+        public static final int kStallLimit = 35;
+
+        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
+
+        public static final double kStaticFF = 0; // volts (Given from the characterization tool)
+        public static final double kVelocityFF = 0; // per meters per second
+        public static final double kAccelerationFF = 0; // per meters per second squared
+
+        public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kI = 0; // Only P should be used for velocity control
+        public static final double kD = 0;
+    }
+
+    public static class Indexer{
+        public static final int kFreeLimit = 27;
+        public static final int kStallLimit = 35;
+
+        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
+
+        public static final double kStaticFF = 0; // volts (Given from the characterization tool)
+        public static final double kVelocityFF = 0; // per meters per second
+        public static final double kAccelerationFF = 0; // per meters per second squared
+
+        public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kI = 0; // Only P should be used for velocity control
+        public static final double kD = 0;
+    }
+
+    public static class Lift{
         public static final int kFreeLimit = 30;
-        public static final int kStallLimit = 50;
+        public static final int kStallLimit = 37;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 

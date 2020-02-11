@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -23,20 +24,23 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
+import frc.robot.common.Testable;
+import frc.robot.common.OCConfig.ConfigType;
+
 import static frc.robot.common.Constants.kRobotDelta;
 import static frc.robot.common.Constants.Drivetrain.*;
 
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
-public class Drivetrain extends SubsystemBase implements Loggable{
+public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     
     @Log(methodName = "getAppliedOutput")
-    private CANSparkMax leftMaster = new CANSparkMax(4, MotorType.kBrushless), 
-    leftSlave = new CANSparkMax(5, MotorType.kBrushless);
+    private CANSparkMax leftMaster = OCConfig.createNEO(4, ConfigType.DRIVE), 
+    leftSlave = OCConfig.createNEO(5, ConfigType.DRIVE);
     @Log(methodName = "getAppliedOutput")
-    private CANSparkMax rightMaster = new CANSparkMax(1, MotorType.kBrushless),
-    rightSlave = new CANSparkMax(2, MotorType.kBrushless);
+    private CANSparkMax rightMaster = OCConfig.createNEO(1, ConfigType.DRIVE),
+    rightSlave = OCConfig.createNEO(2, ConfigType.DRIVE);
     
     private final CANSparkMax[] leftMotors = {leftMaster,leftSlave};
     private final CANSparkMax[] rightMotors = {rightMaster,rightSlave};
@@ -65,7 +69,7 @@ public class Drivetrain extends SubsystemBase implements Loggable{
         leftEncoder = leftMaster.getEncoder();
         rightEncoder = rightMaster.getEncoder();
 
-        OCConfig.configDriveMotors(leftMotors, rightMotors, true);
+        OCConfig.configureDrivetrain(leftMotors, rightMotors, true);
     }
     
     @Override
@@ -210,5 +214,15 @@ public class Drivetrain extends SubsystemBase implements Loggable{
         resetEncoders();
         resetGyro();
         odometry.resetPosition(poseMeters, gyroAngle);
+    }
+
+    @Override
+    public Status test(){
+        resetEncoders();
+        resetGyro();
+        Timer.delay(1);
+        boolean nonZero = (Math.abs(leftEncoder.getPosition()+rightEncoder.getPosition())>2) || (getHeading().getDegrees()>1);
+        if(nonZero) return Status.WARNING;
+        else return Status.PASSED;
     }
 }

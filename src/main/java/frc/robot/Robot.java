@@ -7,14 +7,19 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.common.Testable;
+import frc.robot.common.Testable.Status;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private Command autoCommand;
 
-  private RobotContainer m_robotContainer;
+  private RobotContainer container;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -22,7 +27,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer();
+    container = new RobotContainer();
   }
 
   /**
@@ -44,10 +49,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    autoCommand = container.getAutonomousCommand();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    if (autoCommand != null) {
+      autoCommand.schedule();
     }
   }
 
@@ -57,8 +62,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autoCommand != null) {
+      autoCommand.cancel();
     }
   }
 
@@ -69,9 +74,15 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+    List<Status> statuses = new ArrayList<Status>();
+    for(Testable sub:container.getTestableSubsystems()){
+      Status result = sub.test();
+      statuses.add(result);
+    }
   }
 
   @Override
   public void testPeriodic() {
+
   }
 }
