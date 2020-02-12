@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
+import frc.robot.util.Pair;
 
 import static frc.robot.common.Constants.kRobotDelta;
 import static frc.robot.common.Constants.Drivetrain.*;
@@ -217,12 +218,13 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     }
 
     @Override
-    public Status test(){
+    public Pair<String, Status> test(){
+        String name = "Drivetrain";
         resetEncoders();
         resetGyro();
         Timer.delay(1);
         boolean nonZero = (Math.abs(leftEncoder.getPosition()+rightEncoder.getPosition())>2) || (getHeading().getDegrees()>1);
-        if(nonZero) return Status.WARNING;
-        else return Status.PASSED;
+        if(nonZero) return Pair.of(name, Status.WARNING);
+        else return Pair.of(name, Status.PASSED);
     }
 }

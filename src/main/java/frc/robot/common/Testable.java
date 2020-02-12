@@ -7,6 +7,8 @@
 
 package frc.robot.common;
 
+import frc.robot.util.Pair;
+
 /**
  * Interface defining testable subsystems.
  * Testing a subsystem should return different states depending on the working status.
@@ -22,5 +24,5 @@ public interface Testable {
      * Tests the condition of this subsystem. Will return PASSED if not overriden.
      * @return {@link Status} of working condition.
      */
-    public default Status test(){return Status.PASSED;}
+    public default Pair<String, Status> test(){return Pair.of("Undefined", Status.PASSED);}
 }

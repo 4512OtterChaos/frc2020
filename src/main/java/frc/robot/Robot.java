@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.common.Testable;
 import frc.robot.common.Testable.Status;
+import frc.robot.util.Pair;
 
 public class Robot extends TimedRobot {
   private Command autoCommand;
@@ -73,11 +75,35 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    //LED stuff to show testing
+    Timer.delay(1);
+
     CommandScheduler.getInstance().cancelAll();
-    List<Status> statuses = new ArrayList<Status>();
+    List<Pair<String,Status>> results = new ArrayList<Pair<String,Status>>();
     for(Testable sub:container.getTestableSubsystems()){
-      Status result = sub.test();
-      statuses.add(result);
+      Pair<String,Status> result = sub.test();
+      results.add(result);
+    }
+    for(Pair<String,Status> result:results){
+      Status status = result.getSecondary();
+
+      //LED blank
+      Timer.delay(0.25);
+      System.out.println(result.getPrimary()+": "+status.toString());
+      switch(status){
+        case FAILED:
+        //LED failed
+        Timer.delay(0.75);
+        break;
+        case WARNING:
+        //LED warning
+        Timer.delay(0.5);
+        break;
+        case PASSED:
+        //LED passed
+        Timer.delay(0.25);
+        break;
+      }
     }
   }
 

@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.common;
+package frc.robot.util;
 
 /**
  * Tuple of two objects.
@@ -23,7 +23,7 @@ public class Pair<A, B> {
     public A getPrimary(){return a;}
     public B getSecondary(){return b;}
 
-    public static Pair<A, B> of(A a, B b) {
+    public static <A,B> Pair<A,B> of(A a, B b) {
         return new Pair(a, b);
     }
 }
