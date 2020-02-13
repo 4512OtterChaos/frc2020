@@ -9,9 +9,11 @@ package frc.robot.common;
 
 import static frc.robot.common.Constants.*;
 
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 /**
  * Used for configuring motor settings.
@@ -35,6 +37,10 @@ public class OCConfig {
         }
     }
 
+    public static CANSparkMax createNEO(int port){
+        CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
+        return motor;
+    }
     public static CANSparkMax createNEO(int port, ConfigType type){
         CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
         configMotors(type, motor);
@@ -48,16 +54,14 @@ public class OCConfig {
      * @param isRightInverted
      */
     public static void configureDrivetrain(CANSparkMax[] leftMotors, CANSparkMax[] rightMotors, boolean isRightInverted){
-        for(int i=0;i<leftMotors.length;i++){
-            if(i>0) leftMotors[i].follow(leftMotors[0]);
+        for(int i=0; i<leftMotors.length; i++){
+            if(i>0) setFollower(leftMotors[0], false, leftMotors[i]);
             else leftMotors[i].setInverted(!isRightInverted);
         }
-        for(int i=0;i<rightMotors.length;i++){
-            if(i>0) rightMotors[i].follow(rightMotors[0]);
+        for(int i=0; i<rightMotors.length; i++){
+            if(i>0) setFollower(rightMotors[0], false, rightMotors[i]);
             else rightMotors[i].setInverted(isRightInverted);
         }
-        saveConfig(leftMotors);
-        saveConfig(rightMotors);
     }
 
     /**
@@ -74,7 +78,7 @@ public class OCConfig {
      * @param motors Array of motors
      */
     public static void configMotors(int stallLimit, int freeLimit, double rampRate, CANSparkMax... motors){
-        for(CANSparkMax motor:motors){
+        for(CANSparkMax motor : motors){
             // Make sure motor config is clean
             motor.restoreFactoryDefaults();
 
@@ -85,6 +89,10 @@ public class OCConfig {
             // Current limits (don't kill the motors)
             if(stallLimit!=freeLimit) motor.setSmartCurrentLimit(stallLimit, freeLimit);
             else motor.setSmartCurrentLimit(stallLimit);
+
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
         }
         saveConfig(motors);
     }
@@ -92,7 +100,7 @@ public class OCConfig {
      * Burns configuration to flash on given motors.
      */
     public static void saveConfig(CANSparkMax... motors){
-        for(CANSparkMax  motor:motors){
+        for(CANSparkMax motor : motors){
             motor.burnFlash();
         }
     }
@@ -103,7 +111,15 @@ public class OCConfig {
      * @param motors Motors to set
      */
     public static void setIdleMode(IdleMode mode, CANSparkMax... motors){
-        for(CANSparkMax motor:motors) motor.setIdleMode(mode);
+        for(CANSparkMax motor : motors) motor.setIdleMode(mode);
+    }
+    public static void setFollower(CANSparkMax master, boolean inverted, CANSparkMax... followers){
+        for(CANSparkMax motor : followers){
+            motor.follow(master, inverted);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
+        }
     }
 
 }
