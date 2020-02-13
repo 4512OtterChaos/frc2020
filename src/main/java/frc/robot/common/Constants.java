@@ -39,7 +39,6 @@ public class Constants {
     }
 
     public static class Shooter{
-
         public static final int kStallLimit = 80;
         public static final int kFreeLimit = 40;
 
@@ -54,9 +53,8 @@ public class Constants {
         public static final double kD = 0;
     }
     public static class ShooterWrist{
-
         public static final int kFreeLimit = 27;
-        public static final int kStallLimit = 35;
+        public static final int kStallLimit = 30;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
@@ -100,8 +98,10 @@ public class Constants {
     }
 
     public static class Lift{
+        public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
+
         public static final int kFreeLimit = 30;
-        public static final int kStallLimit = 37;
+        public static final int kStallLimit = 35;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
@@ -112,10 +112,16 @@ public class Constants {
         public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
+
+        // Constraints
+        public static final int kMaxHeightRotations = 100; // Max height in motor rotations
+        public static final int kVelocityConstraint = 6000; // Motor RPM
+        public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }
 
     public static class Vision{
-        public static final double cameraAngle = 30;// Angle of camera offset from horizontal
+        public static final double cameraAngle = 30; // Angle of camera offset from horizontal
+        public static final double kLatencySeconds = 11.0 / 1000; // Image capture latency
     }
     
     public static class Autonomous{

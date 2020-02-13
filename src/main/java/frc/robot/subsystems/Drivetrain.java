@@ -58,9 +58,9 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private DifferentialDriveOdometry odometry;
 
     @Log
-    private PIDController leftPIDController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
+    private PIDController leftController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
     @Log
-    private PIDController rightPIDController = new PIDController(kP, kI, kD, kRobotDelta);
+    private PIDController rightController = new PIDController(kP, kI, kD, kRobotDelta);
 
     private double driveSpeed = 0.5;
     
@@ -145,18 +145,18 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
         
         leftVolts += feedForward.calculate(leftMetersPerSecond);
         rightVolts += feedForward.calculate(rightMetersPerSecond);
-        leftVolts += leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
-        rightVolts += rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
+        leftVolts += leftController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
+        rightVolts += rightController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
 
         tankDriveVolts(
             leftVolts,
             rightVolts);
     }
-    public PIDController getLeftPIDController(){
-        return leftPIDController;
+    public PIDController getleftController(){
+        return leftController;
     }
-    public PIDController getRightPIDController(){
-        return rightPIDController;
+    public PIDController getrightController(){
+        return rightController;
     }
     
     public void resetEncoders(){
