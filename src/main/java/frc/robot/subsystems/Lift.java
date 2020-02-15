@@ -34,12 +34,12 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   private CANEncoder encoder = new CANEncoder(master);
 
   private DigitalInput botSwitch = new DigitalInput(0);
-  private DigitalInput topSwitch = new DigitalInput(0);
+  //private DigitalInput topSwitch = new DigitalInput(0);
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
 
   @Log
-  private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controllers
+  private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controller
   
   public Lift() {
     OCConfig.setFollower(master, false, slave);
@@ -52,7 +52,7 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
 
   public void setVolts(double volts){
     if(botSwitch.get()) volts = Math.max(0,volts);
-    if(topSwitch.get()||encoder.getPosition()>=kMaxHeightRotations) volts = Math.min(0,volts);
+    if(encoder.getPosition()>=kMaxHeightRotations) volts = Math.min(0,volts);
     master.setVoltage(volts);
   }
 

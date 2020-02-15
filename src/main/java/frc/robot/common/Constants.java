@@ -85,6 +85,11 @@ public class Constants {
         public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
+
+        // Constraints
+        public static final int kMaxForwardRotations = 120; // Max motor rotations
+        public static final int kVelocityConstraint = 9000; // Motor RPM
+        public static final int kAccelerationConstraint = 15000; // Motor RPM per second
     }
 
     public static class Indexer{
@@ -120,7 +125,7 @@ public class Constants {
 
         // Constraints
         public static final int kMaxHeightRotations = 100; // Max height in motor rotations
-        public static final int kVelocityConstraint = 6000; // Motor RPM
+        public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }
 
