@@ -7,11 +7,16 @@
 
 package frc.robot.common;
 
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.util.Units;
 
 public class Constants {
 
     public static final double kRobotDelta = 0.01;
+
+    public static final double kFieldWidth = Units.inchesToMeters(323.75);
+    public static final double kFieldDepth = Units.inchesToMeters(629.25);
     
     // All distance measurements should be in meters when being used
     
@@ -120,8 +125,12 @@ public class Constants {
     }
 
     public static class Vision{
-        public static final double cameraAngle = 30; // Angle of camera offset from horizontal
-        public static final double kLatencySeconds = 11.0 / 1000; // Image capture latency
+        public static final double kCameraAngle = 30; // Angle of camera offset from horizontal
+        public static final double kCameraHeight = 24;
+        public static final double kTargetHeight = 98.25;
+        public static final double kLatencyMs = 11; // Image capture latency
+        public static final Translation2d kCameraTranslation = new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0));
+        public static final Translation2d kTargetTranslation = new Translation2d(kFieldDepth, Units.inchesToMeters(94.66));
     }
     
     public static class Autonomous{
