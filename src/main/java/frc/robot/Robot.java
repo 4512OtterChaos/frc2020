@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.common.Testable;
 import frc.robot.common.Testable.Status;
+import frc.robot.common.Testable.TestableResult;
 import frc.robot.util.Pair;
 
 public class Robot extends TimedRobot {
@@ -79,17 +80,17 @@ public class Robot extends TimedRobot {
     Timer.delay(1);
 
     CommandScheduler.getInstance().cancelAll();
-    List<Pair<String,Status>> results = new ArrayList<Pair<String,Status>>();
+    List<TestableResult> results = new ArrayList<TestableResult>();
     for(Testable system:container.getTestableSystems()){
-      Pair<String,Status> result = system.test();
+      TestableResult result = system.test();
       results.add(result);
     }
-    for(Pair<String,Status> result:results){
-      Status status = result.getSecondary();
+    for(TestableResult result:results){
+      Status status = result.status;
 
       //LED blank
       Timer.delay(0.25);
-      System.out.println(result.getPrimary()+": "+status.toString());
+      System.out.println(result.name+": "+status.toString());
       switch(status){
         case FAILED:
         //LED failed

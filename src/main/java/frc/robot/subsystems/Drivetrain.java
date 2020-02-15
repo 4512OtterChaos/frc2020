@@ -218,13 +218,12 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     }
 
     @Override
-    public Pair<String, Status> test(){
-        String name = "Drivetrain";
+    public TestableResult test(){
         resetEncoders();
         resetGyro();
         Timer.delay(1);
         boolean nonZero = (Math.abs(leftEncoder.getPosition()+rightEncoder.getPosition())>2) || (getHeading().getDegrees()>1);
-        if(nonZero) return Pair.of(name, Status.WARNING);
-        else return Pair.of(name, Status.PASSED);
+        Status result = nonZero ? Status.WARNING : Status.PASSED;
+        return new TestableResult("Drivetrain", result);
     }
 }

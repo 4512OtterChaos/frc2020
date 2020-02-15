@@ -20,9 +20,19 @@ public interface Testable {
         FAILED;
     }
 
+    public class TestableResult{
+        public final String name;
+        public final Status status;
+
+        public TestableResult(String name, Status status){
+            this.name = name;
+            this.status = status;
+        }
+    }
+
     /**
      * Tests the condition of this subsystem. Will return PASSED if not overriden.
      * @return {@link Status} of working condition.
      */
-    public default Pair<String, Status> test(){return Pair.of("Undefined", Status.PASSED);}
+    public default TestableResult test(){return new TestableResult("Undefined", Status.PASSED);}
 }

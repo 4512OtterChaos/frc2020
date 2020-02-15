@@ -198,9 +198,9 @@ public class Limelight implements Loggable, Testable{
     }
 
     @Override
-    public Pair<String, Status> test(){
+    public TestableResult test(){
         Status result = isConnected() ? Status.PASSED : Status.FAILED;
-        return Pair.of("Limelight", result);
+        return new TestableResult("Limelight", result);
     }
     
 }
