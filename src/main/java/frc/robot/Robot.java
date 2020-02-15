@@ -80,8 +80,8 @@ public class Robot extends TimedRobot {
 
     CommandScheduler.getInstance().cancelAll();
     List<Pair<String,Status>> results = new ArrayList<Pair<String,Status>>();
-    for(Testable sub:container.getTestableSubsystems()){
-      Pair<String,Status> result = sub.test();
+    for(Testable system:container.getTestableSystems()){
+      Pair<String,Status> result = system.test();
       results.add(result);
     }
     for(Pair<String,Status> result:results){

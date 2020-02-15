@@ -35,14 +35,14 @@ public class RobotContainer {
   
   private SendableChooser<Command> commandChooser = new SendableChooser<>();
 
-  private Testable[] testableSubsystems;
+  private Testable[] testableSystems;
   
   public RobotContainer() {
     drivetrain = new Drivetrain();
 
     configureButtonBindings();
 
-    testableSubsystems = new Testable[]{drivetrain};
+    testableSystems = new Testable[]{drivetrain, limelight};
   }
   
   private void configureButtonBindings() {
@@ -67,5 +67,5 @@ public class RobotContainer {
     Logger.updateEntries();
   }
 
-  public Testable[] getTestableSubsystems(){return testableSubsystems;};
+  public Testable[] getTestableSystems(){return testableSystems;};
 }

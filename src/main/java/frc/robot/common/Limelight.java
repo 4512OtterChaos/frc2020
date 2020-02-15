@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
+import frc.robot.util.Pair;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Config;
 import io.github.oblarg.oblog.annotations.Log;
@@ -23,7 +25,7 @@ import static frc.robot.common.Constants.Vision.*;
 /**
  * Class for interfacing with a Limelight.
  */
-public class Limelight implements Loggable{
+public class Limelight implements Loggable, Testable{
     public enum State{
         DRIVE(1, 0, 2),
         BASIC(0, 1, 1),
@@ -121,6 +123,9 @@ public class Limelight implements Loggable{
     public double getLatencySeconds(){
         return (visionTable.getEntry("tl").getDouble(0)+kLatencyMs)/1000.0;
     }
+    public boolean isConnected(){
+        return visionTable.getEntry("tl").getDouble(0)!=0;
+    }
     public double[] get3d(){
         double[] camtran = visionTable.getEntry("camtran").getDoubleArray(new double[]{});
         SmartDashboard.putNumberArray("camtran", camtran);
@@ -148,7 +153,24 @@ public class Limelight implements Loggable{
         return new Pose2d(getPNP_X(), getPNP_Y(), new Rotation2d(Units.degreesToRadians(getPNP_Yaw())));
     }
     public Pose2d getRelativeRobotPose(){
-        return getRelativeCamPose();
+        Pose2d camPose = getRelativeCamPose();
+        Translation2d robotTran = camPose.getTranslation().minus(
+            kCameraTranslation.rotateBy(camPose.getRotation())
+        );
+        return new Pose2d(robotTran, camPose.getRotation());
+    }
+    public Pose2d getFieldPos(){
+        Pose2d robotPose = getRelativeRobotPose();
+        return new Pose2d(
+            kTargetTranslation.plus(robotPose.getTranslation()),
+            robotPose.getRotation()
+        );
+    }
+    @Log
+    public double getTrigDistance(){
+        double difference = kTargetHeight-kCameraHeight;
+        double angle = Units.degreesToRadians(kCameraAngle+getTy());
+        return (difference/Math.tan(angle));
     }
 
     @Log
@@ -166,12 +188,6 @@ public class Limelight implements Loggable{
     public static void setCamAngle(double angle){
         camAngle = angle;
     }*/
-    @Log
-    public double getTrigDistance(){
-        double difference = kTargetHeight-kCameraHeight;
-        double angle = Units.degreesToRadians(kCameraAngle+getTy());
-        return (difference/Math.tan(angle));
-    }
 
     private boolean isBlocked(){
         if(changeTimer.get()>0.2){
@@ -179,6 +195,12 @@ public class Limelight implements Loggable{
             return false;
         }
         return false;
+    }
+
+    @Override
+    public Pair<String, Status> test(){
+        Status result = isConnected() ? Status.PASSED : Status.FAILED;
+        return Pair.of("Limelight", result);
     }
     
 }
