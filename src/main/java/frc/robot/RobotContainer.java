@@ -11,9 +11,10 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.auto.AutoList;
+import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
 import frc.robot.common.Limelight;
 import frc.robot.common.OCController;
@@ -31,21 +32,22 @@ public class RobotContainer {
   private Testable[] testableSystems;
   
   private OCController driver = new OCController(0);
-  // private OCController operator = new OCController(1);
+  private OCController operator;
   
   private AddressableLED led;
   private AddressableLEDBuffer ledBuffer;
   
-  private AutoList autoList;
+  private AutoOptions autoOptions;
 
   public RobotContainer() {
     drivetrain = new Drivetrain();
 
-    autoList = new AutoList(drivetrain);
+    autoOptions = new AutoOptions(drivetrain);
 
+    if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCController(1);
     configureButtonBindings();
 
-    autoList.submit();
+    autoOptions.submit();
     testableSystems = new Testable[]{drivetrain, limelight};
   }
   
@@ -53,7 +55,7 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
-    return autoList.getSelected();
+    return autoOptions.getSelected();
   }
   
   public void setDriveCoast(boolean is){

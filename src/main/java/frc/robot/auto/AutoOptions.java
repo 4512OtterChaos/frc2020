@@ -20,7 +20,7 @@ import frc.robot.util.Pair;
 /**
  * Class for holding commandGroups defining different auto options.
  */
-public class AutoList {
+public class AutoOptions {
     SendableChooser<Command> stage1Options = new SendableChooser<>();
     SendableChooser<Command> stage2Options = new SendableChooser<>();
     SendableChooser<Command> stage3Options = new SendableChooser<>();
@@ -32,7 +32,7 @@ public class AutoList {
     /**
      * Constructs different auto options given drivetrain.
      */
-    public AutoList(Drivetrain drivetrain){
+    public AutoOptions(Drivetrain drivetrain){
         nothing = new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain);
 
         stage1Options.setDefaultOption("Nothing", nothing);
