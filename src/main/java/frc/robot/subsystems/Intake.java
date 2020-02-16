@@ -8,12 +8,13 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
@@ -32,16 +33,14 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
 
   private CANSparkMax arm = OCConfig.createNEO(9, ConfigType.INTAKE);
   private CANSparkMax roller = OCConfig.createNEO(10, ConfigType.INTAKE);
-  private WPI_VictorSPX fence = new WPI_VictorSPX(13);
+  private WPI_TalonSRX fence = new WPI_TalonSRX(13);
 
   private DoubleSolenoid slider = new DoubleSolenoid(0, 0);
   private boolean sliderExtended = false;
   private boolean lastSliderExtended = false;
   private Timer sliderDebounce = new Timer();
 
-  private CANEncoder encoder = new CANEncoder(arm);
-
-  private DigitalInput forwardSwitch = new DigitalInput(0);
+  private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
 
@@ -56,8 +55,6 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
 
   @Override
   public void periodic() {
-    if(forwardSwitch.get()) encoder.setPosition(kMaxForwardRotations);
-
     // Delay the result of the slider if its retracting for safety
     boolean nowSliderExtended = slider.get()==Value.kForward;
     if(nowSliderExtended){
@@ -66,7 +63,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     }
     else{
       if(lastSliderExtended) sliderDebounce.start();
-      else if(sliderDebounce.get()>0.1){
+      else if(sliderDebounce.get()>0.5){
         sliderDebounce.stop();
         sliderExtended=false;
       }
@@ -79,8 +76,8 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   }
 
   public void setArmVolts(double volts){
-    if(forwardSwitch.get()) volts = Math.max(0,volts);
-    if(encoder.getPosition()-kMaxForwardRotations<=0) volts = Math.min(0,volts);
+    if(encoder.get()>=kMaxForwardRotations) volts = Math.max(0, volts);
+    if(encoder.get()-kMaxForwardRotations<=0) volts = Math.min(0,volts);
     arm.setVoltage(volts);
   }
   /**
@@ -88,7 +85,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
    * @param rotations Motor rotations setpoint
    */
   public void setArmPID(double rotations){
-    double volts = controller.calculate(encoder.getPosition(), rotations);
+    double volts = controller.calculate(encoder.get(), rotations);
     volts += feedForward.calculate(controller.getGoal().velocity);
     setArmVolts(volts);
   }

@@ -49,10 +49,21 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
     return getFlightRangeMM()<flightDefaultDistanceMM;
   }
 
+  public void setTopVolts(double volts){
+    top.setVoltage(volts);
+  }
+  public void setBotVolts(double volts){
+    bot.setVoltage(volts);
+  }
+  public void setVolts(double topVolts, double botVolts){
+    setTopVolts(topVolts);
+    setBotVolts(botVolts);
+  }
+
   @Override
   public TestableResult test(){
     boolean flightGood = getFlightRangeMMError()<flightDefaultErrorMM;
-    boolean sensorsGood = flightGood && getFrontBeam();
+    boolean sensorsGood = flightGood && !getFrontBeam();
     return new TestableResult("Indexer", Status.PASSED);
   }
 }
