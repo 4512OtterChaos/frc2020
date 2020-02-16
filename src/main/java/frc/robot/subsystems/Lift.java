@@ -65,4 +65,9 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
     volts += feedForward.calculate(controller.getGoal().velocity);
     setVolts(volts);
   }
+
+  @Override
+  public TestableResult test(){
+    return new TestableResult("Lift", Status.PASSED);
+  }
 }

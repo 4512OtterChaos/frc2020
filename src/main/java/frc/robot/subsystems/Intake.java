@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
 
   private CANSparkMax arm = OCConfig.createNEO(9, ConfigType.INTAKE);
   private CANSparkMax roller = OCConfig.createNEO(10, ConfigType.INTAKE);
-  private WPI_VictorSPX fence = new WPI_VictorSPX(11);
+  private WPI_VictorSPX fence = new WPI_VictorSPX(13);
 
   private DoubleSolenoid slider = new DoubleSolenoid(0, 0);
   private boolean sliderExtended = false;
