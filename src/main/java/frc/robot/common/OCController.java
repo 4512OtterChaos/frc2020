@@ -9,7 +9,7 @@ package frc.robot.common;
 
 import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpiutil.math.MathUtil;
+import frc.robot.util.MathHelp;
 
 /**
  * Custom {@link XboxController} wrapper to add convenience features for driving.
@@ -49,7 +49,7 @@ public class OCController extends XboxController{
         double sign = Math.copySign(1.0, value);
         value = Math.abs(value);
         double fixedValue = sign*(scale*((value-dead)*value));
-        return MathUtil.clamp(fixedValue, -1, 1);
+        return MathHelp.clamp(fixedValue, -1, 1);
     }
 
     public double getY(Hand hand){
