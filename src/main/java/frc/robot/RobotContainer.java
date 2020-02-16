@@ -24,12 +24,15 @@ import io.github.oblarg.oblog.Logger;
 
 public class RobotContainer {
   
-  private Drivetrain drivetrain;
-  private Paths paths;
+  private final Drivetrain drivetrain;
+  private final Intake intake;
+  private final Indexer indexer;
+  private final Lift lift;
+  private final Limelight limelight;
 
-  private Limelight limelight;
+  private final Paths paths;
 
-  private Testable[] testableSystems;
+  private final Testable[] testableSystems;
   
   private OCController driver = new OCController(0);
   private OCController operator;
@@ -41,14 +44,20 @@ public class RobotContainer {
 
   public RobotContainer() {
     drivetrain = new Drivetrain();
+    intake = new Intake();
+    indexer = new Indexer();
+    lift = new Lift();
+    limelight = new Limelight();
 
-    autoOptions = new AutoOptions(drivetrain);
+    paths = new Paths(drivetrain.getFeedForward(), drivetrain.getKinematics());
+
+    testableSystems = new Testable[]{drivetrain, limelight};
+
+    autoOptions = new AutoOptions(drivetrain, intake, indexer);
+    autoOptions.submit();
 
     if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCController(1);
     configureButtonBindings();
-
-    autoOptions.submit();
-    testableSystems = new Testable[]{drivetrain, limelight};
   }
   
   private void configureButtonBindings() {
