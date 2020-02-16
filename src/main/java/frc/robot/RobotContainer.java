@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.auto.AutoList;
 import frc.robot.auto.Paths;
 import frc.robot.common.Limelight;
 import frc.robot.common.OCController;
@@ -26,6 +27,8 @@ public class RobotContainer {
   private Paths paths;
 
   private Limelight limelight;
+
+  private Testable[] testableSystems;
   
   private OCController driver = new OCController(0);
   // private OCController operator = new OCController(1);
@@ -33,15 +36,16 @@ public class RobotContainer {
   private AddressableLED led;
   private AddressableLEDBuffer ledBuffer;
   
-  private SendableChooser<Command> commandChooser = new SendableChooser<>();
+  private AutoList autoList;
 
-  private Testable[] testableSystems;
-  
   public RobotContainer() {
     drivetrain = new Drivetrain();
 
+    autoList = new AutoList(drivetrain);
+
     configureButtonBindings();
 
+    autoList.submit();
     testableSystems = new Testable[]{drivetrain, limelight};
   }
   
@@ -49,7 +53,7 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
-    return commandChooser.getSelected();
+    return autoList.getSelected();
   }
   
   public void setDriveCoast(boolean is){
