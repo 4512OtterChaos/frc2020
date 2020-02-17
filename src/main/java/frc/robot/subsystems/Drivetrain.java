@@ -29,7 +29,7 @@ import frc.robot.common.OCConfig.ConfigType;
 import frc.robot.util.Pair;
 
 import static frc.robot.common.Constants.kRobotDelta;
-import static frc.robot.common.Constants.Drivetrain.*;
+import static frc.robot.common.Constants.DrivetrainConstants.*;
 
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;

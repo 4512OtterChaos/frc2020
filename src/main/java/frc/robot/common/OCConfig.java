@@ -20,12 +20,12 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
  */
 public class OCConfig {
     public enum ConfigType{
-        DRIVE(Drivetrain.kStallLimit, Drivetrain.kFreeLimit, Drivetrain.kRampRaw),
-        SHOOTER(Shooter.kStallLimit, Shooter.kFreeLimit, Shooter.kRampRaw),
-        SHOOTERWRIST(ShooterWrist.kStallLimit, ShooterWrist.kFreeLimit, ShooterWrist.kRampRaw),
-        INTAKE(Intake.kStallLimit, Intake.kFreeLimit, Intake.kRampRaw),
-        INDEXER(Indexer.kStallLimit, Indexer.kFreeLimit, Indexer.kRampRaw),
-        LIFT(Lift.kStallLimit, Lift.kFreeLimit, Lift.kRampRaw);
+        DRIVE(DrivetrainConstants.kStallLimit, DrivetrainConstants.kFreeLimit, DrivetrainConstants.kRampRaw),
+        SHOOTER(ShooterConstants.kStallLimit, ShooterConstants.kFreeLimit, ShooterConstants.kRampRaw),
+        SHOOTERWRIST(ShooterWristConstants.kStallLimit, ShooterWristConstants.kFreeLimit, ShooterWristConstants.kRampRaw),
+        INTAKE(IntakeConstants.kStallLimit, IntakeConstants.kFreeLimit, IntakeConstants.kRampRaw),
+        INDEXER(IndexerConstants.kStallLimit, IndexerConstants.kFreeLimit, IndexerConstants.kRampRaw),
+        LIFT(LiftConstants.kStallLimit, LiftConstants.kFreeLimit, LiftConstants.kRampRaw);
 
         public final int stallLimit;
         public final int freeLimit;

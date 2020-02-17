@@ -11,13 +11,14 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.common.Constants.*;
-import static frc.robot.common.Constants.Lift.*;
+import static frc.robot.common.Constants.LiftConstants.*;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
@@ -31,10 +32,12 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   @Log(methodName = "getAppliedOutput")
   private CANSparkMax slave = OCConfig.createNEO(8, ConfigType.LIFT);
 
+  private DoubleSolenoid ratchet = new DoubleSolenoid(0, 0);
+
   private CANEncoder encoder = new CANEncoder(master);
 
   private DigitalInput botSwitch = new DigitalInput(0);
-  //private DigitalInput topSwitch = new DigitalInput(0);
+  private DigitalInput ratchetSwitch = new DigitalInput(0);
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
 
@@ -64,6 +67,10 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
     double volts = controller.calculate(encoder.getPosition(), rotations);
     volts += feedForward.calculate(controller.getGoal().velocity);
     setVolts(volts);
+  }
+
+  public void setRatchetEngaged(boolean engaged){
+    ratchet.set(engaged ? Value.kForward : Value.kReverse);
   }
 
   @Override

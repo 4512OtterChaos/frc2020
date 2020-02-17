@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.common.Constants.Intake.*;
+import static frc.robot.common.Constants.IntakeConstants.*;
 import static frc.robot.common.Constants.*;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;

@@ -20,7 +20,7 @@ import frc.robot.util.Pair;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Config;
 import io.github.oblarg.oblog.annotations.Log;
-import static frc.robot.common.Constants.Vision.*;
+import static frc.robot.common.Constants.VisionConstants.*;
 
 /**
  * Class for interfacing with a Limelight.
