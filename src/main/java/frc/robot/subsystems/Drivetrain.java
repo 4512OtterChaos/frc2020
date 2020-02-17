@@ -37,11 +37,11 @@ import io.github.oblarg.oblog.annotations.Log;
 public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     
     @Log(methodName = "getAppliedOutput")
-    private CANSparkMax leftMaster = OCConfig.createMAX(4, ConfigType.DRIVE), 
-    leftSlave = OCConfig.createMAX(5, ConfigType.DRIVE);
+    private CANSparkMax leftMaster;
+    private CANSparkMax leftSlave;
     @Log(methodName = "getAppliedOutput")
-    private CANSparkMax rightMaster = OCConfig.createMAX(1, ConfigType.DRIVE),
-    rightSlave = OCConfig.createMAX(2, ConfigType.DRIVE);
+    private CANSparkMax rightMaster;
+    private CANSparkMax rightSlave;
     
     private final CANSparkMax[] leftMotors = {leftMaster,leftSlave};
     private final CANSparkMax[] rightMotors = {rightMaster,rightSlave};
@@ -49,7 +49,7 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private CANEncoder leftEncoder;
     private CANEncoder rightEncoder;
 
-    private final PigeonIMU pigeon = new PigeonIMU(0);
+    private final PigeonIMU pigeon;
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
     private double[] xyz = new double[3]; // x, y, z degrees per second
 
@@ -66,6 +66,13 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     
     public Drivetrain() {
         super();
+
+        leftMaster = OCConfig.createMAX(4, ConfigType.DRIVE);
+        leftSlave = OCConfig.createMAX(5, ConfigType.DRIVE);
+        rightMaster = OCConfig.createMAX(1, ConfigType.DRIVE);
+        rightSlave = OCConfig.createMAX(2, ConfigType.DRIVE);
+
+        pigeon = new PigeonIMU(0);
 
         leftEncoder = leftMaster.getEncoder();
         rightEncoder = rightMaster.getEncoder();

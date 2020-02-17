@@ -7,23 +7,18 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.common.Constants.IntakeConstants.*;
 import static frc.robot.common.Constants.IntakeArmConstants.*;
 import static frc.robot.common.Constants.*;
 import frc.robot.common.OCConfig;
@@ -34,9 +29,9 @@ import io.github.oblarg.oblog.annotations.Log;
 
 public class Intake extends SubsystemBase implements Loggable, Testable{
 
-  private CANSparkMax arm = OCConfig.createMAX(9, ConfigType.INTAKEARM);
-  private WPI_TalonSRX roller = OCConfig.createSRX(10, ConfigType.INTAKE);
-  private WPI_TalonSRX fence = OCConfig.createSRX(13, ConfigType.INTAKE);
+  private CANSparkMax arm;
+  private WPI_TalonSRX roller;
+  private WPI_TalonSRX fence;
 
   private DoubleSolenoid slider = new DoubleSolenoid(0, 0);
   private boolean sliderExtended = false;
@@ -51,6 +46,12 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controller
   
   public Intake() {
+    super();
+    
+    arm = OCConfig.createMAX(9, ConfigType.INTAKEARM);
+    roller = OCConfig.createSRX(10, ConfigType.INTAKE);
+    fence = OCConfig.createSRX(13, ConfigType.INTAKE);
+
     roller.setInverted(false);
     fence.setInverted(false);
     arm.setInverted(true);

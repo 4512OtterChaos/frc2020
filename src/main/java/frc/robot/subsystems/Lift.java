@@ -29,9 +29,8 @@ import io.github.oblarg.oblog.annotations.Log;
 public class Lift extends SubsystemBase implements Loggable, Testable{
 
   @Log(methodName = "getAppliedOutput")
-  private CANSparkMax master = OCConfig.createMAX(7, ConfigType.LIFT);
-  @Log(methodName = "getAppliedOutput")
-  private CANSparkMax slave = OCConfig.createMAX(8, ConfigType.LIFT);
+  private CANSparkMax master;
+  private CANSparkMax slave;
 
   private DoubleSolenoid ratchet = new DoubleSolenoid(0, 0);
 
@@ -46,6 +45,11 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controller
   
   public Lift() {
+    super();
+    
+    master = OCConfig.createMAX(7, ConfigType.LIFT);
+    slave = OCConfig.createMAX(8, ConfigType.LIFT);
+    
     master.setInverted(false);
     OCConfig.setFollower(master, false, slave);
   }
