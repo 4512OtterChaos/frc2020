@@ -20,8 +20,8 @@ import io.github.oblarg.oblog.Loggable;
 
 public class Indexer extends SubsystemBase implements Loggable, Testable{
 
-  private CANSparkMax bot = OCConfig.createNEO(11, ConfigType.INDEXER);
-  private CANSparkMax top = OCConfig.createNEO(12, ConfigType.INDEXER);
+  private CANSparkMax bot = OCConfig.createMAX(11, ConfigType.INDEXER);
+  private CANSparkMax top = OCConfig.createMAX(12, ConfigType.INDEXER);
 
   private DigitalInput frontBeam = new DigitalInput(0);
   private TimeOfFlight shooterFlight = new TimeOfFlight(0);

@@ -9,6 +9,11 @@ package frc.robot.common;
 
 import static frc.robot.common.Constants.*;
 
+import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -20,10 +25,12 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
  */
 public class OCConfig {
     public enum ConfigType{
+        NONE(0,0,0),
         DRIVE(DrivetrainConstants.kStallLimit, DrivetrainConstants.kFreeLimit, DrivetrainConstants.kRampRaw),
         SHOOTER(ShooterConstants.kStallLimit, ShooterConstants.kFreeLimit, ShooterConstants.kRampRaw),
         SHOOTERWRIST(ShooterWristConstants.kStallLimit, ShooterWristConstants.kFreeLimit, ShooterWristConstants.kRampRaw),
         INTAKE(IntakeConstants.kStallLimit, IntakeConstants.kFreeLimit, IntakeConstants.kRampRaw),
+        INTAKEARM(IntakeArmConstants.kStallLimit, IntakeArmConstants.kFreeLimit, IntakeArmConstants.kRampRaw),
         INDEXER(IndexerConstants.kStallLimit, IndexerConstants.kFreeLimit, IndexerConstants.kRampRaw),
         LIFT(LiftConstants.kStallLimit, LiftConstants.kFreeLimit, LiftConstants.kRampRaw);
 
@@ -37,13 +44,13 @@ public class OCConfig {
         }
     }
 
-    public static CANSparkMax createNEO(int port){
-        CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
-        return motor;
-    }
-    public static CANSparkMax createNEO(int port, ConfigType type){
+    public static CANSparkMax createMAX(int port, ConfigType type){
         CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
         configMotors(type, motor);
+        return motor;
+    }
+    public static WPI_TalonSRX createSRX(int port, ConfigType type){
+        WPI_TalonSRX motor = new WPI_TalonSRX(port);
         return motor;
     }
 
@@ -70,7 +77,15 @@ public class OCConfig {
      * @param motors Array of motors
      */
     public static void configMotors(ConfigType type, CANSparkMax... motors){
-        configMotors(type.stallLimit, type.freeLimit, type.rampRate, motors);
+        if(type!=ConfigType.NONE) configMotors(type.stallLimit, type.freeLimit, type.rampRate, motors);
+    }
+    /**
+     * Configures each given motor according to {@link ConfigType}.
+     * <p>Does not invert nor set followers.
+     * @param motors Array of motors
+     */
+    public static void configMotors(ConfigType type, WPI_TalonSRX... motors){
+        if(type!=ConfigType.NONE) configMotors(type.stallLimit, type.freeLimit, type.rampRate, motors);
     }
     /**
      * Configures each given motor with given settings.
@@ -97,6 +112,29 @@ public class OCConfig {
         saveConfig(motors);
     }
     /**
+     * Configures each given motor with given settings.
+     * <p>Does not invert nor set followers.
+     * @param motors Array of motors
+     */
+    public static void configMotors(int stallLimit, int freeLimit, double rampRate, WPI_TalonSRX... motors){
+        for(WPI_TalonSRX motor : motors){
+            // Make sure motor config is clean
+            motor.configFactoryDefault();
+
+            // Ramp motors
+            motor.configOpenloopRamp(rampRate);
+            motor.configClosedloopRamp(rampRate);
+
+            // Current limits (don't kill the motors)
+            motor.configContinuousCurrentLimit(freeLimit);
+            motor.configPeakCurrentLimit(stallLimit);
+            motor.configPeakCurrentDuration(100);
+            motor.enableCurrentLimit(true);
+
+            //motor.setStatusFramePeriod(StatusFrame.Status_1_General, 10);
+        }
+    }
+    /**
      * Burns configuration to flash on given motors.
      */
     public static void saveConfig(CANSparkMax... motors){
@@ -113,12 +151,28 @@ public class OCConfig {
     public static void setIdleMode(IdleMode mode, CANSparkMax... motors){
         for(CANSparkMax motor : motors) motor.setIdleMode(mode);
     }
+    /**
+     * Sets idle mode of given motors.
+     * @param mode IdleMode (Brake or Coast)
+     * @param motors Motors to set
+     */
+    public static void setIdleMode(NeutralMode mode, WPI_TalonSRX... motors){
+        for(WPI_TalonSRX motor : motors) motor.setNeutralMode(mode);
+    }
     public static void setFollower(CANSparkMax master, boolean inverted, CANSparkMax... followers){
         for(CANSparkMax motor : followers){
             motor.follow(master, inverted);
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
+        }
+    }
+    public static void setFollower(WPI_TalonSRX master, boolean inverted, WPI_TalonSRX... followers){
+        for(WPI_TalonSRX motor : followers){
+            motor.follow(master);
+            motor.setInverted(inverted ? InvertType.OpposeMaster : InvertType.FollowMaster);
+            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
         }
     }
 

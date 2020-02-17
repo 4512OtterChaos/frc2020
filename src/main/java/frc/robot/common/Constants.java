@@ -28,8 +28,8 @@ public class Constants {
         
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
-        public static final int kStallLimit = 75;
         public static final int kFreeLimit = 40;
+        public static final int kStallLimit = 75;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
         
@@ -43,10 +43,10 @@ public class Constants {
     }
 
     public static class ShooterConstants{
-        public static final int kStallLimit = 80;
         public static final int kFreeLimit = 40;
+        public static final int kStallLimit = 80;
 
-        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.04; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
         public static final double kVelocityFF = 0; // per meters per second
@@ -57,7 +57,7 @@ public class Constants {
         public static final double kD = 0;
     }
     public static class ShooterWristConstants{
-        public static final int kFreeLimit = 27;
+        public static final int kFreeLimit = 25;
         public static final int kStallLimit = 30;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
@@ -72,8 +72,14 @@ public class Constants {
     }
 
     public static class IntakeConstants{
-        public static final int kFreeLimit = 27;
-        public static final int kStallLimit = 35;
+        public static final int kFreeLimit = 22;
+        public static final int kStallLimit = 27;
+
+        public static final double kRampRaw = 0.5; // seconds to full output(on the motor)
+    }
+    public static class IntakeArmConstants{
+        public static final int kFreeLimit = 25;
+        public static final int kStallLimit = 32;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
@@ -92,8 +98,8 @@ public class Constants {
     }
 
     public static class IndexerConstants{
-        public static final int kFreeLimit = 27;
-        public static final int kStallLimit = 35;
+        public static final int kFreeLimit = 22;
+        public static final int kStallLimit = 27;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
@@ -109,12 +115,14 @@ public class Constants {
     public static class LiftConstants{
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
-        public static final int kFreeLimit = 30;
+        public static final int kFreeLimit = 27;
         public static final int kStallLimit = 35;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
+        public static final double kLiftWeightCounter = 0;
+        public static final double kRobotWeightCounterFF = 0;
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 

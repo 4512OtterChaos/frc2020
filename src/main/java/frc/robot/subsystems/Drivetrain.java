@@ -37,11 +37,11 @@ import io.github.oblarg.oblog.annotations.Log;
 public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     
     @Log(methodName = "getAppliedOutput")
-    private CANSparkMax leftMaster = OCConfig.createNEO(4, ConfigType.DRIVE), 
-    leftSlave = OCConfig.createNEO(5, ConfigType.DRIVE);
+    private CANSparkMax leftMaster = OCConfig.createMAX(4, ConfigType.DRIVE), 
+    leftSlave = OCConfig.createMAX(5, ConfigType.DRIVE);
     @Log(methodName = "getAppliedOutput")
-    private CANSparkMax rightMaster = OCConfig.createNEO(1, ConfigType.DRIVE),
-    rightSlave = OCConfig.createNEO(2, ConfigType.DRIVE);
+    private CANSparkMax rightMaster = OCConfig.createMAX(1, ConfigType.DRIVE),
+    rightSlave = OCConfig.createMAX(2, ConfigType.DRIVE);
     
     private final CANSparkMax[] leftMotors = {leftMaster,leftSlave};
     private final CANSparkMax[] rightMotors = {rightMaster,rightSlave};

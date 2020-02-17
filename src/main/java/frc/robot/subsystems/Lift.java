@@ -22,15 +22,16 @@ import static frc.robot.common.Constants.LiftConstants.*;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
+import frc.robot.util.MathHelp;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
 public class Lift extends SubsystemBase implements Loggable, Testable{
 
   @Log(methodName = "getAppliedOutput")
-  private CANSparkMax master = OCConfig.createNEO(7, ConfigType.LIFT);
+  private CANSparkMax master = OCConfig.createMAX(7, ConfigType.LIFT);
   @Log(methodName = "getAppliedOutput")
-  private CANSparkMax slave = OCConfig.createNEO(8, ConfigType.LIFT);
+  private CANSparkMax slave = OCConfig.createMAX(8, ConfigType.LIFT);
 
   private DoubleSolenoid ratchet = new DoubleSolenoid(0, 0);
 
@@ -45,6 +46,7 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controller
   
   public Lift() {
+    master.setInverted(false);
     OCConfig.setFollower(master, false, slave);
   }
 
@@ -56,6 +58,8 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   public void setVolts(double volts){
     if(botSwitch.get()) volts = Math.max(0,volts);
     if(encoder.getPosition()>=kMaxHeightRotations) volts = Math.min(0,volts);
+    if(ratchet.get()==Value.kForward) volts = MathHelp.clamp(volts, -1, 0);
+    if(!ratchetSwitch.get()) volts = 0;
     master.setVoltage(volts);
   }
 

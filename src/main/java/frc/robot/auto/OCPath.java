@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static frc.robot.common.Constants.Autonomous.*;
+import static frc.robot.common.Constants.AutonomousConstants.*;
 
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
