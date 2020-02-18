@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
 import frc.robot.common.Limelight;
-import frc.robot.common.OCController;
+import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
 import io.github.oblarg.oblog.Logger;
@@ -34,8 +34,8 @@ public class RobotContainer {
 
   private Testable[] testableSystems;
   
-  private OCController driver = new OCController(0);
-  private OCController operator;
+  private OCXboxController driver = new OCXboxController(0);
+  private OCXboxController operator;
   
   private AddressableLED led;
   private AddressableLEDBuffer ledBuffer;
@@ -56,7 +56,7 @@ public class RobotContainer {
     autoOptions = new AutoOptions(drivetrain, intake, indexer);
     autoOptions.submit();
 
-    if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCController(1);
+    if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCXboxController(1);
     configureButtonBindings();
   }
   

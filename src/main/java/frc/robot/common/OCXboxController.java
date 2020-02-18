@@ -14,7 +14,7 @@ import frc.robot.util.MathHelp;
 /**
  * Custom {@link XboxController} wrapper to add convenience features for driving.
  */
-public class OCController extends XboxController{
+public class OCXboxController extends XboxController{
 
     private static final double deadband = 0.12;
     private static final double rateLimit = 5;
@@ -23,9 +23,9 @@ public class OCController extends XboxController{
     private SlewRateLimiter turnLimiter = new SlewRateLimiter(rateLimit);
 
     /**
-     * Constructs OCController on DS joystick port.
+     * Constructs XboxController on DS joystick port.
      */
-    public OCController(int port){
+    public OCXboxController(int port){
         super(port);
     }
 

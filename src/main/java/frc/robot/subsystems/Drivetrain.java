@@ -178,6 +178,13 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
 
     //----- Informational methods
 
+    public PIDController getLeftPIDController(){
+        return leftController;
+    }
+    public PIDController getRightPIDController(){
+        return rightController;
+    }
+
     /**
      * @return DifferentialDriveWheelSpeeds object in meters per second
      */
