@@ -24,15 +24,15 @@ import io.github.oblarg.oblog.Logger;
 
 public class RobotContainer {
   
-  private final Drivetrain drivetrain;
-  private final Intake intake;
-  private final Indexer indexer;
-  private final Lift lift;
-  private final Limelight limelight;
+  private Drivetrain drivetrain;
+  private Intake intake;
+  private Indexer indexer;
+  private Lift lift;
+  private Limelight limelight;
 
-  private final Paths paths;
+  private Paths paths;
 
-  private final Testable[] testableSystems;
+  private Testable[] testableSystems;
   
   private OCController driver = new OCController(0);
   private OCController operator;
@@ -67,13 +67,12 @@ public class RobotContainer {
     return autoOptions.getSelected();
   }
   
-  public void setDriveCoast(boolean is){
-    if(is) drivetrain.setIdleMode(IdleMode.kCoast);
-    else drivetrain.setIdleMode(IdleMode.kBrake);
+  public void setDriveBrake(boolean is){
+    drivetrain.setBrakeOn(is);
   }
   public void disable(){
     drivetrain.tankDrive(0, 0);
-    setDriveCoast(true);
+    setDriveBrake(false);
   }
 
   public void log(){

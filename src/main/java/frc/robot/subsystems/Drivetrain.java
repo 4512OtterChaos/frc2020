@@ -91,7 +91,8 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
         driveSpeed = speed;
     }
 
-    public void setIdleMode(IdleMode mode){
+    public void setBrakeOn(boolean is){
+        IdleMode mode = is ? IdleMode.kBrake : IdleMode.kCoast;
         OCConfig.setIdleMode(mode, leftMotors);
         OCConfig.setIdleMode(mode, rightMotors);
     }

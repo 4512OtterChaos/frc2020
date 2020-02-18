@@ -92,7 +92,10 @@ public class Constants {
         public static final double kD = 0;
 
         // Constraints
-        public static final int kMaxForwardRotations = 120; // Max motor rotations
+        public static final double kLowerSafeRotations = 0.075; // below is safe
+        public static final double kHigherSafeRotations = 0.175; // above is safe
+        public static final double kBufferRotations = 0.015; // amount to clear "safe" bounds by
+        public static final double kMaxUpwardRotations = 0.245; // 90 degrees up
         public static final int kVelocityConstraint = 9000; // Motor RPM
         public static final int kAccelerationConstraint = 15000; // Motor RPM per second
     }

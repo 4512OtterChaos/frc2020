@@ -54,6 +54,13 @@ public final class MathHelp {
       return (value >= average ? high : low);
     }
 
+    public static boolean isBetweenBounds(double value, double low, double high){
+      return (value >= low && value <= high);
+    }
+    public static boolean isBetweenBounds(int value, int low, int high){
+      return (value >= low && value <= high);
+    }
+
     /**
      * Linearly interpolates between a and b by percent amount.
      * @param percent (0-1): 0 = a, 1 = b

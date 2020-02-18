@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import com.playingwithfusion.TimeOfFlight;
 import com.playingwithfusion.TimeOfFlight.RangingMode;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,6 +34,9 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
     
     bot = OCConfig.createMAX(11, ConfigType.INDEXER);
     top = OCConfig.createMAX(12, ConfigType.INDEXER);
+
+    setBrakeOn(true);
+    
     shooterFlight = new TimeOfFlight(0);
     shooterFlight.setRangingMode(RangingMode.Short, 24);
   }
@@ -64,6 +68,12 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
     setTopVolts(topVolts);
     setBotVolts(botVolts);
   }
+
+  public void setBrakeOn(boolean is){
+    IdleMode mode = is ? IdleMode.kBrake : IdleMode.kCoast;
+    OCConfig.setIdleMode(mode, bot);
+    OCConfig.setIdleMode(mode, top);
+}
 
   @Override
   public TestableResult test(){

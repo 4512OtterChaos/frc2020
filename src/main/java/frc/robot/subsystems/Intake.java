@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -24,6 +25,7 @@ import static frc.robot.common.Constants.*;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
+import frc.robot.util.MathHelp;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -38,6 +40,11 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private boolean lastSliderExtended = false;
   private Timer sliderDebounce = new Timer();
 
+  private boolean armDownMaxed = false;
+  private boolean armUpMaxed = false;
+  private final double armUpperBuffer = 0; // use these to avoid hitting slider
+  private final double armLowerBuffer = 0;
+
   private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
@@ -51,6 +58,10 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     arm = OCConfig.createMAX(9, ConfigType.INTAKEARM);
     roller = OCConfig.createSRX(10, ConfigType.INTAKE);
     fence = OCConfig.createSRX(13, ConfigType.INTAKE);
+
+    setArmBrakeMode(true);
+    setFenceBrakeMode(true);
+    setRollerBrakeMode(true);
 
     roller.setInverted(false);
     fence.setInverted(false);
@@ -80,10 +91,24 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   }
 
   public void setArmVolts(double volts){
-    if(encoder.get()<=0) volts = Math.max(0, volts);
-    if(encoder.get()+kMaxForwardRotations>=0) volts = Math.min(0,volts);
+    double lowLimit = volts;
+    double highLimit = volts;
 
+    // arm safety
+    double enc = encoder.get();
+    if(MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0;
+    if(MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
+    if(enc<=0) lowLimit=0;
+    if(enc>=kMaxUpwardRotations) highLimit=0;
+
+    volts = MathHelp.clamp(volts, lowLimit, highLimit);
     arm.setVoltage(volts);
+  }
+  public void setRollerVolts(double volts){
+    roller.setVoltage(volts);
+  }
+  public void setFenceVolts(double volts){
+    fence.setVoltage(volts);
   }
   /**
    * Sets the controller goal.
@@ -92,19 +117,15 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   public void setArmPID(double rotations){
     double volts = controller.calculate(encoder.get(), rotations);
     volts += feedForward.calculate(controller.getGoal().velocity);
+    
     setArmVolts(volts);
   }
 
-  public void setRollerVolts(double volts){
-    roller.setVoltage(volts);
-  }
-
-  public void setFenceVolts(double volts){
-    fence.setVoltage(volts);
-  }
-
   public void setRollerBrakeMode(boolean is){
-
+    roller.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
+  }
+  public void setFenceBrakeMode(boolean is){
+    fence.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
   }
   public void setArmBrakeMode(boolean is){
     arm.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
