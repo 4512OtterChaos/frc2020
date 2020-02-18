@@ -40,11 +40,6 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private boolean lastSliderExtended = false;
   private Timer sliderDebounce = new Timer();
 
-  private boolean armDownMaxed = false;
-  private boolean armUpMaxed = false;
-  private final double armUpperBuffer = 0; // use these to avoid hitting slider
-  private final double armLowerBuffer = 0;
-
   private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
@@ -90,14 +85,21 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     return sliderExtended;
   }
 
+  public void setSliderExtended(boolean is){
+    boolean conflicts = MathHelp.isBetweenBounds(encoder.get(), kLowerSafeRotations, kHigherSafeRotations);
+    if(is && !conflicts) slider.set(Value.kReverse);
+    else slider.set(Value.kForward);
+  }
+
   public void setArmVolts(double volts){
     double lowLimit = volts;
     double highLimit = volts;
 
     // arm safety
     double enc = encoder.get();
-    if(MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0;
-    if(MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
+    boolean ext = getSliderExtended();
+    if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0; // just in case, anti-collide on slider
+    if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
     if(enc<=0) lowLimit=0;
     if(enc>=kMaxUpwardRotations) highLimit=0;
 
@@ -111,10 +113,24 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     fence.setVoltage(volts);
   }
   /**
-   * Sets the controller goal.
+   * Sets the controller goal. Automatically adjusts goal to avoid conflicting with the slider.
    * @param rotations Motor rotations setpoint
    */
   public void setArmPID(double rotations){
+    // adjust goal to avoid obliterating slider
+    if(getSliderExtended()){
+      boolean constrainUpper; // false: limit lower, true: limit higher
+      if(MathHelp.isBetweenBounds(rotations, 0, kLowerSafeRotations)) constrainUpper=false;
+      else if(MathHelp.isBetweenBounds(rotations, kHigherSafeRotations, kMaxUpwardRotations)) constrainUpper=true;
+      else{
+        double mid = (kHigherSafeRotations-kLowerSafeRotations)/2.0;
+        constrainUpper = !(rotations<=mid); // in case we extend slider while arm is conflicting
+      }
+
+      if(constrainUpper) rotations = MathHelp.clamp(rotations, kHigherSafeRotations+kBufferRotations, kMaxUpwardRotations-kBufferRotations);
+      else rotations = MathHelp.clamp(rotations, 0, kLowerSafeRotations-kBufferRotations);
+    }
+
     double volts = controller.calculate(encoder.get(), rotations);
     volts += feedForward.calculate(controller.getGoal().velocity);
     
