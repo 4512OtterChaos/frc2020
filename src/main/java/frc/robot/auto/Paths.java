@@ -91,8 +91,8 @@ public class Paths {
      */
     public static void logTrajectory(Trajectory trajectory, double timeSeconds){
         Pose2d currPose = trajectory.sample(timeSeconds).poseMeters; // current pose
-        liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX())+5);
-        liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY())+13);
+        liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX()));
+        liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY()));
         liveTable.getEntry("isFollowingPath").setBoolean(timeSeconds <= trajectory.getTotalTimeSeconds());
     }
 }
