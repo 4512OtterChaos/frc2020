@@ -32,23 +32,30 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   private CANSparkMax master;
   private CANSparkMax slave;
 
-  private DoubleSolenoid ratchet = new DoubleSolenoid(0, 0);
+  private DoubleSolenoid ratchet;
 
-  private CANEncoder encoder = new CANEncoder(master);
+  private CANEncoder encoder;
 
-  private DigitalInput botSwitch = new DigitalInput(0);
-  private DigitalInput ratchetSwitch = new DigitalInput(0);
+  private DigitalInput botSwitch;
+  private DigitalInput ratchetSwitch;
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
 
   @Log
-  private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controller
+  private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
   
   public Lift() {
     super();
     
     master = OCConfig.createMAX(8, ConfigType.LIFT);
     slave = OCConfig.createMAX(9, ConfigType.LIFT);
+
+    ratchet = new DoubleSolenoid(0, 0);
+
+    encoder = new CANEncoder(master);
+
+    botSwitch = new DigitalInput(0);
+    ratchetSwitch = new DigitalInput(0);
     
     master.setInverted(false);
     OCConfig.setFollower(master, false, slave);

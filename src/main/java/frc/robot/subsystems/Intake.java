@@ -35,17 +35,17 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private WPI_TalonSRX roller;
   private WPI_TalonSRX fence;
 
-  private DoubleSolenoid slider = new DoubleSolenoid(0, 0);
+  private DoubleSolenoid slider;
   private boolean sliderExtended = false;
   private boolean lastSliderExtended = false;
   private Timer sliderDebounce = new Timer();
 
-  private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
+  private DutyCycleEncoder encoder;
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
 
   @Log
-  private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Velocity PID controller
+  private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
   
   public Intake() {
     super();
@@ -53,6 +53,10 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     arm = OCConfig.createMAX(10, ConfigType.INTAKEARM);
     roller = OCConfig.createSRX(11, ConfigType.INTAKE);
     fence = OCConfig.createSRX(12, ConfigType.INTAKE);
+
+    slider = new DoubleSolenoid(0, 0);
+
+    encoder = new DutyCycleEncoder(0);
 
     setArmBrakeMode(true);
     setFenceBrakeMode(true);

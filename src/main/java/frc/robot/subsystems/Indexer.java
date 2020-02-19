@@ -24,7 +24,7 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
   private CANSparkMax bot;
   private CANSparkMax top;
 
-  private DigitalInput frontBeam = new DigitalInput(0);
+  private DigitalInput frontBeam;
   private TimeOfFlight shooterFlight;
   private final double flightDefaultDistanceMM = 100;
   private final double flightDefaultErrorMM = 10;
@@ -34,6 +34,8 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
     
     bot = OCConfig.createMAX(13, ConfigType.INDEXER);
     top = OCConfig.createMAX(14, ConfigType.INDEXER);
+
+    frontBeam = new DigitalInput(0);
 
     setBrakeOn(true);
     
