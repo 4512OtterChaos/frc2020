@@ -47,8 +47,8 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   public Lift() {
     super();
     
-    master = OCConfig.createMAX(7, ConfigType.LIFT);
-    slave = OCConfig.createMAX(8, ConfigType.LIFT);
+    master = OCConfig.createMAX(8, ConfigType.LIFT);
+    slave = OCConfig.createMAX(9, ConfigType.LIFT);
     
     master.setInverted(false);
     OCConfig.setFollower(master, false, slave);

@@ -50,9 +50,9 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   public Intake() {
     super();
     
-    arm = OCConfig.createMAX(9, ConfigType.INTAKEARM);
-    roller = OCConfig.createSRX(10, ConfigType.INTAKE);
-    fence = OCConfig.createSRX(13, ConfigType.INTAKE);
+    arm = OCConfig.createMAX(10, ConfigType.INTAKEARM);
+    roller = OCConfig.createSRX(11, ConfigType.INTAKE);
+    fence = OCConfig.createSRX(12, ConfigType.INTAKE);
 
     setArmBrakeMode(true);
     setFenceBrakeMode(true);

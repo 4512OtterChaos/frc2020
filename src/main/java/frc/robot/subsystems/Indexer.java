@@ -32,8 +32,8 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
   public Indexer() {
     super();
     
-    bot = OCConfig.createMAX(11, ConfigType.INDEXER);
-    top = OCConfig.createMAX(12, ConfigType.INDEXER);
+    bot = OCConfig.createMAX(13, ConfigType.INDEXER);
+    top = OCConfig.createMAX(14, ConfigType.INDEXER);
 
     setBrakeOn(true);
     
