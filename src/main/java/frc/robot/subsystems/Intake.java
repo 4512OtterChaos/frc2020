@@ -36,6 +36,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private WPI_TalonSRX fence;
 
   private DoubleSolenoid slider;
+  private boolean sliderWantsExtended = false;
   private boolean sliderExtended = false;
   private boolean lastSliderExtended = false;
   private Timer sliderDebounce = new Timer();
@@ -69,6 +70,14 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
 
   @Override
   public void periodic() {
+
+    // Block the slider if it wants to extend while the arm is in the way
+    boolean conflicts = MathHelp.isBetweenBounds(encoder.get(), kLowerSafeRotations, kHigherSafeRotations);
+    if(sliderWantsExtended){
+      if(conflicts) slider.set(Value.kReverse);
+      else slider.set(Value.kForward);
+    }
+
     // Delay the result of the slider if its retracting for safety
     boolean nowSliderExtended = slider.get()==Value.kForward;
     if(nowSliderExtended){
@@ -90,9 +99,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   }
 
   public void setSliderExtended(boolean is){
-    boolean conflicts = MathHelp.isBetweenBounds(encoder.get(), kLowerSafeRotations, kHigherSafeRotations);
-    if(is && !conflicts) slider.set(Value.kReverse);
-    else slider.set(Value.kForward);
+    sliderWantsExtended = is;
   }
 
   public void setArmVolts(double volts){
