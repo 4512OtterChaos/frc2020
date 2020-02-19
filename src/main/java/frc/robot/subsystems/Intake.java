@@ -59,10 +59,6 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
 
     encoder = new DutyCycleEncoder(0);
 
-    setArmBrakeMode(true);
-    setFenceBrakeMode(true);
-    setRollerBrakeMode(true);
-
     roller.setInverted(false);
     fence.setInverted(false);
     arm.setInverted(true);
@@ -148,13 +144,13 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     setArmVolts(volts);
   }
 
-  public void setRollerBrakeMode(boolean is){
+  public void setRollerBrakeOn(boolean is){
     roller.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
   }
-  public void setFenceBrakeMode(boolean is){
+  public void setFenceBrakeOn(boolean is){
     fence.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
   }
-  public void setArmBrakeMode(boolean is){
+  public void setArmBrakeOn(boolean is){
     arm.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
   }
 

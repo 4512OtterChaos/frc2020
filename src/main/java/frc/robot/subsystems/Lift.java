@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -86,6 +87,11 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
 
   public void setRatchetEngaged(boolean engaged){
     ratchet.set(engaged ? Value.kForward : Value.kReverse);
+  }
+
+  public void setBrakeOn(boolean is){
+    master.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+    slave.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
   }
 
   @Override
