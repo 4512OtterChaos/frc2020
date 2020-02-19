@@ -71,13 +71,16 @@ public class Constants {
         public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
+
+        public static final int kVelocityConstraint = 7000; // Motor RPM
+        public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }
 
     public static class IntakeConstants{
         public static final int kFreeLimit = 22;
         public static final int kStallLimit = 27;
 
-        public static final double kRampRaw = 0.5; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.4; // seconds to full output(on the motor)
     }
     public static class IntakeArmConstants{
         public static final int kFreeLimit = 25;
@@ -98,8 +101,8 @@ public class Constants {
         public static final double kHigherSafeRotations = 0.175; // above is safe
         public static final double kBufferRotations = 0.015; // amount to clear "safe" bounds by
         public static final double kMaxUpwardRotations = 0.245; // 90 degrees up
-        public static final int kVelocityConstraint = 9000; // Motor RPM
-        public static final int kAccelerationConstraint = 15000; // Motor RPM per second
+        public static final int kVelocityConstraint = 7000; // Motor RPM
+        public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }
 
     public static class IndexerConstants{
