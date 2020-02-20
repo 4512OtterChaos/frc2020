@@ -67,12 +67,10 @@ public class RobotContainer {
     return autoOptions.getSelected();
   }
   
-  public void setDriveBrake(boolean is){
-    drivetrain.setBrakeOn(is);
-  }
   public void disable(){
     drivetrain.tankDrive(0, 0);
-    setDriveBrake(false);
+    drivetrain.setBrakeOn(false);
+    lift.setBrakeOn(false);
   }
 
   public void log(){

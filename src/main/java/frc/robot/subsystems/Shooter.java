@@ -23,6 +23,7 @@ import static frc.robot.common.Constants.*;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
+import frc.robot.util.MathHelp;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -30,7 +31,9 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
 
   @Log(methodName = "getAppliedOutput")
   private CANSparkMax shootMaster;
+  @Log(methodName = "getAppliedOutput")
   private CANSparkMax shootSlave;
+  @Log(methodName = "getAppliedOutput")
   private CANSparkMax wrist;
 
   private CANEncoder shootEncoder;
@@ -79,6 +82,12 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
 
   public void setShooterPID(double rpm){
     shootController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
+  }
+  public void setWristPID(double rotations){
+    rotations = MathHelp.clamp(rotations, ShooterWristConstants.kLowerSafeRotations, ShooterWristConstants.kHigherSafeRotations);
+    double volts = wristController.calculate(wristEncoder.get(), rotations);
+    volts += wristFF.calculate(wristController.getGoal().velocity);
+    setWristVolts(volts);
   }
 
   public void setShooterBrakeOn(boolean is){

@@ -74,6 +74,13 @@ public class Constants {
 
         public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
+
+        public static final double kEncoderOffset = 0; // Add this to encoder value to make "0" flat
+
+        // Constraints
+        public static final double kLowerSafeRotations = 0.075; // below is safe
+        public static final double kHigherSafeRotations = 0.175; // above is safe
+        public static final double kBufferRotations = 0.015; // amount to clear "safe" bounds by
     }
 
     public static class IntakeConstants{
@@ -95,6 +102,8 @@ public class Constants {
         public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
+
+        public static final double kEncoderOffset = 0; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kLowerSafeRotations = 0.075; // below is safe

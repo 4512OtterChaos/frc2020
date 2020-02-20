@@ -101,7 +101,6 @@ public class OCConfig {
             motor.setOpenLoopRampRate(rampRate);
             motor.setClosedLoopRampRate(rampRate);
 
-            // Enable voltage compensation
             motor.enableVoltageCompensation(12);
 
             // Current limits (don't kill the motors)
