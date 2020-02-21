@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -69,6 +70,16 @@ public class AutoOptions {
         stage2Options.setDefaultOption(name, command);
         stage3Options.setDefaultOption(name, command);
         stage4Options.setDefaultOption(name, command);
+    }
+
+    private Command constructAbandonableAuto(Command autoCommand, StandardRamseteCommand... trajectories){
+        return autoCommand.withInterrupt(()->{
+            boolean failed = false;
+            for(StandardRamseteCommand traj : trajectories){
+                if(traj.getFailedTrajectory()) failed = true;
+            }
+            return failed;
+        });
     }
 
     /**
