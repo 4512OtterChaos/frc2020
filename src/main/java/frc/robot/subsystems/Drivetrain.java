@@ -70,8 +70,6 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private double driveSpeed = 0.3;
     
     public Drivetrain() {
-        super();
-
         leftMaster = OCConfig.createMAX(3, ConfigType.DRIVE);
         leftSlave = OCConfig.createMAX(4, ConfigType.DRIVE);
         rightMaster = OCConfig.createMAX(1, ConfigType.DRIVE);

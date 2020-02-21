@@ -30,8 +30,6 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
   private final double flightDefaultErrorMM = 10;
   
   public Indexer() {
-    super();
-    
     bot = OCConfig.createMAX(13, ConfigType.INDEXER);
     top = OCConfig.createMAX(14, ConfigType.INDEXER);
 

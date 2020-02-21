@@ -34,7 +34,6 @@ import io.github.oblarg.oblog.annotations.Log;
 public class Shooter extends SubsystemBase implements Loggable, Testable{
 
     TreeMap<Double, ShooterState> shooterMap = new TreeMap<Double, ShooterState>();
-
     
     @Log(methodName = "getAppliedOutput")
     private CANSparkMax shootLeft;
@@ -59,10 +58,7 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
     new ProfiledPIDController(ShooterWristConstants.kP, ShooterWristConstants.kI, ShooterWristConstants.kD,
     new Constraints(ShooterWristConstants.kVelocityConstraint, ShooterWristConstants.kAccelerationConstraint), kRobotDelta); // Positional PID controller
     
-    
     public Shooter() {
-        super();
-
         shooterMap.put(120.0, new ShooterState(30, 4000));
         
         shootLeft = OCConfig.createMAX(5, ConfigType.SHOOTER);

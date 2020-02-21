@@ -50,8 +50,6 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
   
   public Intake() {
-    super();
-    
     arm = OCConfig.createMAX(10, ConfigType.INTAKEARM);
     roller = OCConfig.createSRX(11, ConfigType.INTAKE);
     fence = OCConfig.createSRX(12, ConfigType.INTAKE);

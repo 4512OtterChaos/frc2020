@@ -47,8 +47,6 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
   
   public Lift() {
-    super();
-    
     master = OCConfig.createMAX(8, ConfigType.LIFT);
     slave = OCConfig.createMAX(9, ConfigType.LIFT);
 
