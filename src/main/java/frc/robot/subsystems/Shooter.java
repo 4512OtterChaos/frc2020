@@ -30,19 +30,21 @@ import io.github.oblarg.oblog.annotations.Log;
 public class Shooter extends SubsystemBase implements Loggable, Testable{
 
   @Log(methodName = "getAppliedOutput")
-  private CANSparkMax shootMaster;
+  private CANSparkMax shootLeft;
   @Log(methodName = "getAppliedOutput")
-  private CANSparkMax shootSlave;
+  private CANSparkMax shootRight;
   @Log(methodName = "getAppliedOutput")
   private CANSparkMax wrist;
 
-  private CANEncoder shootEncoder;
+  private CANEncoder leftEncoder;
+  private CANEncoder rightEncoder;
   private DutyCycleEncoder wristEncoder;
 
   private SimpleMotorFeedforward shootFF = new SimpleMotorFeedforward(ShooterConstants.kStaticFF, ShooterConstants.kVelocityFF, ShooterConstants.kAccelerationFF);
   private SimpleMotorFeedforward wristFF = new SimpleMotorFeedforward(ShooterWristConstants.kStaticFF, ShooterWristConstants.kVelocityFF, ShooterWristConstants.kAccelerationFF);
 
-  private CANPIDController shootController;
+  private CANPIDController leftController;
+  private CANPIDController rightController;
   @Log
   private ProfiledPIDController wristController =
     new ProfiledPIDController(ShooterWristConstants.kP, ShooterWristConstants.kI, ShooterWristConstants.kD,
@@ -52,21 +54,26 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
   public Shooter() {
     super();
 
-    shootMaster = OCConfig.createMAX(5, ConfigType.SHOOTER);
-    shootSlave = OCConfig.createMAX(6, ConfigType.SHOOTER);
+    shootLeft = OCConfig.createMAX(5, ConfigType.SHOOTER);
+    shootRight = OCConfig.createMAX(6, ConfigType.SHOOTER);
     wrist = OCConfig.createMAX(7, ConfigType.SHOOTERWRIST);
 
-    shootEncoder = new CANEncoder(shootMaster);
+    leftEncoder = new CANEncoder(shootLeft);
+    rightEncoder = new CANEncoder(shootRight);
     wristEncoder = new DutyCycleEncoder(0);
 
-    shootController = new CANPIDController(shootMaster);
-    shootController.setP(ShooterConstants.kP);
-    shootController.setI(ShooterConstants.kI);
-    shootController.setD(ShooterConstants.kD);
+    leftController = new CANPIDController(shootLeft);
+    rightController = new CANPIDController(shootRight);
+    leftController.setP(ShooterConstants.kP);
+    leftController.setI(ShooterConstants.kI);
+    leftController.setD(ShooterConstants.kD);
+    rightController.setP(ShooterConstants.kP);
+    rightController.setI(ShooterConstants.kI);
+    rightController.setD(ShooterConstants.kD);
 
-    shootMaster.setInverted(false);
+    shootLeft.setInverted(false);
+    shootRight.setInverted(true);
     wrist.setInverted(false);
-    OCConfig.setFollower(shootMaster, true, shootSlave);
   }
 
   @Override
@@ -74,14 +81,15 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
   }
 
   public void setShooterVolts(double volts){
-    shootMaster.setVoltage(volts);
+    shootLeft.setVoltage(volts);
+    shootRight.setVoltage(volts);
   }
   public void setWristVolts(double volts){
     wrist.setVoltage(volts);
   }
 
   public void setShooterPID(double rpm){
-    shootController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
+    leftController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
   }
   public void setWristPID(double rotations){
     rotations = MathHelp.clamp(rotations, ShooterWristConstants.kLowerSafeRotations, ShooterWristConstants.kHigherSafeRotations);
@@ -91,8 +99,8 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
   }
 
   public void setShooterBrakeOn(boolean is){
-    shootMaster.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
-    shootSlave.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+    shootLeft.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+    shootRight.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
   }
   public void setWristBrakeOn(boolean is){
     wrist.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
