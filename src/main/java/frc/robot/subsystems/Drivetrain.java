@@ -46,7 +46,9 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private final CANSparkMax[] leftMotors = {leftMaster,leftSlave};
     private final CANSparkMax[] rightMotors = {rightMaster,rightSlave};
     
+    @Log(methodName = "getVelocity")
     private CANEncoder leftEncoder;
+    @Log(methodName = "getVelocity")
     private CANEncoder rightEncoder;
 
     private final PigeonIMU pigeon;
@@ -62,7 +64,7 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     @Log
     private PIDController rightController = new PIDController(kP, kI, kD, kRobotDelta);
 
-    private double driveSpeed = 0.5;
+    private double driveSpeed = 0.3;
     
     public Drivetrain() {
         super();

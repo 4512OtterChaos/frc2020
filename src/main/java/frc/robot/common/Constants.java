@@ -78,8 +78,9 @@ public class Constants {
         public static final double kEncoderOffset = 0; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeRotations = 0.075; // below is safe
-        public static final double kHigherSafeRotations = 0.175; // above is safe
+        public static final double kMinDownwardRotations = 0.04;
+        public static final double kLowerSafeRotations = 0.075; // above is safe
+        public static final double kHigherSafeRotations = 0.175; // below is safe
         public static final double kBufferRotations = 0.015; // amount to clear "safe" bounds by
     }
 

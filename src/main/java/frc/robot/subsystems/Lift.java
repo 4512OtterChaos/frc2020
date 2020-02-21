@@ -35,6 +35,7 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
 
   private DoubleSolenoid ratchet;
 
+  @Log(methodName = "getPosition")
   private CANEncoder encoder;
 
   private DigitalInput botSwitch;
@@ -65,6 +66,14 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   @Override
   public void periodic() {
     if(botSwitch.get()) encoder.setPosition(0);
+  }
+
+  @Log
+  public boolean getBotSwitch(){
+      return botSwitch.get();
+  }
+  public boolean getRatchetSwitch(){
+      return ratchetSwitch.get();
   }
 
   public void setVolts(double volts){

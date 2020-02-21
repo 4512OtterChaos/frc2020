@@ -66,6 +66,8 @@ public class RobotContainer {
         
         if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCXboxController(1);
         configureButtonBindings();
+
+        Logger.configureLoggingAndConfig(this, false);
     }
     
     private void configureButtonBindings() {
@@ -76,8 +78,8 @@ public class RobotContainer {
         }, drivetrain));
         
         new JoystickButton(driver, XboxController.Button.kBumperRight.value)
-            .whenPressed(()->drivetrain.setDriveSpeed(1))
-            .whenReleased(()->drivetrain.setDriveSpeed(0.5));
+            .whenPressed(()->drivetrain.setDriveSpeed(0.5))
+            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(()->{
@@ -92,6 +94,14 @@ public class RobotContainer {
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(()->indexer.setVolts(2, 2))
             .whenReleased(()->indexer.setVolts(0, 0));
+        
+        new JoystickButton(driver, XboxController.Button.kX.value)
+            .whenPressed(()->intake.setSliderExtended(true))
+            .whenReleased(()->intake.setSliderExtended(false));
+
+        new JoystickButton(driver, XboxController.Button.kY.value)
+            .whenPressed(()->shooter.setWristVolts(2))
+            .whenReleased(()->shooter.setWristVolts(0));
     }
     
     public Command getAutonomousCommand() {

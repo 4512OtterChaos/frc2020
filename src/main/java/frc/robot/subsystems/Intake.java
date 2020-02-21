@@ -41,6 +41,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   private boolean lastSliderExtended = false;
   private Timer sliderDebounce = new Timer();
 
+  @Log(methodName = "get")
   private DutyCycleEncoder encoder;
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
@@ -68,7 +69,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
   public void periodic() {
 
     // Block the slider if it wants to extend while the arm is in the way
-    boolean conflicts = MathHelp.isBetweenBounds(encoder.get(), kLowerSafeRotations, kHigherSafeRotations);
+    boolean conflicts = MathHelp.isBetweenBounds(getArmEncoder(), kLowerSafeRotations, kHigherSafeRotations);
     if(sliderWantsExtended){
       if(conflicts) slider.set(Value.kReverse);
       else slider.set(Value.kForward);
@@ -90,6 +91,10 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     lastSliderExtended=nowSliderExtended;
   }
 
+  public double getArmEncoder(){
+      return encoder.get();
+  }
+
   public boolean getSliderExtended(){
     return sliderExtended;
   }
@@ -103,7 +108,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     double highLimit = volts;
 
     // arm safety
-    double enc = encoder.get();
+    double enc = getArmEncoder();
     boolean ext = getSliderExtended();
     if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0; // just in case, anti-collide on slider
     if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
@@ -138,7 +143,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
       else rotations = MathHelp.clamp(rotations, 0, kLowerSafeRotations-kBufferRotations);
     }
 
-    double volts = controller.calculate(encoder.get(), rotations);
+    double volts = controller.calculate(getArmEncoder(), rotations);
     volts += feedForward.calculate(controller.getGoal().velocity);
     
     setArmVolts(volts);
