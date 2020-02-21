@@ -20,9 +20,12 @@ import frc.robot.common.Testable.TestableResult;
 import frc.robot.util.Pair;
 
 public class Robot extends TimedRobot {
-  private Command autoCommand;
 
   private RobotContainer container;
+
+  private Command autoCommand;
+
+  private Timer disableTimer = new Timer();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -44,14 +47,26 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    disableTimer.reset();
+    disableTimer.start();
+
+    container.stop();
   }
 
   @Override
   public void disabledPeriodic() {
+    if(disableTimer.get()>2){
+      disableTimer.stop();
+      disableTimer.reset();
+
+      container.setAllBrake(false);
+    }
   }
 
   @Override
   public void autonomousInit() {
+    container.setAllBrake(true);
+
     autoCommand = container.getAutonomousCommand();
 
     if (autoCommand != null) {
@@ -65,6 +80,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    container.setAllBrake(true);
+
     if (autoCommand != null) {
       autoCommand.cancel();
     }
