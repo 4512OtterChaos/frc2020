@@ -11,7 +11,6 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -26,10 +25,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
-import frc.robot.util.Pair;
+import frc.robot.util.MathHelp;
 
 import static frc.robot.common.Constants.kRobotDelta;
 import static frc.robot.common.Constants.DrivetrainConstants.*;
+
+import java.util.TreeMap;
 
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
@@ -58,6 +59,8 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
     private DifferentialDriveOdometry odometry;
+    private TreeMap<Double, Pose2d> poseHistory = new TreeMap<>();
+    private final double poseHistoryWindow = 0.75; // seconds
 
     @Log
     private PIDController leftController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
@@ -221,6 +224,7 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     }
     public void updateOdometry(){
         odometry.update(getHeading(), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
+        updatePoseHistory(odometry.getPoseMeters());
     }
     public void resetOdometry(){
         resetOdometry(getHeading());
@@ -232,6 +236,36 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
         resetEncoders();
         resetGyro();
         odometry.resetPosition(poseMeters, gyroAngle);
+    }
+    /**
+     * Returns a previous recorded pose.
+     * @param age Seconds to go back
+     */
+    public Pose2d getPoseFromHistory(Double age){
+        Pose2d pastPose = new Pose2d();
+        if(poseHistory.size()>1){
+            double now = Timer.getFPGATimestamp();
+            double timestamp = now - age;
+            double newestTime = poseHistory.lastKey();
+            double oldestTime = poseHistory.firstKey();
+            timestamp = MathHelp.clamp(timestamp, oldestTime, newestTime);
+
+            Double early = poseHistory.ceilingKey(timestamp);
+            Double late = poseHistory.floorKey(timestamp);
+            if(timestamp-late<=early-timestamp) pastPose = poseHistory.get(late);
+            else pastPose = poseHistory.get(early);
+        }
+        return pastPose;
+    }
+    private double getPoseHistoryDuration(){
+        return poseHistory.lastKey()-poseHistory.firstKey();
+    }
+    private void updatePoseHistory(Pose2d pose){
+        poseHistory.put(Timer.getFPGATimestamp(), pose);
+        Double oldestTime = poseHistory.firstKey();
+        if(getPoseHistoryDuration()>poseHistoryWindow){ // if the pose history spans more than 0.75 seconds
+            poseHistory.remove(oldestTime);
+        }
     }
 
     @Override

@@ -25,7 +25,7 @@ import static frc.robot.common.Constants.VisionConstants.*;
  * Class for interfacing with a Limelight.
  */
 public class Limelight implements Loggable, Testable{
-    public enum State{
+    public enum Configuration{
         DRIVE(1, 0, 2),
         BASIC(0, 1, 1),
         PNP(0, 2, 1);
@@ -34,7 +34,7 @@ public class Limelight implements Loggable, Testable{
         private int pipeline;
         private int streamMode;
 
-        private State(int ledMode, int pipeline, int streamMode){
+        private Configuration(int ledMode, int pipeline, int streamMode){
             this.ledMode = ledMode;
             this.pipeline = pipeline;
             this.streamMode = streamMode;
@@ -53,30 +53,30 @@ public class Limelight implements Loggable, Testable{
 
     private NetworkTable visionTable;
 
-    private State currState;
+    private Configuration currConfiguration;
 
-    private static final int averageSampleSize = 4;
+    private static final int averageSampleSize = 3;
     private LinearFilter txFilter = LinearFilter.movingAverage(averageSampleSize);
     private LinearFilter tyFilter = LinearFilter.movingAverage(averageSampleSize);
 
     private Timer changeTimer = new Timer(); // block data values for a period after changing pipelines
 
     public Limelight(){
-        this(State.PNP);
+        this(Configuration.PNP);
     }
-    public Limelight(State state){
+    public Limelight(Configuration state){
         visionTable = NetworkTableInstance.getDefault().getTable("limelight");
         
-        setState(state);
+        setConfiguration(state);
     }
 
-    public void setState(State state){
-        currState = state;
+    public void setConfiguration(Configuration configuration){
+        currConfiguration = configuration;
         changeTimer.reset();
         changeTimer.start();
-        setLedMode(state.getLedMode());
-        setPipeline(state.getPipeline());
-        setStreamMode(state.getStreamMode());
+        setLedMode(configuration.getLedMode());
+        setPipeline(configuration.getPipeline());
+        setStreamMode(configuration.getStreamMode());
     }
     protected void setLedMode(int value){
         if(getLedMode() != value)
@@ -92,8 +92,8 @@ public class Limelight implements Loggable, Testable{
     }
     
 
-    public State getState(){
-        return currState;
+    public Configuration getConfiguration(){
+        return currConfiguration;
     }
     public double getLedMode(){
         return visionTable.getEntry("ledMode").getDouble(0);
