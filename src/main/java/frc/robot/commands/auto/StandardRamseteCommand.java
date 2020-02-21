@@ -28,7 +28,6 @@ public class StandardRamseteCommand extends RamseteCommand{
     private Timer timer = new Timer();
     private double lastTime;
     private double timeOffReference = 0;
-    private static boolean abandonedTrajectory = false; // failure flag
 
     /**
      * Construct ramsete command using drivetrain and following given trajectory
@@ -74,7 +73,7 @@ public class StandardRamseteCommand extends RamseteCommand{
             timeOffReference = Math.max(0, timeOffReference-3*dt);
         }
         if(timeOffReference>kReferenceFailureWindow){
-            abandonedTrajectory = true;
+            Paths.abandonTrajectory();
             end(true);
         }
         lastTime = Timer.getFPGATimestamp();
@@ -96,13 +95,5 @@ public class StandardRamseteCommand extends RamseteCommand{
     }
     public OCPath getPath(){
         return trajectory;
-    }
-    /**
-     * Returns true if the last trajectory followed was abandoned due to being outside acceptable tolerance for too long.
-     * Resets on new command initialization.
-     * Since this method is static, it is useful as a global flag for interrupting autonomous command groups.
-     */
-    public static boolean getFailedTrajectory(){
-        return abandonedTrajectory;
     }
 }

@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.common;
+package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -16,9 +16,8 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
-import frc.robot.util.Pair;
+import frc.robot.common.Testable;
 import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Config;
 import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.common.Constants.VisionConstants.*;
 
@@ -149,18 +148,30 @@ public class Limelight implements Loggable, Testable{
     public double getPNP_Roll(){
         return get3d()[5];
     }
-    public Pose2d getRelativeCamPose(){
+    /**
+     * Estimates camera pose relative to the outer port.
+     * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
+     */
+    private Pose2d getRelativeCamPose(boolean usePNP){
         return new Pose2d(getPNP_X(), getPNP_Y(), new Rotation2d(Units.degreesToRadians(getPNP_Yaw())));
     }
-    public Pose2d getRelativeRobotPose(){
-        Pose2d camPose = getRelativeCamPose();
+    /**
+     * Estimates robot pose relative to the outer port.
+     * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
+     */
+    public Pose2d getRelativeRobotPose(boolean usePNP){
+        Pose2d camPose = getRelativeCamPose(usePNP);
         Translation2d robotTran = camPose.getTranslation().minus(
             kCameraTranslation.rotateBy(camPose.getRotation())
         );
         return new Pose2d(robotTran, camPose.getRotation());
     }
-    public Pose2d getFieldPos(){
-        Pose2d robotPose = getRelativeRobotPose();
+    /**
+     * Estimates field pose based on relative robot pose to the outer port.
+     * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
+     */
+    public Pose2d getFieldPos(boolean usePNP){
+        Pose2d robotPose = getRelativeRobotPose(usePNP);
         return new Pose2d(
             kTargetTranslation.plus(robotPose.getTranslation()),
             robotPose.getRotation()
@@ -173,12 +184,10 @@ public class Limelight implements Loggable, Testable{
         return (difference/Math.tan(angle));
     }
 
-    @Log
     public double getFilteredTx(){
         if(!isBlocked())  return txFilter.calculate(getTx());
         else return 0;
     }
-    @Log
     public double getFilteredTy(){
         if(!isBlocked()) return tyFilter.calculate(getTy());
         else return 0;

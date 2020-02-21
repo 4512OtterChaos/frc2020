@@ -11,16 +11,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.auto.StandardRamseteCommand;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
-import frc.robot.util.Pair;
+import frc.robot.subsystems.Shooter;
 
 /**
  * Class for holding commandGroups defining different auto options.
@@ -34,18 +38,26 @@ public class AutoOptions {
     SendableChooser<Command> fullAutoOptions = new SendableChooser<>();
 
     // Maps of modular commands as well as complete preset auto command groups
-    HashMap<String, Command> stageOptions = new HashMap<String, Command>();
-    HashMap<String, Command> fullOptions = new HashMap<String, Command>();
+    HashMap<String, Command> stageOptions = new HashMap<>();
+    HashMap<String, Command> fullOptions = new HashMap<>();
 
     /**
      * Constructs different auto options given drivetrain.
      */
-    public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer){
+    public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
         Command nothing = new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain);
 
+        SimpleMotorFeedforward driveFF = drivetrain.getFeedForward();
+        DifferentialDriveKinematics driveKin = drivetrain.getKinematics();
         // add modular/preset commands
-        stageOptions.put("Nothing", nothing);
-        fullOptions.put("Nothing", nothing);
+        stageOptions.put("Short Backward", 
+            new StandardRamseteCommand(drivetrain, new OCPath(
+                List.of(
+                    new Pose2d(),
+                    new Pose2d(-1, 0, new Rotation2d())
+                ), driveFF, driveKin)
+            )
+        );
 
         // populate sendable choosers with constructed commands
         putStageDefaultOption("Nothing", nothing);
@@ -72,16 +84,6 @@ public class AutoOptions {
         stage4Options.setDefaultOption(name, command);
     }
 
-    private Command constructAbandonableAuto(Command autoCommand, StandardRamseteCommand... trajectories){
-        return autoCommand.withInterrupt(()->{
-            boolean failed = false;
-            for(StandardRamseteCommand traj : trajectories){
-                if(traj.getFailedTrajectory()) failed = true;
-            }
-            return failed;
-        });
-    }
-
     /**
      * Constructs a command group based off of selected stage commands.
      * If a preset auto is selected, it will use that instead.
@@ -93,10 +95,13 @@ public class AutoOptions {
                 stage1Options.getSelected().andThen(
                 stage2Options.getSelected()).andThen(
                 stage3Options.getSelected()).andThen(
-                stage4Options.getSelected());
+                stage4Options.getSelected())
+                .withInterrupt(()->Paths.getHasAbandonedTrajectory());
         }
         else{
-            selected = fullAutoOptions.getSelected();
+            selected = 
+                fullAutoOptions.getSelected()
+                .withInterrupt(()->Paths.getHasAbandonedTrajectory());
         }
         return selected;
     }

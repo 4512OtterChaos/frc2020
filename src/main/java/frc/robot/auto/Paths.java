@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.util.Units;
-import frc.robot.subsystems.Drivetrain;
 /**
  * Holds autonomous trajectories and methods.
  */
@@ -33,10 +32,12 @@ public class Paths {
     public final OCPath example;
     //-----
 
+    private static boolean hasAbadonedTrajectory = false;
+
     /**
-     * Generates autonomous paths given a drivetrain.
+     * Generates autonomous paths given drivetrain specifications.
      */
-    public Paths(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics  kinematics){
+    public Paths(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
         forward = new OCPath(PathsList.forward, feedforward, kinematics);
         example = new OCPath(PathsList.example, feedforward, kinematics);
     }
@@ -45,10 +46,9 @@ public class Paths {
      * Lists pose lists for different paths.
      * We explicitly hard-code these waypoints because it is easier to modify/tune quickly--
      * if you would like a visual representation, use FalconDashboard.
-     * <b>! Note ! - Pose values are in feet, but the resulting list is converted to meters.</b>
      */
     public static class PathsList{
-        // All pose distance measurements are in feet!
+        // All pose distance measurements are recorded in feet(but translated to meters)!
         public static final List<Pose2d> forward = feetToMeters(
             new Pose2d(),
             new Pose2d(3, 0, new Rotation2d())  
@@ -82,6 +82,21 @@ public class Paths {
                     pose.getRotation()))
                 .collect(Collectors.toList());
         }
+    }
+
+    /**
+     * Returns true if the last trajectory followed was abandoned due to being outside acceptable tolerance for too long.
+     * Resets on new trajectory initialization.
+     * Since this method is static, it is useful as a global flag for interrupting autonomous command groups.
+     */
+    public static boolean getHasAbandonedTrajectory(){
+        return hasAbadonedTrajectory;
+    }
+    /**
+     * Sets a flag that a trajectory was abandoned while being followed, interrupting current auto command.
+     */
+    public static void abandonTrajectory(){
+        hasAbadonedTrajectory = true;
     }
 
     /**

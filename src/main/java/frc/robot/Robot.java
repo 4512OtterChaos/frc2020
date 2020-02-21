@@ -12,8 +12,10 @@ import java.util.List;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import frc.robot.common.Testable;
 import frc.robot.common.Testable.Status;
 import frc.robot.common.Testable.TestableResult;
@@ -34,6 +36,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     container = new RobotContainer();
+
+    LiveWindow.disableAllTelemetry();
+
+    new NotifierCommand(container::log, 0.03).initialize();
   }
 
   /**

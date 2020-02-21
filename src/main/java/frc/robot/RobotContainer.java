@@ -7,20 +7,15 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax.IdleMode;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
-import frc.robot.common.Limelight;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
@@ -61,7 +56,7 @@ public class RobotContainer {
         
         testableSystems = new Testable[]{drivetrain, limelight};
         
-        autoOptions = new AutoOptions(drivetrain, intake, indexer);
+        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight);
         autoOptions.submit();
         
         if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCXboxController(1);

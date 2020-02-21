@@ -26,7 +26,7 @@ public class Constants {
         public static final double kWheelRadiusMeters = Units.inchesToMeters(3);
 
         public static final double kMaxVelocityMeters = Units.feetToMeters(14);
-        public static final double kMaxVelocityRadians = Units.degreesToRadians(450);
+        public static final double kMaxVelocityRadians = Units.degreesToRadians(400);
         
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
@@ -156,7 +156,7 @@ public class Constants {
 
     public static class VisionConstants{
         public static final double kCameraAngle = 30; // Angle of camera offset from horizontal
-        public static final double kCameraHeight = 24;
+        public static final double kCameraHeight = 24; // inches
         public static final double kTargetHeight = 98.25;
         public static final double kLatencyMs = 11; // Image capture latency
         public static final Translation2d kCameraTranslation = new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0));
