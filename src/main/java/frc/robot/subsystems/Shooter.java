@@ -102,6 +102,7 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
     
     public void setShooterPID(double rpm){
         leftController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
+        rightController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
     }
     public void setWristPID(double rotations){
         rotations = MathHelp.clamp(rotations, ShooterWristConstants.kLowerSafeRotations, ShooterWristConstants.kHigherSafeRotations);

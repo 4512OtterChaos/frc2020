@@ -250,7 +250,7 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
 
             Double early = poseHistory.ceilingKey(timestamp);
             Double late = poseHistory.floorKey(timestamp);
-            if(timestamp-late<=early-timestamp) pastPose = poseHistory.get(late);
+            if(timestamp-late<early-timestamp) pastPose = poseHistory.get(late);
             else pastPose = poseHistory.get(early);
         }
         return pastPose;
