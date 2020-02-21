@@ -65,7 +65,7 @@ public final class MathHelp {
      * Linearly interpolates between a and b by percent amount.
      * @param percent (0-1): 0 = a, 1 = b
      */
-    public static double lerp(double a, double b, double percent){
+    public static double lerp(double percent, double a, double b){
         percent = clamp(percent, 0, 1);
         return (a+(b-a)*percent);
     }
