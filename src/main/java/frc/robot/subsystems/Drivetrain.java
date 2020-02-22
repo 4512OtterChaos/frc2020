@@ -44,8 +44,8 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private CANSparkMax rightMaster;
     private CANSparkMax rightSlave;
     
-    private final CANSparkMax[] leftMotors = {leftMaster,leftSlave};
-    private final CANSparkMax[] rightMotors = {rightMaster,rightSlave};
+    private final CANSparkMax[] leftMotors;
+    private final CANSparkMax[] rightMotors;
     
     @Log(methodName = "getVelocity")
     private CANEncoder leftEncoder;
@@ -70,10 +70,13 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private double driveSpeed = 0.3;
     
     public Drivetrain() {
-        leftMaster = OCConfig.createMAX(3, ConfigType.DRIVE);
-        leftSlave = OCConfig.createMAX(4, ConfigType.DRIVE);
-        rightMaster = OCConfig.createMAX(1, ConfigType.DRIVE);
-        rightSlave = OCConfig.createMAX(2, ConfigType.DRIVE);
+        leftMaster = OCConfig.createMAX(2, ConfigType.DRIVE);
+        leftSlave = OCConfig.createMAX(1, ConfigType.DRIVE);
+        rightMaster = OCConfig.createMAX(4, ConfigType.DRIVE);
+        rightSlave = OCConfig.createMAX(3, ConfigType.DRIVE);
+        leftMotors = new CANSparkMax[]{leftMaster, leftSlave};
+        rightMotors = new CANSparkMax[]{rightMaster, rightSlave};
+
 
         pigeon = new PigeonIMU(0);
 

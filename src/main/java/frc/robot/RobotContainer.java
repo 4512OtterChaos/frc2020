@@ -61,8 +61,6 @@ public class RobotContainer {
         
         if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCXboxController(1);
         configureButtonBindings();
-
-        Logger.configureLoggingAndConfig(this, false);
     }
     
     private void configureButtonBindings() {

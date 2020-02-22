@@ -33,7 +33,7 @@ public class Indexer extends SubsystemBase implements Loggable, Testable{
     bot = OCConfig.createMAX(13, ConfigType.INDEXER);
     top = OCConfig.createMAX(14, ConfigType.INDEXER);
 
-    frontBeam = new DigitalInput(0);
+    frontBeam = new DigitalInput(2);
     
     shooterFlight = new TimeOfFlight(0);
     shooterFlight.setRangingMode(RangingMode.Short, 24);

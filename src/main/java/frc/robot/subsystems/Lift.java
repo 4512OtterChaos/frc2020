@@ -50,12 +50,12 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
     master = OCConfig.createMAX(8, ConfigType.LIFT);
     slave = OCConfig.createMAX(9, ConfigType.LIFT);
 
-    ratchet = new DoubleSolenoid(0, 0);
+    ratchet = new DoubleSolenoid(2, 3);
 
     encoder = new CANEncoder(master);
 
-    botSwitch = new DigitalInput(0);
-    ratchetSwitch = new DigitalInput(0);
+    //botSwitch = new DigitalInput(0);
+    //ratchetSwitch = new DigitalInput(0);
     
     master.setInverted(false);
     OCConfig.setFollower(master, false, slave);

@@ -54,7 +54,7 @@ public class Intake extends SubsystemBase implements Loggable, Testable{
     roller = OCConfig.createSRX(11, ConfigType.INTAKE);
     fence = OCConfig.createSRX(12, ConfigType.INTAKE);
 
-    slider = new DoubleSolenoid(0, 0);
+    slider = new DoubleSolenoid(0, 1);
 
     encoder = new DutyCycleEncoder(0);
 

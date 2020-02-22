@@ -61,13 +61,13 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
     public Shooter() {
         shooterMap.put(120.0, new ShooterState(30, 4000));
         
-        shootLeft = OCConfig.createMAX(5, ConfigType.SHOOTER);
-        shootRight = OCConfig.createMAX(6, ConfigType.SHOOTER);
+        shootLeft = OCConfig.createMAX(6, ConfigType.SHOOTER);
+        shootRight = OCConfig.createMAX(5, ConfigType.SHOOTER);
         wrist = OCConfig.createMAX(7, ConfigType.SHOOTERWRIST);
         
         leftEncoder = new CANEncoder(shootLeft);
         rightEncoder = new CANEncoder(shootRight);
-        wristEncoder = new DutyCycleEncoder(0);
+        wristEncoder = new DutyCycleEncoder(1);
         
         leftController = new CANPIDController(shootLeft);
         rightController = new CANPIDController(shootRight);
