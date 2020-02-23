@@ -7,8 +7,6 @@
 
 package frc.robot.util;
 
-import edu.wpi.first.wpiutil.math.MathUtil;
-
 /**
  * Class to store simple helper functions for calculations.
  */
@@ -68,5 +66,27 @@ public final class MathHelp {
     public static double lerp(double percent, double a, double b){
         percent = clamp(percent, 0, 1);
         return (a+(b-a)*percent);
+    }
+    /**
+     * Counterpart to lerp. Returns the percentage from a to b given value.
+     * @param value Value between a and b
+     */
+    public static double findPercentage(double value, double a, double b){
+      value = clamp(value, a, b);
+      return (a - value) / (a - b);
+    }
+
+    public static double getContinuousError(double error, double range){
+      if(range > 0){
+        error %= range;
+        if (Math.abs(error) > range / 2) {
+          if (error > 0) {
+            return error - range;
+          } else {
+            return error + range;
+          }
+        }
+      }
+      return error;
     }
 }
