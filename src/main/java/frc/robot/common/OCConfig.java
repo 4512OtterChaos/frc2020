@@ -61,13 +61,15 @@ public class OCConfig {
      * @param isRightInverted
      */
     public static void configureDrivetrain(CANSparkMax[] leftMotors, CANSparkMax[] rightMotors, boolean isRightInverted){
+        //boolean inverted = (isRightInverted && !isInverted) || (!isRightInverted&&isInverted);
+
         for(int i=0; i<leftMotors.length; i++){
             if(i>0) setFollower(leftMotors[0], false, leftMotors[i]);
-            else leftMotors[i].setInverted(!isRightInverted);
+            else leftMotors[0].setInverted(!isRightInverted);         
         }
         for(int i=0; i<rightMotors.length; i++){
             if(i>0) setFollower(rightMotors[0], false, rightMotors[i]);
-            else rightMotors[i].setInverted(isRightInverted);
+            else rightMotors[0].setInverted(isRightInverted);
         }
     }
 

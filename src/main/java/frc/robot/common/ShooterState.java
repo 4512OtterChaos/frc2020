@@ -18,10 +18,20 @@ public class ShooterState {
         this.rpm = rpm;
     }
 
-    public static ShooterState lerp(ShooterState a, ShooterState b, double percent){
+    /**
+     * Returns the difference between this state and another.
+     */
+    public ShooterState minus(ShooterState other){
+        return new ShooterState(angle-other.angle, rpm-other.rpm);
+    }
+
+    /**
+     * Returns the result of linearly interpolating between two states based on percent.
+     */
+    public static ShooterState lerp(double percent, ShooterState a, ShooterState b){
         return new ShooterState(
-            MathHelp.lerp(a.angle, b.angle, percent),
-            MathHelp.lerp(a.rpm, b.rpm, percent)
+            MathHelp.lerp(percent, a.angle, b.angle),
+            MathHelp.lerp(percent, a.rpm, b.rpm)
         );
     }
 }

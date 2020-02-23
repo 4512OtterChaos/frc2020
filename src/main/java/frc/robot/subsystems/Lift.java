@@ -24,18 +24,14 @@ import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
 import frc.robot.util.MathHelp;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
-public class Lift extends SubsystemBase implements Loggable, Testable{
+public class Lift extends SubsystemBase implements Testable{
 
-  @Log(methodName = "getAppliedOutput")
   private CANSparkMax master;
   private CANSparkMax slave;
 
   private DoubleSolenoid ratchet;
 
-  @Log(methodName = "getPosition")
   private CANEncoder encoder;
 
   private DigitalInput botSwitch;
@@ -43,7 +39,6 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
 
   private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
 
-  @Log
   private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
   
   public Lift() {
@@ -63,10 +58,10 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
 
   @Override
   public void periodic() {
-    if(botSwitch.get()) encoder.setPosition(0);
+    //if(botSwitch.get()) encoder.setPosition(0);
   }
 
-  @Log
+  //@Log
   public boolean getBotSwitch(){
       return botSwitch.get();
   }
@@ -99,6 +94,10 @@ public class Lift extends SubsystemBase implements Loggable, Testable{
   public void setBrakeOn(boolean is){
     master.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
     slave.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+  }
+
+  public void log(){
+
   }
 
   @Override

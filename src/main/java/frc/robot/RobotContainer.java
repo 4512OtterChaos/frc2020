@@ -19,7 +19,6 @@ import frc.robot.auto.Paths;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
-import io.github.oblarg.oblog.Logger;
 
 public class RobotContainer {
     
@@ -74,6 +73,10 @@ public class RobotContainer {
             .whenPressed(()->drivetrain.setDriveSpeed(0.5))
             .whenReleased(()->drivetrain.setDriveSpeed(0.3));
 
+        new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
+            .whenPressed(()->drivetrain.setDriveSpeed(1))
+            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
+
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(()->{
                 intake.setRollerVolts(2);
@@ -115,9 +118,13 @@ public class RobotContainer {
     }
     
     public void log(){
-        led.setData(ledBuffer);
+        //led.setData(ledBuffer);
         
-        Logger.updateEntries();
+        drivetrain.log();
+        intake.log();
+        indexer.log();
+        shooter.log();
+        lift.log();
     }
     
     public Testable[] getTestableSystems(){return testableSystems;};

@@ -11,6 +11,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -32,24 +33,18 @@ import static frc.robot.common.Constants.DrivetrainConstants.*;
 
 import java.util.TreeMap;
 
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
-
-public class Drivetrain extends SubsystemBase implements Loggable, Testable{
+public class Drivetrain extends SubsystemBase implements Testable{
     
-    @Log(methodName = "getAppliedOutput")
     private CANSparkMax leftMaster;
     private CANSparkMax leftSlave;
-    @Log(methodName = "getAppliedOutput")
+
     private CANSparkMax rightMaster;
     private CANSparkMax rightSlave;
     
     private final CANSparkMax[] leftMotors;
     private final CANSparkMax[] rightMotors;
     
-    @Log(methodName = "getVelocity")
     private CANEncoder leftEncoder;
-    @Log(methodName = "getVelocity")
     private CANEncoder rightEncoder;
 
     private final PigeonIMU pigeon;
@@ -62,23 +57,31 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
     private TreeMap<Double, Pose2d> poseHistory = new TreeMap<>();
     private final double poseHistoryWindow = 0.75; // seconds
 
-    @Log
     private PIDController leftController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
-    @Log
     private PIDController rightController = new PIDController(kP, kI, kD, kRobotDelta);
 
     private double driveSpeed = 0.3;
     
     public Drivetrain() {
-        leftMaster = OCConfig.createMAX(2, ConfigType.DRIVE);
-        leftSlave = OCConfig.createMAX(1, ConfigType.DRIVE);
-        rightMaster = OCConfig.createMAX(4, ConfigType.DRIVE);
-        rightSlave = OCConfig.createMAX(3, ConfigType.DRIVE);
+        /*
+        leftMaster = OCConfig.createMAX(1, ConfigType.DRIVE);
+        leftSlave = OCConfig.createMAX(2, ConfigType.DRIVE);
+        rightMaster = OCConfig.createMAX(3, ConfigType.DRIVE);
+        rightSlave = OCConfig.createMAX(4, ConfigType.DRIVE);
+        */
+
+        leftMaster = new CANSparkMax(1, MotorType.kBrushless);
+        leftSlave = new CANSparkMax(2, MotorType.kBrushless);
+        rightMaster = new CANSparkMax(3, MotorType.kBrushless);
+        rightSlave = new CANSparkMax(4, MotorType.kBrushless);
+        
         leftMotors = new CANSparkMax[]{leftMaster, leftSlave};
         rightMotors = new CANSparkMax[]{rightMaster, rightSlave};
 
+        OCConfig.configMotors(ConfigType.DRIVE, leftMotors);
+        OCConfig.configMotors(ConfigType.DRIVE, rightMotors);
 
-        pigeon = new PigeonIMU(0);
+        pigeon = new PigeonIMU(11);
 
         leftEncoder = leftMaster.getEncoder();
         rightEncoder = rightMaster.getEncoder();
@@ -166,12 +169,6 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
             leftVolts,
             rightVolts);
     }
-    public PIDController getleftController(){
-        return leftController;
-    }
-    public PIDController getrightController(){
-        return rightController;
-    }
     
     public void resetEncoders(){
         leftEncoder.setPosition(0);
@@ -184,17 +181,16 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
 
     //----- Informational methods
 
-    public PIDController getLeftPIDController(){
+    public PIDController getLeftController(){
         return leftController;
     }
-    public PIDController getRightPIDController(){
+    public PIDController getRightController(){
         return rightController;
     }
 
     /**
      * @return DifferentialDriveWheelSpeeds object in meters per second
      */
-    @Log.ToString()
     public DifferentialDriveWheelSpeeds getWheelSpeeds(){
         double circumference = Math.PI * 2.0 * kWheelRadiusMeters;
         return new DifferentialDriveWheelSpeeds(
@@ -213,13 +209,11 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
         return kinematics;
     }
     
-    @Log(methodName = "getDegrees")
     public Rotation2d getHeading(){
         pigeon.getYawPitchRoll(ypr);
         pigeon.getRawGyro(xyz);
         return Rotation2d.fromDegrees(ypr[0]);
     }
-    @Log.ToString(methodName = "getPoseMeters")
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
     }
@@ -269,6 +263,11 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
         }
     }
 
+    public void log(){
+
+    }
+
+    
     @Override
     public TestableResult test(){
         resetEncoders();
@@ -278,4 +277,5 @@ public class Drivetrain extends SubsystemBase implements Loggable, Testable{
         Status result = nonZero ? Status.WARNING : Status.PASSED;
         return new TestableResult("Drivetrain", result);
     }
+    
 }

@@ -9,21 +9,16 @@ package frc.robot.util;
 
 import java.util.TreeMap;
 
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.common.ShooterState;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * Shot Analysis Machine
  */
-public class SAM implements Loggable {
+public class SAM {
 
     TreeMap<Double, ShooterState> shotTable = new TreeMap<Double, ShooterState>();
 
-    @Log
     private double shotConfidence = 0; // Percentage rating of how confident we are in shooting
-    @Log
     private double innerShotConfidence = 0;
     private double confidentTime = 0;
 
@@ -31,16 +26,6 @@ public class SAM implements Loggable {
         // populate lookup table (inches, angle, rpm)
         shotTable.put(60.0, new ShooterState(40, 3500));
         shotTable.put(120.0, new ShooterState(30, 4000));
-    }
-
-    /**
-     * Returns a ShooterState between two others by interpolating with percent.
-     * @param percent (0-1) 0 = a, 1 = b
-     */
-    private static ShooterState lerpShots(double percent, ShooterState a, ShooterState b){
-        double angle = MathHelp.lerp(percent, a.angle, b.angle);
-        double rpm = MathHelp.lerp(percent, a.rpm, b.rpm);
-        return new ShooterState(angle, rpm);
     }
 
     /**
@@ -61,13 +46,13 @@ public class SAM implements Loggable {
         else{
             percent = 0;
         }
-        return lerpShots(percent, shotTable.get(close), shotTable.get(far));
+        return ShooterState.lerp(percent, shotTable.get(close), shotTable.get(far));
     }
 
-    public double getShotConfidence(double targetAngle, double currAngle, ShooterState currState){
+    public double getShotConfidence(ShooterState targetState, ShooterState currState){
         return shotConfidence;
     }
-    public double getInnerShotConfidence(double targetAngle, double currAngle, double yOffset, ShooterState currState){
+    public double getInnerShotConfidence(ShooterState targetState, double yOffset, ShooterState currState){
         return innerShotConfidence;
     }
 

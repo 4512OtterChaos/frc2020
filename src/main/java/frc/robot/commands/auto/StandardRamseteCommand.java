@@ -40,8 +40,8 @@ public class StandardRamseteCommand extends RamseteCommand{
             drivetrain.getFeedForward(),
             drivetrain.getKinematics(),
             drivetrain::getWheelSpeeds,
-            drivetrain.getLeftPIDController(),
-            drivetrain.getRightPIDController(),
+            drivetrain.getLeftController(),
+            drivetrain.getRightController(),
             drivetrain::tankDriveVolts,
             drivetrain
         );

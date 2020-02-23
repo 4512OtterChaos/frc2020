@@ -75,7 +75,7 @@ public class Constants {
         public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
 
-        public static final double kEncoderOffset = 0; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -0.35; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kMinDownwardRotations = 0.04;
@@ -104,7 +104,7 @@ public class Constants {
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
 
-        public static final double kEncoderOffset = 0; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -0.05; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kLowerSafeRotations = 0.075; // below is safe

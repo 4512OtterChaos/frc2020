@@ -50,14 +50,16 @@ public class AutoOptions {
         SimpleMotorFeedforward driveFF = drivetrain.getFeedForward();
         DifferentialDriveKinematics driveKin = drivetrain.getKinematics();
         // add modular/preset commands
+        /*
         stageOptions.put("Short Backward", 
             new StandardRamseteCommand(drivetrain, new OCPath(
                 List.of(
-                    new Pose2d(),
-                    new Pose2d(-1, 0, new Rotation2d())
-                ), driveFF, driveKin)
+                    new Pose2d(1, 0, new Rotation2d()),
+                    new Pose2d(0, 0, new Rotation2d())
+                ), driveFF, driveKin).getReversed()
             )
         );
+        */
 
         // populate sendable choosers with constructed commands
         putStageDefaultOption("Nothing", nothing);

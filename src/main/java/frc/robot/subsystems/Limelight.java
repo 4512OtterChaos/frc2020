@@ -17,14 +17,12 @@ import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.common.Testable;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.common.Constants.VisionConstants.*;
 
 /**
  * Class for interfacing with a Limelight.
  */
-public class Limelight implements Loggable, Testable{
+public class Limelight implements Testable{
     public enum Configuration{
         DRIVE(1, 0, 2),
         BASIC(0, 1, 1),
@@ -104,15 +102,12 @@ public class Limelight implements Loggable, Testable{
     public double getStreamMode(){
         return visionTable.getEntry("stream").getDouble(0);
     }
-    @Log
     public boolean getHasTarget(){
         return visionTable.getEntry("tv").getDouble(0) != 0;
     }
-    @Log
     public double getTx(){
         return visionTable.getEntry("tx").getDouble(0);
     }
-    @Log
     public double getTy(){
         return visionTable.getEntry("ty").getDouble(0);
     }
@@ -177,7 +172,6 @@ public class Limelight implements Loggable, Testable{
             robotPose.getRotation()
         );
     }
-    @Log
     public double getTrigDistance(){
         double difference = kTargetHeight-kCameraHeight;
         double angle = Units.degreesToRadians(kCameraAngle+getTy());

@@ -17,6 +17,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.common.Constants.*;
@@ -28,23 +29,16 @@ import frc.robot.common.ShooterState;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
 import frc.robot.util.MathHelp;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
-public class Shooter extends SubsystemBase implements Loggable, Testable{
+public class Shooter extends SubsystemBase implements Testable{
 
     TreeMap<Double, ShooterState> shooterMap = new TreeMap<Double, ShooterState>();
     
-    @Log(methodName = "getAppliedOutput")
     private CANSparkMax shootLeft;
-    @Log(methodName = "getAppliedOutput")
     private CANSparkMax shootRight;
-    @Log(methodName = "getAppliedOutput")
     private CANSparkMax wrist;
     
-    @Log(methodName = "getVelocity")
     private CANEncoder leftEncoder;
-    @Log(methodName = "getVelocity")
     private CANEncoder rightEncoder;
     private DutyCycleEncoder wristEncoder;
     
@@ -53,7 +47,6 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
     
     private CANPIDController leftController;
     private CANPIDController rightController;
-    @Log
     private ProfiledPIDController wristController =
     new ProfiledPIDController(ShooterWristConstants.kP, ShooterWristConstants.kI, ShooterWristConstants.kD,
     new Constraints(ShooterWristConstants.kVelocityConstraint, ShooterWristConstants.kAccelerationConstraint), kRobotDelta); // Positional PID controller
@@ -83,13 +76,11 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
         wrist.setInverted(false);
     }
     
-    @Override
     public void periodic() {
     }
 
-    @Log
-    public double getWristEncoder(){
-        return -wristEncoder.get();
+    public double getWristDegrees(){
+        return (wristEncoder.get()+ShooterWristConstants.kEncoderOffset)*360;
     }
     
     public void setShooterVolts(double volts){
@@ -106,7 +97,7 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
     }
     public void setWristPID(double rotations){
         rotations = MathHelp.clamp(rotations, ShooterWristConstants.kLowerSafeRotations, ShooterWristConstants.kHigherSafeRotations);
-        double volts = wristController.calculate(getWristEncoder(), rotations);
+        double volts = wristController.calculate(getWristDegrees(), rotations);
         volts += wristFF.calculate(wristController.getGoal().velocity);
         setWristVolts(volts);
     }
@@ -117,6 +108,12 @@ public class Shooter extends SubsystemBase implements Loggable, Testable{
     }
     public void setWristBrakeOn(boolean is){
         wrist.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+    }
+
+    public void log(){
+        SmartDashboard.putNumber("Wrist Degrees", getWristDegrees());
+        SmartDashboard.putNumber("Wrist Encoder", wristEncoder.get());
+        SmartDashboard.putNumber("Wrist OFfset", wristEncoder.getPositionOffset());
     }
     
     @Override

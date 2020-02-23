@@ -20,7 +20,6 @@ import frc.robot.common.Testable;
 import frc.robot.common.Testable.Status;
 import frc.robot.common.Testable.TestableResult;
 import frc.robot.util.Pair;
-import io.github.oblarg.oblog.Logger;
 
 public class Robot extends TimedRobot {
 
@@ -36,11 +35,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    container = new RobotContainer();
-    
-    Logger.configureLoggingAndConfig(container, false);
-
     LiveWindow.disableAllTelemetry();
+
+    container = new RobotContainer();
 
     new NotifierCommand(container::log, 0.03).initialize();
   }
