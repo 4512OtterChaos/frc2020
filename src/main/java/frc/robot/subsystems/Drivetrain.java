@@ -138,6 +138,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * Positive: linear forward, angular left
      */
     public void setChassisSpeedPID(double linearPercent, double angularPercent){
+        linearPercent *= driveSpeed;
+        angularPercent *= driveSpeed;
         double linear = linearPercent*kMaxVelocityMeters;
         double angular = (angularPercent*(kMaxVelocityRadians));
         setChassisSpeedPID(new ChassisSpeeds(linear, 0, angular));
@@ -154,8 +156,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * <p><b>! Note: All inputs are in meters and all outputs are in volts.
      */
     public void setVelocityPID(double leftMetersPerSecond, double rightMetersPerSecond){
-        leftMetersPerSecond *= driveSpeed;
-        rightMetersPerSecond *= driveSpeed;
         DifferentialDriveWheelSpeeds speeds = getWheelSpeeds();
         double leftVolts = 0;
         double rightVolts = 0;

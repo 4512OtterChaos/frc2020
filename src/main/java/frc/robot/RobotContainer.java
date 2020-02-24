@@ -63,6 +63,8 @@ public class RobotContainer {
     }
     
     private void configureButtonBindings() {
+        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeedPID(driver.getForward(), driver.getTurn()), drivetrain);
+        
         drivetrain.setDefaultCommand(new RunCommand(()->{
             double left = driver.getLeftArcade();
             double right = driver.getRightArcade();
