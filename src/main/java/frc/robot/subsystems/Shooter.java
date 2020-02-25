@@ -25,7 +25,7 @@ import static frc.robot.common.Constants.*;
 import java.util.TreeMap;
 
 import frc.robot.common.OCConfig;
-import frc.robot.common.ShooterState;
+import frc.robot.states.ShooterState;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
 import frc.robot.util.MathHelp;
@@ -82,6 +82,17 @@ public class Shooter extends SubsystemBase implements Testable{
         wrist.setVoltage(wristVolts);
     }
 
+    public ProfiledPIDController getWristController(){
+        return wristController;
+    }
+
+    public double getLeftRPM(){
+        return leftEncoder.getVelocity();
+    }
+    public double getRightRPM(){
+        return rightEncoder.getVelocity();
+    }
+
     public double getWristDegrees(){
         return (wristEncoder.get()+ShooterWristConstants.kEncoderOffset)*360;
     }
@@ -107,6 +118,10 @@ public class Shooter extends SubsystemBase implements Testable{
         double volts = wristController.calculate(getWristDegrees(), rotations);
         volts += wristFF.calculate(wristController.getGoal().velocity);
         setWristVolts(volts);
+    }
+    public void setState(ShooterState state){
+        setShooterPID(state.rpm);
+        setWristPID(state.angle);
     }
     
     public void setShooterBrakeOn(boolean is){

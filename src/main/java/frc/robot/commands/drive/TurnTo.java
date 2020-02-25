@@ -33,6 +33,6 @@ public class TurnTo extends ProfiledPIDCommand {
 
   @Override
   public boolean isFinished() {
-    return getController().atSetpoint();
+    return getController().atGoal();
   }
 }
