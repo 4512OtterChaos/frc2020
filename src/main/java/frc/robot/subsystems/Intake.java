@@ -26,7 +26,6 @@ import static frc.robot.common.Constants.*;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
-import frc.robot.states.IntakeState;
 import frc.robot.util.MathHelp;
 
 public class Intake extends SubsystemBase implements Testable{
@@ -80,20 +79,13 @@ public class Intake extends SubsystemBase implements Testable{
         }
         else{
             if(lastSliderExtended) sliderDebounce.start();
-            else if(sliderDebounce.get()>0.4){
+            else if(sliderDebounce.get()>0.5){
                 sliderDebounce.stop();
                 sliderExtended=false;
             }
         }
         lastSliderExtended=nowSliderExtended;
 
-        boolean armLowered = getArmDegrees()<=kLowerSafeRotations;
-        // avoid rolling rollers when arm is up
-        rollerVolts = armLowered ? rollerVolts : 0;
-        // avoid rolling fences when slider is in or arm is up
-        fenceVolts = nowSliderExtended&&armLowered ? fenceVolts : 0;
-
-        // set mechanisms with safety
         if(nowSliderExtended) slider.set(Value.kForward);
         else slider.set(Value.kReverse);
 
@@ -101,13 +93,9 @@ public class Intake extends SubsystemBase implements Testable{
         roller.setVoltage(rollerVolts);
         fence.setVoltage(fenceVolts);
     }
-
-    public ProfiledPIDController getController(){
-        return controller;
-    }
     
     public double getEncoder(){
-        double rotations = encoder.get() > 0.3 ? encoder.get()-1 : encoder.get();
+        double rotations = encoder.get() > 0.3 ? 1-encoder.get() : encoder.get();
         return -rotations+kEncoderOffset;
     }
     public double getArmDegrees(){
@@ -140,6 +128,7 @@ public class Intake extends SubsystemBase implements Testable{
         rollerVolts = volts;
     }
     public void setFenceVolts(double volts){
+        if(slider.get()==Value.kReverse) volts = 0;
         fenceVolts = volts;
     }
     /**
@@ -165,10 +154,6 @@ public class Intake extends SubsystemBase implements Testable{
         volts += feedForward.calculate(controller.getGoal().velocity);
         
         setArmVolts(volts);
-    }
-    public void setState(IntakeState state){
-        setArmPID(state.angle);
-        setSliderExtended(state.extended);
     }
     
     public void setRollerBrakeOn(boolean is){

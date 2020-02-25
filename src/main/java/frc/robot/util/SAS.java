@@ -10,7 +10,7 @@ package frc.robot.util;
 import java.util.TreeMap;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.states.ShooterState;
+import frc.robot.common.ShooterState;
 
 /**
  * Shot Analysis System
@@ -114,7 +114,7 @@ public class SAS {
             }
             else{
                 double max = innerConfidentTime >= confidentTimeThreshold ? confidentTimeThreshold : innerConfidentTime;
-                innerConfidentTime = max - dt;
+                innerConfidentTime = max - 3*dt;
             }
             isReadyAndConfident = innerConfidentTime >= confidentTimeThreshold;
         }
@@ -127,7 +127,7 @@ public class SAS {
             }
             else{
                 double max = outerConfidentTime >= confidentTimeThreshold ? confidentTimeThreshold : outerConfidentTime;
-                outerConfidentTime = max - dt;
+                outerConfidentTime = max - 3*dt;
             }
             isReadyAndConfident = outerConfidentTime >= confidentTimeThreshold;
         }
