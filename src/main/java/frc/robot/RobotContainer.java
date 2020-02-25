@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
 import frc.robot.common.OCXboxController;
@@ -68,6 +70,8 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(new RunCommand(()->{
             double left = driver.getLeftArcade();
             double right = driver.getRightArcade();
+            SmartDashboard.putNumber("Left", left);
+            SmartDashboard.putNumber("Right", right);
             drivetrain.tankDrive(left, right);
         }, drivetrain));
         
@@ -76,13 +80,13 @@ public class RobotContainer {
             .whenReleased(()->drivetrain.setDriveSpeed(0.3));
 
         new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
-            .whenPressed(()->drivetrain.setDriveSpeed(1))
+            .whenPressed(()->drivetrain.setDriveSpeed(0.8))
             .whenReleased(()->drivetrain.setDriveSpeed(0.3));
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(()->{
-                intake.setRollerVolts(2);
-                intake.setFenceVolts(2);
+                intake.setRollerVolts(8);
+                intake.setFenceVolts(12);
             })
             .whenReleased(()->{
                 intake.setRollerVolts(0);
@@ -90,15 +94,26 @@ public class RobotContainer {
             });
 
         new JoystickButton(driver, XboxController.Button.kB.value)
-            .whenPressed(()->indexer.setVolts(2, 2))
+            .whenPressed(()->indexer.setVolts(4, 4))
+            .whenReleased(()->indexer.setVolts(0, 0));
+
+        new JoystickButton(driver, XboxController.Button.kStickRight.value)
+            .whenPressed(()->indexer.setVolts(-4, -4))
             .whenReleased(()->indexer.setVolts(0, 0));
         
         new JoystickButton(driver, XboxController.Button.kX.value)
-            .whenPressed(()->intake.setSliderExtended(true))
-            .whenReleased(()->intake.setSliderExtended(false));
+            .whenPressed(()->intake.setSliderExtended(!intake.getSliderExtended()));
 
         new JoystickButton(driver, XboxController.Button.kY.value)
-            .whenPressed(()->shooter.setWristVolts(2))
+            .whenPressed(()->shooter.setShooterPID(4000))
+            .whenReleased(()->shooter.setShooterVolts(0));
+
+        new POVButton(driver, 0)
+            .whenPressed(()->shooter.setWristVolts(2.5))
+            .whenReleased(()->shooter.setWristVolts(0));
+
+        new POVButton(driver, 180)
+            .whenPressed(()->shooter.setWristVolts(-2.5))
             .whenReleased(()->shooter.setWristVolts(0));
     }
     

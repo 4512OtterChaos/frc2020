@@ -37,6 +37,8 @@ public class Shooter extends SubsystemBase implements Testable{
     private CANSparkMax shootLeft;
     private CANSparkMax shootRight;
     private CANSparkMax wrist;
+
+    private double wristVolts = 0;
     
     private CANEncoder leftEncoder;
     private CANEncoder rightEncoder;
@@ -77,6 +79,7 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     
     public void periodic() {
+        wrist.setVoltage(wristVolts);
     }
 
     public double getWristDegrees(){
@@ -88,7 +91,11 @@ public class Shooter extends SubsystemBase implements Testable{
         shootRight.setVoltage(volts);
     }
     public void setWristVolts(double volts){
-        wrist.setVoltage(volts);
+        double minVolts = -12;
+        double maxVolts = 12;
+        if(getWristDegrees()>=ShooterWristConstants.kHigherSafeRotations) maxVolts=0;
+        if(getWristDegrees()<=ShooterWristConstants.kBufferRotations) minVolts=0;
+        wristVolts = MathHelp.clamp(volts, minVolts, maxVolts);
     }
     
     public void setShooterPID(double rpm){
@@ -112,8 +119,9 @@ public class Shooter extends SubsystemBase implements Testable{
 
     public void log(){
         SmartDashboard.putNumber("Wrist Degrees", getWristDegrees());
-        SmartDashboard.putNumber("Wrist Encoder", wristEncoder.get());
-        SmartDashboard.putNumber("Wrist OFfset", wristEncoder.getPositionOffset());
+        SmartDashboard.putNumber("Shooter Left RPM", leftEncoder.getVelocity());
+        SmartDashboard.putNumber("Shooter Right RPM", rightEncoder.getVelocity());
+        SmartDashboard.putNumber("Shooter Diff", leftEncoder.getVelocity()-rightEncoder.getVelocity());
     }
     
     @Override

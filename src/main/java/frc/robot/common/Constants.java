@@ -48,13 +48,13 @@ public class Constants {
         public static final int kFreeLimit = 40;
         public static final int kStallLimit = 80;
 
-        public static final double kRampRaw = 0.04; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.06; // seconds to full output(on the motor)
 
-        public static final double kStaticFF = 0; // volts (Given from the characterization tool)
-        public static final double kVelocityFF = 0; // per meters per second
+        public static final double kStaticFF = 0.346; // volts (Given from the characterization tool)
+        public static final double kVelocityFF = 0.134; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 10; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
@@ -75,13 +75,13 @@ public class Constants {
         public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
 
-        public static final double kEncoderOffset = -0.35; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kMinDownwardRotations = 0.04;
-        public static final double kLowerSafeRotations = 0.075; // above is safe
-        public static final double kHigherSafeRotations = 0.175; // below is safe
-        public static final double kBufferRotations = 0.015; // amount to clear "safe" bounds by
+        public static final double kLowerSafeRotations = 30; // above is safe
+        public static final double kClearIntakeRotations = 36;
+        public static final double kHigherSafeRotations = 43.5; // below is safe
+        public static final double kBufferRotations = 2; // amount to clear "safe" bounds by
     }
 
     public static class IntakeConstants{
@@ -104,13 +104,13 @@ public class Constants {
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
 
-        public static final double kEncoderOffset = -0.05; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = 0.05; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeRotations = 0.075; // below is safe
-        public static final double kHigherSafeRotations = 0.175; // above is safe
-        public static final double kBufferRotations = 0.015; // amount to clear "safe" bounds by
-        public static final double kMaxUpwardRotations = 0.245; // 90 degrees up
+        public static final double kLowerSafeRotations = 12; // below is safe
+        public static final double kHigherSafeRotations = 75; // above is safe
+        public static final double kBufferRotations = 1; // amount to clear "safe" bounds by
+        public static final double kMaxUpwardRotations = 76; // 90 degrees up
         public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }

@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
@@ -23,9 +24,9 @@ public class Indexer extends SubsystemBase implements Testable{
     private CANSparkMax bot;
     private CANSparkMax top;
     
-    private DigitalInput frontBeam;
-    private TimeOfFlight shooterFlight;
-    private final double flightDefaultDistanceMM = 100;
+    private final DigitalInput frontBeam;
+    private final TimeOfFlight shooterFlight;
+    private final double flightDefaultDistanceMM = 160;
     private final double flightDefaultErrorMM = 10;
     
     public Indexer() {
@@ -43,7 +44,7 @@ public class Indexer extends SubsystemBase implements Testable{
     }
     
     public boolean getFrontBeam(){
-        return frontBeam.get();
+        return !frontBeam.get();
     }
     public double getFlightRangeMM(){
         return shooterFlight.getRange();
@@ -56,7 +57,7 @@ public class Indexer extends SubsystemBase implements Testable{
     }
     
     public void setTopVolts(double volts){
-        top.setVoltage(volts);
+        top.setVoltage(-volts);
     }
     public void setBotVolts(double volts){
         bot.setVoltage(volts);
@@ -73,7 +74,9 @@ public class Indexer extends SubsystemBase implements Testable{
     }
     
     public void log(){
-
+        SmartDashboard.putBoolean("Front Beam", getFrontBeam());
+        SmartDashboard.putBoolean("Flight Beam", getFlightBeam());
+        SmartDashboard.putNumber("Flight Distance", getFlightRangeMM());
     }
 
     @Override

@@ -16,123 +16,127 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
+import static frc.robot.common.Constants.*;
 import frc.robot.common.Testable;
 import frc.robot.common.Testable.Status;
 import frc.robot.common.Testable.TestableResult;
-import frc.robot.util.Pair;
 
 public class Robot extends TimedRobot {
-
-  private RobotContainer container;
-
-  private Command autoCommand;
-
-  private Timer disableTimer = new Timer();
-
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
-    LiveWindow.disableAllTelemetry();
-
-    container = new RobotContainer();
-
-    new NotifierCommand(container::log, 0.03).initialize();
-  }
-
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   */
-  @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-  }
-
-  @Override
-  public void disabledInit() {
-    disableTimer.reset();
-    disableTimer.start();
-
-    container.stop();
-  }
-
-  @Override
-  public void disabledPeriodic() {
-    if(disableTimer.get()>2){
-      disableTimer.stop();
-      disableTimer.reset();
-
-      container.setAllBrake(false);
+    
+    private RobotContainer container;
+    
+    private Command autoCommand;
+    
+    private Timer disableTimer = new Timer();
+    
+    public Robot(){
+        super(kRobotDelta);
     }
-  }
 
-  @Override
-  public void autonomousInit() {
-    container.setAllBrake(true);
-
-    autoCommand = container.getAutonomousCommand();
-
-    if (autoCommand != null) {
-      autoCommand.schedule();
+    /**
+    * This function is run when the robot is first started up and should be used for any
+    * initialization code.
+    */
+    @Override
+    public void robotInit() {
+        LiveWindow.disableAllTelemetry();
+        
+        container = new RobotContainer();
+        
+        new NotifierCommand(container::log, 0.04).initialize();
     }
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-  }
-
-  @Override
-  public void teleopInit() {
-    container.setAllBrake(true);
-
-    if (autoCommand != null) {
-      autoCommand.cancel();
+    
+    /**
+    * This function is called every robot packet, no matter the mode. Use this for items like
+    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+    */
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
     }
-  }
-
-  @Override
-  public void teleopPeriodic() {
-  }
-
-  @Override
-  public void testInit() {
-    //LED stuff to show testing
-    Timer.delay(1);
-
-    CommandScheduler.getInstance().cancelAll();
-    List<TestableResult> results = new ArrayList<TestableResult>();
-    for(Testable system:container.getTestableSystems()){
-      TestableResult result = system.test();
-      results.add(result);
+    
+    @Override
+    public void disabledInit() {
+        disableTimer.reset();
+        disableTimer.start();
+        
+        container.stop();
     }
-    for(TestableResult result:results){
-      Status status = result.status;
-
-      //LED blank
-      Timer.delay(0.25);
-      System.out.println(result.name+": "+status.toString());
-      switch(status){
-        case FAILED:
-        //LED failed
-        Timer.delay(0.75);
-        break;
-        case WARNING:
-        //LED warning
-        Timer.delay(0.5);
-        break;
-        case PASSED:
-        //LED passed
-        Timer.delay(0.25);
-        break;
-      }
+    
+    @Override
+    public void disabledPeriodic() {
+        if(disableTimer.get()>2){
+            disableTimer.stop();
+            disableTimer.reset();
+            
+            container.setAllBrake(false);
+        }
     }
-  }
-
-  @Override
-  public void testPeriodic() {
-
-  }
+    
+    @Override
+    public void autonomousInit() {
+        container.setAllBrake(true);
+        
+        autoCommand = container.getAutonomousCommand();
+        
+        if (autoCommand != null) {
+            autoCommand.schedule();
+        }
+    }
+    
+    @Override
+    public void autonomousPeriodic() {
+    }
+    
+    @Override
+    public void teleopInit() {
+        container.setAllBrake(true);
+        
+        if (autoCommand != null) {
+            autoCommand.cancel();
+        }
+    }
+    
+    @Override
+    public void teleopPeriodic() {
+    }
+    
+    @Override
+    public void testInit() {
+        //LED stuff to show testing
+        Timer.delay(1);
+        
+        CommandScheduler.getInstance().cancelAll();
+        List<TestableResult> results = new ArrayList<TestableResult>();
+        for(Testable system:container.getTestableSystems()){
+            TestableResult result = system.test();
+            results.add(result);
+        }
+        for(TestableResult result:results){
+            Status status = result.status;
+            
+            //LED blank
+            Timer.delay(0.25);
+            System.out.println(result.name+": "+status.toString());
+            switch(status){
+                case FAILED:
+                //LED failed
+                Timer.delay(0.75);
+                break;
+                case WARNING:
+                //LED warning
+                Timer.delay(0.5);
+                break;
+                case PASSED:
+                //LED passed
+                Timer.delay(0.25);
+                break;
+            }
+        }
+    }
+    
+    @Override
+    public void testPeriodic() {
+        
+    }
 }

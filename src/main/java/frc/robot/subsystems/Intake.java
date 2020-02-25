@@ -33,6 +33,10 @@ public class Intake extends SubsystemBase implements Testable{
     private CANSparkMax arm;
     private WPI_TalonSRX roller;
     private WPI_TalonSRX fence;
+
+    private double armVolts = 0;
+    private double rollerVolts = 0;
+    private double fenceVolts = 0;
     
     private DoubleSolenoid slider;
     private boolean sliderWantsExtended = false;
@@ -62,16 +66,13 @@ public class Intake extends SubsystemBase implements Testable{
     
     @Override
     public void periodic() {
-        
+        boolean nowSliderExtended;
         // Block the slider if it wants to extend while the arm is in the way
         boolean conflicts = MathHelp.isBetweenBounds(getArmDegrees(), kLowerSafeRotations, kHigherSafeRotations);
-        if(sliderWantsExtended){
-            if(conflicts) slider.set(Value.kReverse);
-            else slider.set(Value.kForward);
-        }
+        if(sliderWantsExtended && !conflicts) nowSliderExtended = true;
+        else nowSliderExtended = false;
         
         // Delay the result of the slider if its retracting for safety
-        boolean nowSliderExtended = slider.get()==Value.kForward;
         if(nowSliderExtended){
             if(!lastSliderExtended) sliderDebounce.reset();
             sliderExtended=true;
@@ -84,10 +85,21 @@ public class Intake extends SubsystemBase implements Testable{
             }
         }
         lastSliderExtended=nowSliderExtended;
+
+        if(nowSliderExtended) slider.set(Value.kForward);
+        else slider.set(Value.kReverse);
+
+        arm.setVoltage(armVolts);
+        roller.setVoltage(rollerVolts);
+        fence.setVoltage(fenceVolts);
     }
     
+    public double getEncoder(){
+        double rotations = encoder.get() > 0.3 ? 1-encoder.get() : encoder.get();
+        return -rotations+kEncoderOffset;
+    }
     public double getArmDegrees(){
-        return (encoder.get()-kEncoderOffset)*360;
+        return getEncoder()*360;
     }
     
     public boolean getSliderExtended(){
@@ -110,14 +122,14 @@ public class Intake extends SubsystemBase implements Testable{
         if(enc<=0) lowLimit=0;
         if(enc>=kMaxUpwardRotations) highLimit=0;
         
-        volts = MathHelp.clamp(volts, lowLimit, highLimit);
-        arm.setVoltage(volts);
+        armVolts = MathHelp.clamp(volts, lowLimit, highLimit);
     }
     public void setRollerVolts(double volts){
-        roller.setVoltage(volts);
+        rollerVolts = volts;
     }
     public void setFenceVolts(double volts){
-        fence.setVoltage(volts);
+        if(slider.get()==Value.kReverse) volts = 0;
+        fenceVolts = volts;
     }
     /**
     * Sets the controller goal. Automatically adjusts goal to avoid conflicting with the slider.
@@ -156,8 +168,9 @@ public class Intake extends SubsystemBase implements Testable{
 
     public void log(){
         SmartDashboard.putNumber("Arm Degrees", getArmDegrees());
-        SmartDashboard.putNumber("Arm Encoder", encoder.get());
-        SmartDashboard.putNumber("Arm Offset", encoder.getPositionOffset());
+        SmartDashboard.putNumber("Arm Encoder", getEncoder());
+        SmartDashboard.putBoolean("Slider Extended", getSliderExtended());
+        SmartDashboard.putBoolean("Slider Wants", sliderWantsExtended);
     }
     
     @Override

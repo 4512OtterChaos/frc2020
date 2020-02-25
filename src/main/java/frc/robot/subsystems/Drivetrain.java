@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
@@ -47,7 +48,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private CANEncoder leftEncoder;
     private CANEncoder rightEncoder;
 
-    private final PigeonIMU pigeon;
+    private PigeonIMU pigeon;
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
     private double[] xyz = new double[3]; // x, y, z degrees per second
 
@@ -264,7 +265,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
     }
 
     public void log(){
-
     }
 
     

@@ -53,10 +53,12 @@ public class OCXboxController extends XboxController{
     }
 
     public double getY(Hand hand){
-        return -scaledDeadband(super.getY(hand));
+        int y = hand == Hand.kRight ? 5 : 1;
+        return -scaledDeadband(getRawAxis(y));
     }
     public double getX(Hand hand){
-        return -scaledDeadband(super.getX(hand));
+        int x = hand == Hand.kRight ? 4 : 0;
+        return -scaledDeadband(getRawAxis(x));
     }
 
     /**
