@@ -21,6 +21,7 @@ import frc.robot.auto.Paths;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
+import frc.robot.util.SAS;
 
 public class RobotContainer {
     
@@ -32,6 +33,8 @@ public class RobotContainer {
     private Limelight limelight;
     
     private Paths paths;
+
+    private SAS sas;
     
     private Testable[] testableSystems;
     
@@ -54,6 +57,8 @@ public class RobotContainer {
         shooter.setShooterBrakeOn(false);
         
         paths = new Paths(drivetrain.getFeedForward(), drivetrain.getKinematics());
+
+        sas = new SAS();
         
         testableSystems = new Testable[]{drivetrain, limelight};
         

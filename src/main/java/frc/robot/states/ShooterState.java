@@ -5,13 +5,18 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.common;
+package frc.robot.states;
 
+import static frc.robot.common.Constants.ShooterWristConstants.*;
 import frc.robot.util.MathHelp;
 
+/**
+ * State representing shooter angle and rpm.
+ */
 public class ShooterState {
     public final double angle;
     public final double rpm;
+    public static final ShooterState kIdleState = new ShooterState(0, kClearIntakeRotations);
 
     public ShooterState(double angle, double rpm){
         this.angle = angle;
