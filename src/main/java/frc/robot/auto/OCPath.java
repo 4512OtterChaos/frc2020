@@ -122,8 +122,7 @@ public class OCPath extends Trajectory{
         
         for(int i=0;i<reversedStates.size();i++){
             State currState =  reversedStates.get(i);
-            State newState = new State(
-                states.get(i).timeSeconds, 
+            State newState = new State(states.get(i).timeSeconds, 
                 currState.velocityMetersPerSecond *-1, 
                 currState.accelerationMetersPerSecondSq, 
                 currState.poseMeters, 
