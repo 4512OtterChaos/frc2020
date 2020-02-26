@@ -20,9 +20,7 @@ public class PrimeIntake extends ParallelCommandGroup {
 
   public PrimeIntake(Intake intake, Indexer indexer) {
     super(
-        new IntakeDown(intake).andThen(
-            new InstantCommand(()->intake.setSliderExtended(true))
-        ),
+        new IntakeDown(intake),
         new ParallelRaceGroup(
             new WaitCommand(2.5),
             new IndexHomeIntake(indexer)

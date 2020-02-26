@@ -230,6 +230,11 @@ public class Limelight implements Testable{
         return (difference/Math.tan(angle));
     }
 
+    public Pose2d getRelativeTargetPose(double heading){
+        Pose2d targetPose = new Pose2d();
+        return targetPose;
+    }
+
 
     public double getFilteredTx(){
         if(!isBlocked())  return txFilter.calculate(getTx());

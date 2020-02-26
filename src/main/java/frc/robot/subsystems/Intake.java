@@ -56,6 +56,8 @@ public class Intake extends SubsystemBase implements Testable{
         OCConfig.configMotors(ConfigType.INTAKEARM, arm);
         OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
 
+        controller.setTolerance(kBufferRotations);
+
         boolean ext = true;
         sliderExtended = ext;
         sliderWantsExtended = ext;
@@ -152,24 +154,24 @@ public class Intake extends SubsystemBase implements Testable{
     }
     /**
     * Sets the controller goal. Automatically adjusts goal to avoid conflicting with the slider.
-    * @param rotations Motor rotations setpoint
+    * @param degrees Motor degrees setpoint
     */
-    public void setArmPID(double rotations){
+    public void setArmPID(double degrees){
         // adjust goal to avoid obliterating slider
         if(getSliderExtended()){
             boolean constrainUpper; // false: limit lower, true: limit higher
-            if(MathHelp.isBetweenBounds(rotations, 0, kLowerSafeRotations)) constrainUpper=false;
-            else if(MathHelp.isBetweenBounds(rotations, kHigherSafeRotations, kMaxUpwardRotations)) constrainUpper=true;
+            if(MathHelp.isBetweenBounds(degrees, 0, kLowerSafeRotations)) constrainUpper=false;
+            else if(MathHelp.isBetweenBounds(degrees, kHigherSafeRotations, kMaxUpwardRotations)) constrainUpper=true;
             else{
                 double mid = (kHigherSafeRotations-kLowerSafeRotations)/2.0;
-                constrainUpper = !(rotations<=mid); // in case we extend slider while arm is conflicting
+                constrainUpper = !(degrees<=mid); // in case we extend slider while arm is conflicting
             }
             
-            if(constrainUpper) rotations = MathHelp.clamp(rotations, kHigherSafeRotations+kBufferRotations, kMaxUpwardRotations-kBufferRotations);
-            else rotations = MathHelp.clamp(rotations, 0, kLowerSafeRotations-kBufferRotations);
+            if(constrainUpper) degrees = MathHelp.clamp(degrees, kHigherSafeRotations+kBufferRotations, kMaxUpwardRotations-kBufferRotations);
+            else degrees = MathHelp.clamp(degrees, 0, kLowerSafeRotations-kBufferRotations);
         }
         
-        double volts = controller.calculate(getArmDegrees(), rotations);
+        double volts = controller.calculate(getArmDegrees(), degrees);
         volts += feedForward.calculate(controller.getGoal().velocity);
         
         setArmVolts(volts);
