@@ -22,23 +22,17 @@ import frc.robot.common.OCConfig.ConfigType;
 
 public class Indexer extends SubsystemBase implements Testable{
     
-    private CANSparkMax bot;
-    private CANSparkMax top;
+    private CANSparkMax bot = new CANSparkMax(13, MotorType.kBrushless);
+    private CANSparkMax top = new CANSparkMax(14, MotorType.kBrushless);
     
-    private final DigitalInput frontBeam;
-    private final TimeOfFlight shooterFlight;
+    private final DigitalInput frontBeam = new DigitalInput(2);
+    private final TimeOfFlight shooterFlight = new TimeOfFlight(0);
     private final double flightDefaultDistanceMM = 140;
     private final double flightDefaultErrorMM = 10;
     
-    public Indexer() {
-        bot = new CANSparkMax(13, MotorType.kBrushless);
-        top = new CANSparkMax(14, MotorType.kBrushless);
-        
+    public Indexer() {        
         OCConfig.configMotors(ConfigType.INDEXER, bot, top);
 
-        frontBeam = new DigitalInput(2);
-        
-        shooterFlight = new TimeOfFlight(0);
         shooterFlight.setRangingMode(RangingMode.Short, 24);
     }
     

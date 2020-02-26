@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
@@ -32,37 +33,30 @@ import frc.robot.util.MathHelp;
 
 public class Shooter extends SubsystemBase implements Testable{
 
-    private CANSparkMax shootLeft;
-    private CANSparkMax shootRight;
-    private CANSparkMax wrist;
+    private CANSparkMax shootLeft = new CANSparkMax(6, MotorType.kBrushless);
+    private CANSparkMax shootRight = new CANSparkMax(5, MotorType.kBrushless);
+    private CANSparkMax wrist = new CANSparkMax(7, MotorType.kBrushless);
 
     private double wristVolts = 0;
     
-    private CANEncoder leftEncoder;
-    private CANEncoder rightEncoder;
-    private DutyCycleEncoder wristEncoder;
+    private CANEncoder leftEncoder = new CANEncoder(shootLeft);
+    private CANEncoder rightEncoder = new CANEncoder(shootRight);
+    private DutyCycleEncoder wristEncoder = new DutyCycleEncoder(1);
     
     private SimpleMotorFeedforward leftShootFF = new SimpleMotorFeedforward(ShooterConstants.klStaticFF, ShooterConstants.klVelocityFF, 0);
     private SimpleMotorFeedforward rightShootFF = new SimpleMotorFeedforward(ShooterConstants.krStaticFF, ShooterConstants.krVelocityFF, 0);
     private SimpleMotorFeedforward wristFF = new SimpleMotorFeedforward(ShooterWristConstants.kStaticFF, ShooterWristConstants.kVelocityFF, ShooterWristConstants.kAccelerationFF);
     
-    private CANPIDController leftController;
-    private CANPIDController rightController;
+    private CANPIDController leftController = new CANPIDController(shootLeft);
+    private CANPIDController rightController = new CANPIDController(shootRight);
     private ProfiledPIDController wristController =
     new ProfiledPIDController(ShooterWristConstants.kP, ShooterWristConstants.kI, ShooterWristConstants.kD,
     new Constraints(ShooterWristConstants.kVelocityConstraint, ShooterWristConstants.kAccelerationConstraint), kRobotDelta); // Positional PID controller
     
     public Shooter() {
-        shootLeft = OCConfig.createMAX(6, ConfigType.SHOOTER);
-        shootRight = OCConfig.createMAX(5, ConfigType.SHOOTER);
-        wrist = OCConfig.createMAX(7, ConfigType.SHOOTERWRIST);
+        OCConfig.configMotors(ConfigType.SHOOTER, shootLeft, shootRight);
+        OCConfig.configMotors(ConfigType.SHOOTERWRIST, wrist);
         
-        leftEncoder = new CANEncoder(shootLeft);
-        rightEncoder = new CANEncoder(shootRight);
-        wristEncoder = new DutyCycleEncoder(1);
-        
-        leftController = new CANPIDController(shootLeft);
-        rightController = new CANPIDController(shootRight);
         leftController.setP(ShooterConstants.kP);
         leftController.setI(ShooterConstants.kI);
         leftController.setD(ShooterConstants.kD);

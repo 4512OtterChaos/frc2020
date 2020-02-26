@@ -42,10 +42,10 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private CANSparkMax rightMaster = new CANSparkMax(3, MotorType.kBrushless);
     private CANSparkMax rightSlave = new CANSparkMax(4, MotorType.kBrushless);
         
-    private CANEncoder leftEncoder;
-    private CANEncoder rightEncoder;
+    private CANEncoder leftEncoder = leftMaster.getEncoder();
+    private CANEncoder rightEncoder = rightMaster.getEncoder();
 
-    private PigeonIMU pigeon;
+    private PigeonIMU pigeon = new PigeonIMU(13);
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
     private double[] xyz = new double[3]; // x, y, z degrees per second
 
@@ -63,12 +63,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     public Drivetrain() {
         OCConfig.configMotors(ConfigType.DRIVE, leftMaster, leftSlave);
         OCConfig.configMotors(ConfigType.DRIVE, rightMaster, rightSlave);
-
-        pigeon = new PigeonIMU(13);
-
-        leftEncoder = leftMaster.getEncoder();
-        rightEncoder = rightMaster.getEncoder();
-
+        
         //OCConfig.configureDrivetrain(new CANSparkMax[]{leftMaster, leftSlave}, new CANSparkMax[]{leftMaster, leftSlave}, false);
         leftMaster.setInverted(false);
         leftSlave.follow(leftMaster);
@@ -79,7 +74,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
     @Override
     public void periodic() {
     }
-
 
     //----- Drivetrain control
 

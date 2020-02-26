@@ -32,42 +32,34 @@ import frc.robot.util.MathHelp;
 
 public class Intake extends SubsystemBase implements Testable{
     
-    private CANSparkMax arm;
-    private WPI_TalonSRX roller;
-    private WPI_TalonSRX fence;
+    private CANSparkMax arm = new CANSparkMax(10, MotorType.kBrushless);
+    private WPI_TalonSRX roller = new WPI_TalonSRX(11);
+    private WPI_TalonSRX fence = new WPI_TalonSRX(12);
 
     private double armVolts = 0;
     private double rollerVolts = 0;
     private double fenceVolts = 0;
     
-    private DoubleSolenoid slider;
+    private DoubleSolenoid slider = new DoubleSolenoid(0, 1);
     private boolean sliderExtended;
     private boolean sliderWantsExtended;
     private boolean lastSliderExtended ;
     private Timer sliderDebounce = new Timer();
     
-    private DutyCycleEncoder encoder;
+    private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
     
     private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
     
     private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
     
     public Intake() {
-        arm = new CANSparkMax(10, MotorType.kBrushless);
-        roller = new WPI_TalonSRX(11);
-        fence = new WPI_TalonSRX(12);
-
         OCConfig.configMotors(ConfigType.INTAKEARM, arm);
         OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
-        
-        slider = new DoubleSolenoid(0, 1);
 
         boolean ext = true;
         sliderExtended = ext;
         sliderWantsExtended = ext;
         lastSliderExtended = ext;
-        
-        encoder = new DutyCycleEncoder(0);
         
         roller.setInverted(false);
         fence.setInverted(false);
