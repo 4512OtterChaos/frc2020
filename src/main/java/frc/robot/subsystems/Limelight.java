@@ -143,41 +143,93 @@ public class Limelight implements Testable{
     public double getPNP_Roll(){
         return get3d()[5];
     }
+
+    //-- Vision localization
     /**
-     * Estimates camera pose relative to the outer port.
-     * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
+     * Returns robot pose by translation.
+     * @param camPose Pose of the camera
      */
-    private Pose2d getRelativeCamPose(){
-        return new Pose2d(getPNP_X(), getPNP_Y(), new Rotation2d(Units.degreesToRadians(getPNP_Yaw())));
-    }
-    /**
-     * Estimates robot pose relative to the outer port.
-     * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
-     */
-    public Pose2d getRelativeRobotPose(){
-        Pose2d camPose = getRelativeCamPose();
+    public Pose2d getRelativeRobotPose(Pose2d camPose){
         Translation2d robotTran = camPose.getTranslation().minus(
             kCameraTranslation.rotateBy(camPose.getRotation())
         );
         return new Pose2d(robotTran, camPose.getRotation());
     }
     /**
-     * Estimates field pose based on relative robot pose to the outer port.
-     * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
+     * Returns field pose based on relative robot pose to the outer port.
      */
-    public Pose2d getFieldPos(){
-        Pose2d robotPose = getRelativeRobotPose();
+    public Pose2d getFieldPose(Pose2d robotPose){
         return new Pose2d(
             kTargetTranslation.plus(robotPose.getTranslation()),
             robotPose.getRotation()
         );
+
     }
+
+    // PNP
+    /**
+     * Estimates camera pose relative to the outer port with PNP.
+     */
+    private Pose2d getRelativeCamPose(){
+        return new Pose2d(getPNP_X(), getPNP_Y(), new Rotation2d(Units.degreesToRadians(getPNP_Yaw())));
+    }
+    /**
+     * Estimates robot pose relative to the outer port with PNP.
+     */
+    public Pose2d getRelativeRobotPose(){
+        return getRelativeRobotPose(getRelativeCamPose());
+    }
+    
+    /**
+     * Estimates field pose based on relative robot pose to the outer port with PNP.
+     */
+    public Pose2d getFieldPose(){
+        return getFieldPose(getRelativeRobotPose());
+    }
+    /**
+     * Estimates distance in inches(from camera) to target based on relative PNP field position.
+     */
+    public double getPNPDistance(){
+        Pose2d fieldPose = getFieldPose();
+        Translation2d fieldTran = fieldPose.getTranslation().plus(
+            kCameraTranslation.rotateBy(fieldPose.getRotation())
+        );
+        return Units.metersToInches(fieldTran.getDistance(kTargetTranslation));
+    }
+    
+    // Trig
+    /**
+     * Estimates camera pose relative to the outer port based on angle and heading.
+     */
+    private Pose2d getRelativeCamPose(Rotation2d heading){
+        double radians = heading.getRadians()+Math.PI*0.5;
+        double metersDist = Units.inchesToMeters(getTrigDistance());
+        double y = Math.cos(radians)*metersDist;
+        double x = Math.sin(radians)*-metersDist;
+        return new Pose2d(x, y, heading);
+    }
+    /**
+     * Estimates robot pose relative to the outer port based on angle and heading.
+     */
+    public Pose2d getRelativeRobotPose(Rotation2d heading){
+        return getRelativeRobotPose(getRelativeCamPose(heading));
+    }
+    /**
+     * Estimates field pose based on relative robot pose with angle and heading.
+     */
+    public Pose2d getFieldPose(Rotation2d heading){
+        return getFieldPose(getRelativeRobotPose(heading));
+    }
+    /**
+     * Estimates distance in inches(from camera) to target based on angle.
+     */
     public double getTrigDistance(){
         double difference = kTargetHeight-kCameraHeight;
         double angle = Units.degreesToRadians(kCameraAngle+getTy());
         if(!getHasTarget()) return 0;
         return (difference/Math.tan(angle));
     }
+
 
     public double getFilteredTx(){
         if(!isBlocked())  return txFilter.calculate(getTx());
@@ -187,11 +239,6 @@ public class Limelight implements Testable{
         if(!isBlocked()) return tyFilter.calculate(getTy());
         else return 0;
     }
-    /*
-    @Config
-    public static void setCamAngle(double angle){
-        camAngle = angle;
-    }*/
 
     private boolean isBlocked(){
         if(changeTimer.get()>0.2){
@@ -203,6 +250,9 @@ public class Limelight implements Testable{
 
     public void log(){
         SmartDashboard.putNumber("Trig Distance", getTrigDistance());
+        SmartDashboard.putNumber("PNP Distance", getPNPDistance());
+        SmartDashboard.putNumber("PNP X", getRelativeCamPose().getTranslation().getX());
+        SmartDashboard.putString("PNP Pose", getFieldPose().toString());
     }
 
     @Override
