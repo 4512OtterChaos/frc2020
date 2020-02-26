@@ -25,8 +25,8 @@ import static frc.robot.common.Constants.VisionConstants.*;
 public class Limelight implements Testable{
     public enum Configuration{
         DRIVE(1, 0, 2),
-        BASIC(0, 1, 1),
-        PNP(0, 2, 1);
+        BASIC(0, 1, 2),
+        PNP(0, 2, 2);
 
         private int ledMode;
         private int pipeline;
@@ -147,15 +147,15 @@ public class Limelight implements Testable{
      * Estimates camera pose relative to the outer port.
      * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
      */
-    private Pose2d getRelativeCamPose(boolean usePNP){
+    private Pose2d getRelativeCamPose(){
         return new Pose2d(getPNP_X(), getPNP_Y(), new Rotation2d(Units.degreesToRadians(getPNP_Yaw())));
     }
     /**
      * Estimates robot pose relative to the outer port.
      * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
      */
-    public Pose2d getRelativeRobotPose(boolean usePNP){
-        Pose2d camPose = getRelativeCamPose(usePNP);
+    public Pose2d getRelativeRobotPose(){
+        Pose2d camPose = getRelativeCamPose();
         Translation2d robotTran = camPose.getTranslation().minus(
             kCameraTranslation.rotateBy(camPose.getRotation())
         );
@@ -165,8 +165,8 @@ public class Limelight implements Testable{
      * Estimates field pose based on relative robot pose to the outer port.
      * @param usePNP Whether to estimate with PNP or gyro + trigonometry.
      */
-    public Pose2d getFieldPos(boolean usePNP){
-        Pose2d robotPose = getRelativeRobotPose(usePNP);
+    public Pose2d getFieldPos(){
+        Pose2d robotPose = getRelativeRobotPose();
         return new Pose2d(
             kTargetTranslation.plus(robotPose.getTranslation()),
             robotPose.getRotation()
@@ -175,6 +175,7 @@ public class Limelight implements Testable{
     public double getTrigDistance(){
         double difference = kTargetHeight-kCameraHeight;
         double angle = Units.degreesToRadians(kCameraAngle+getTy());
+        if(!getHasTarget()) return 0;
         return (difference/Math.tan(angle));
     }
 
@@ -198,6 +199,10 @@ public class Limelight implements Testable{
             return false;
         }
         return false;
+    }
+
+    public void log(){
+        SmartDashboard.putNumber("Trig Distance", getTrigDistance());
     }
 
     @Override

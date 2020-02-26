@@ -13,11 +13,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
+import frc.robot.commands.index.IndexIncoming;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
@@ -88,6 +90,7 @@ public class RobotContainer {
             .whenPressed(()->drivetrain.setDriveSpeed(0.8))
             .whenReleased(()->drivetrain.setDriveSpeed(0.3));
 
+        /*
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(()->{
                 intake.setRollerVolts(8);
@@ -97,11 +100,31 @@ public class RobotContainer {
                 intake.setRollerVolts(0);
                 intake.setFenceVolts(0);
             });
+        */
 
+        new JoystickButton(driver, XboxController.Button.kA.value)
+            .whenHeld(new IndexIncoming(indexer)
+            .alongWith(new InstantCommand(()->
+                {
+                    intake.setRollerVolts(9);
+                    intake.setFenceVolts(12);
+                }, intake)))
+            .whenReleased(()->
+                {
+                    intake.setRollerVolts(0);
+                    intake.setFenceVolts(0);
+                }, intake);
+
+        
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(()->indexer.setVolts(4, 4))
             .whenReleased(()->indexer.setVolts(0, 0));
-
+        
+        /*
+        new JoystickButton(driver, XboxController.Button.kB.value)
+                .whenPressed(()->intake.setArmVolts(4), intake)
+                .whenReleased(()->intake.setArmVolts(0), intake);
+        */
         new JoystickButton(driver, XboxController.Button.kStickRight.value)
             .whenPressed(()->indexer.setVolts(-4, -4))
             .whenReleased(()->indexer.setVolts(0, 0));
@@ -110,7 +133,15 @@ public class RobotContainer {
             .whenPressed(()->intake.setSliderExtended(!intake.getSliderExtended()));
 
         new JoystickButton(driver, XboxController.Button.kY.value)
-            .whenPressed(()->shooter.setShooterPID(4000))
+            .whenPressed(()->shooter.setShooterPID(4500))
+            .whenReleased(()->shooter.setShooterVolts(0));
+
+        new JoystickButton(driver, XboxController.Button.kBack.value)
+            .whenPressed(()->shooter.setShooterPID(1000))
+            .whenReleased(()->shooter.setShooterVolts(0));
+
+        new JoystickButton(driver, XboxController.Button.kStart.value)
+            .whenPressed(()->shooter.setShooterPID(3000))
             .whenReleased(()->shooter.setShooterVolts(0));
 
         new POVButton(driver, 0)
@@ -147,6 +178,7 @@ public class RobotContainer {
         indexer.log();
         shooter.log();
         lift.log();
+        limelight.log();
     }
     
     public Testable[] getTestableSystems(){return testableSystems;};

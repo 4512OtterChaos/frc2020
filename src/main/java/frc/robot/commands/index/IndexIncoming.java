@@ -38,6 +38,7 @@ public class IndexIncoming extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
+      indexer.setVolts(0, 0);
   }
 
   @Override

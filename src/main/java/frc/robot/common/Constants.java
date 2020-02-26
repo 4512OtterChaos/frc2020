@@ -50,11 +50,15 @@ public class Constants {
 
         public static final double kRampRaw = 0.06; // seconds to full output(on the motor)
 
-        public static final double kStaticFF = 0.346; // volts (Given from the characterization tool)
-        public static final double kVelocityFF = 0.134; // per meters per second
-        public static final double kAccelerationFF = 0; // per meters per second squared
+        public static final double klStaticFF = 0.483; // volts (Given from the characterization tool)
+        public static final double klVelocityFF = 0.135; // per meters per second
+        public static final double klAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 10; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double krStaticFF = 0.609; // volts (Given from the characterization tool)
+        public static final double krVelocityFF = 0.132; // per meters per second
+        public static final double krAccelerationFF = 0; // per meters per second squared
+
+        public static final double kP = 0.00008; // PID Gains
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
@@ -79,7 +83,7 @@ public class Constants {
 
         // Constraints
         public static final double kLowerSafeRotations = 30; // above is safe
-        public static final double kClearIntakeRotations = 36;
+        public static final double kClearIntakeRotations = 35;
         public static final double kHigherSafeRotations = 43.5; // below is safe
         public static final double kBufferRotations = 2; // amount to clear "safe" bounds by
     }
@@ -94,9 +98,10 @@ public class Constants {
         public static final int kFreeLimit = 25;
         public static final int kStallLimit = 32;
 
-        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.2; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
+        public static final double kCounterGravityFF = 0;
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
@@ -108,11 +113,11 @@ public class Constants {
 
         // Constraints
         public static final double kLowerSafeRotations = 12; // below is safe
-        public static final double kHigherSafeRotations = 75; // above is safe
+        public static final double kHigherSafeRotations = 78; // above is safe
         public static final double kBufferRotations = 1; // amount to clear "safe" bounds by
         public static final double kMaxUpwardRotations = 76; // 90 degrees up
-        public static final int kVelocityConstraint = 7000; // Motor RPM
-        public static final int kAccelerationConstraint = 10000; // Motor RPM per second
+        public static final int kVelocityConstraint = 5000; // Motor RPM
+        public static final int kAccelerationConstraint = 8000; // Motor RPM per second
     }
 
     public static class IndexerConstants{
@@ -133,8 +138,8 @@ public class Constants {
     public static class LiftConstants{
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
-        public static final int kFreeLimit = 27;
-        public static final int kStallLimit = 35;
+        public static final int kFreeLimit = 35;
+        public static final int kStallLimit = 37;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
@@ -149,14 +154,15 @@ public class Constants {
         public static final double kD = 0;
 
         // Constraints
-        public static final int kMaxHeightRotations = 100; // Max height in motor rotations
+        public static final int kMaxHeightRotations = 132; // Max height in motor rotations
+        public static final int kMinHeightRotations = 15; // Min height while climbing
         public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }
 
     public static class VisionConstants{
         public static final double kCameraAngle = 30; // Angle of camera offset from horizontal
-        public static final double kCameraHeight = 24; // inches
+        public static final double kCameraHeight = 26.75; // inches
         public static final double kTargetHeight = 98.25;
         public static final double kLatencyMs = 11; // Image capture latency
         public static final Translation2d kCameraTranslation = new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0));

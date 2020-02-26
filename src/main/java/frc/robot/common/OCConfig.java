@@ -23,7 +23,7 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 /**
  * Used for configuring motor settings.
  */
-public class OCConfig {
+public final class OCConfig {
     public enum ConfigType{
         NONE(0,0,0),
         DRIVE(DrivetrainConstants.kStallLimit, DrivetrainConstants.kFreeLimit, DrivetrainConstants.kRampRaw),
@@ -108,11 +108,8 @@ public class OCConfig {
             // Current limits (don't kill the motors)
             if(stallLimit!=freeLimit) motor.setSmartCurrentLimit(stallLimit, freeLimit);
             else motor.setSmartCurrentLimit(stallLimit);
-
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
         }
+        setStatusNormal(motors);
         saveConfig(motors);
     }
     /**
@@ -166,10 +163,8 @@ public class OCConfig {
     public static void setFollower(CANSparkMax master, boolean inverted, CANSparkMax... followers){
         for(CANSparkMax motor : followers){
             motor.follow(master, inverted);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
         }
+        setStatusSlow(followers);
     }
     public static void setFollower(WPI_TalonSRX master, boolean inverted, WPI_TalonSRX... followers){
         for(WPI_TalonSRX motor : followers){
@@ -177,6 +172,28 @@ public class OCConfig {
             motor.setInverted(inverted ? InvertType.OpposeMaster : InvertType.FollowMaster);
             motor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
             motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
+        }
+    }
+
+    public static void setStatusFast(CANSparkMax... motors){
+        for(CANSparkMax motor:motors){
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
+        }
+    }
+    public static void setStatusNormal(CANSparkMax... motors){
+        for(CANSparkMax motor:motors){
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
+        }
+    }
+    public static void setStatusSlow(CANSparkMax... motors){
+        for(CANSparkMax motor:motors){
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 500);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 500);
         }
     }
 

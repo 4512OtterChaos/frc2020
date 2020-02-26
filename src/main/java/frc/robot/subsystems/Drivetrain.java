@@ -36,15 +36,12 @@ import java.util.TreeMap;
 
 public class Drivetrain extends SubsystemBase implements Testable{
     
-    private CANSparkMax leftMaster;
-    private CANSparkMax leftSlave;
+    private CANSparkMax leftMaster = new CANSparkMax(1, MotorType.kBrushless);
+    private CANSparkMax leftSlave = new CANSparkMax(2, MotorType.kBrushless);
 
-    private CANSparkMax rightMaster;
-    private CANSparkMax rightSlave;
-    
-    private final CANSparkMax[] leftMotors;
-    private final CANSparkMax[] rightMotors;
-    
+    private CANSparkMax rightMaster = new CANSparkMax(3, MotorType.kBrushless);
+    private CANSparkMax rightSlave = new CANSparkMax(4, MotorType.kBrushless);
+        
     private CANEncoder leftEncoder;
     private CANEncoder rightEncoder;
 
@@ -64,30 +61,19 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private double driveSpeed = 0.3;
     
     public Drivetrain() {
-        /*
-        leftMaster = OCConfig.createMAX(1, ConfigType.DRIVE);
-        leftSlave = OCConfig.createMAX(2, ConfigType.DRIVE);
-        rightMaster = OCConfig.createMAX(3, ConfigType.DRIVE);
-        rightSlave = OCConfig.createMAX(4, ConfigType.DRIVE);
-        */
+        OCConfig.configMotors(ConfigType.DRIVE, leftMaster, leftSlave);
+        OCConfig.configMotors(ConfigType.DRIVE, rightMaster, rightSlave);
 
-        leftMaster = new CANSparkMax(1, MotorType.kBrushless);
-        leftSlave = new CANSparkMax(2, MotorType.kBrushless);
-        rightMaster = new CANSparkMax(3, MotorType.kBrushless);
-        rightSlave = new CANSparkMax(4, MotorType.kBrushless);
-        
-        leftMotors = new CANSparkMax[]{leftMaster, leftSlave};
-        rightMotors = new CANSparkMax[]{rightMaster, rightSlave};
-
-        OCConfig.configMotors(ConfigType.DRIVE, leftMotors);
-        OCConfig.configMotors(ConfigType.DRIVE, rightMotors);
-
-        pigeon = new PigeonIMU(11);
+        pigeon = new PigeonIMU(13);
 
         leftEncoder = leftMaster.getEncoder();
         rightEncoder = rightMaster.getEncoder();
 
-        OCConfig.configureDrivetrain(leftMotors, rightMotors, true);
+        //OCConfig.configureDrivetrain(new CANSparkMax[]{leftMaster, leftSlave}, new CANSparkMax[]{leftMaster, leftSlave}, false);
+        leftMaster.setInverted(false);
+        leftSlave.follow(leftMaster);
+        rightMaster.setInverted(true);
+        rightSlave.follow(rightMaster);
     }
     
     @Override
@@ -103,8 +89,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
     public void setBrakeOn(boolean is){
         IdleMode mode = is ? IdleMode.kBrake : IdleMode.kCoast;
-        OCConfig.setIdleMode(mode, leftMotors);
-        OCConfig.setIdleMode(mode, rightMotors);
+        OCConfig.setIdleMode(mode, leftMaster, leftSlave, rightMaster, rightSlave);
     }
 
     /**
@@ -265,6 +250,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     }
 
     public void log(){
+        SmartDashboard.putNumber("Heading", getHeading().getDegrees());
     }
 
     

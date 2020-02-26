@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -40,9 +41,9 @@ public class Intake extends SubsystemBase implements Testable{
     private double fenceVolts = 0;
     
     private DoubleSolenoid slider;
-    private boolean sliderWantsExtended = false;
-    private boolean sliderExtended = false;
-    private boolean lastSliderExtended = false;
+    private boolean sliderExtended;
+    private boolean sliderWantsExtended;
+    private boolean lastSliderExtended ;
     private Timer sliderDebounce = new Timer();
     
     private DutyCycleEncoder encoder;
@@ -52,17 +53,25 @@ public class Intake extends SubsystemBase implements Testable{
     private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
     
     public Intake() {
-        arm = OCConfig.createMAX(10, ConfigType.INTAKEARM);
-        roller = OCConfig.createSRX(11, ConfigType.INTAKE);
-        fence = OCConfig.createSRX(12, ConfigType.INTAKE);
+        arm = new CANSparkMax(10, MotorType.kBrushless);
+        roller = new WPI_TalonSRX(11);
+        fence = new WPI_TalonSRX(12);
+
+        OCConfig.configMotors(ConfigType.INTAKEARM, arm);
+        OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
         
         slider = new DoubleSolenoid(0, 1);
+
+        boolean ext = true;
+        sliderExtended = ext;
+        sliderWantsExtended = ext;
+        lastSliderExtended = ext;
         
         encoder = new DutyCycleEncoder(0);
         
         roller.setInverted(false);
         fence.setInverted(false);
-        arm.setInverted(true);
+        arm.setInverted(false);
     }
     
     @Override
@@ -93,6 +102,21 @@ public class Intake extends SubsystemBase implements Testable{
         // avoid rolling fences when slider is in or arm is up
         fenceVolts = nowSliderExtended&&armLowered ? fenceVolts : 0;
 
+        // arm safety
+        double lowLimit = armVolts;
+        double highLimit = armVolts;
+        
+        // arm safety
+        double enc = getArmDegrees();
+        boolean ext = getSliderExtended();
+        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0; // just in case, anti-collide on slider
+        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
+        if(enc<=0) lowLimit=0;
+        if(enc>=kMaxUpwardRotations) highLimit=0;
+        
+        armVolts = MathHelp.clamp(armVolts, lowLimit, highLimit);
+
+
         // set mechanisms with safety
         if(nowSliderExtended) slider.set(Value.kForward);
         else slider.set(Value.kReverse);
@@ -114,27 +138,19 @@ public class Intake extends SubsystemBase implements Testable{
         return getEncoder()*360;
     }
     
+    private boolean getNowSliderExtended(){
+        return slider.get() == Value.kForward;
+    }
     public boolean getSliderExtended(){
         return sliderExtended;
     }
     
     public void setSliderExtended(boolean is){
+        System.out.println("Set slider: "+is);
         sliderWantsExtended = is;
     }
     
     public void setArmVolts(double volts){
-        double lowLimit = volts;
-        double highLimit = volts;
-        
-        // arm safety
-        double enc = getArmDegrees();
-        boolean ext = getSliderExtended();
-        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0; // just in case, anti-collide on slider
-        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
-        if(enc<=0) lowLimit=0;
-        if(enc>=kMaxUpwardRotations) highLimit=0;
-        
-        armVolts = MathHelp.clamp(volts, lowLimit, highLimit);
     }
     public void setRollerVolts(double volts){
         rollerVolts = volts;

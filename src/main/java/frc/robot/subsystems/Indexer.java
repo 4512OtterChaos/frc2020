@@ -11,6 +11,7 @@ import com.playingwithfusion.TimeOfFlight;
 import com.playingwithfusion.TimeOfFlight.RangingMode;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,13 +27,15 @@ public class Indexer extends SubsystemBase implements Testable{
     
     private final DigitalInput frontBeam;
     private final TimeOfFlight shooterFlight;
-    private final double flightDefaultDistanceMM = 160;
+    private final double flightDefaultDistanceMM = 140;
     private final double flightDefaultErrorMM = 10;
     
     public Indexer() {
-        bot = OCConfig.createMAX(13, ConfigType.INDEXER);
-        top = OCConfig.createMAX(14, ConfigType.INDEXER);
+        bot = new CANSparkMax(13, MotorType.kBrushless);
+        top = new CANSparkMax(14, MotorType.kBrushless);
         
+        OCConfig.configMotors(ConfigType.INDEXER, bot, top);
+
         frontBeam = new DigitalInput(2);
         
         shooterFlight = new TimeOfFlight(0);
@@ -69,8 +72,7 @@ public class Indexer extends SubsystemBase implements Testable{
     
     public void setBrakeOn(boolean is){
         IdleMode mode = is ? IdleMode.kBrake : IdleMode.kCoast;
-        OCConfig.setIdleMode(mode, bot);
-        OCConfig.setIdleMode(mode, top);
+        OCConfig.setIdleMode(mode, bot, top);
     }
     
     public void log(){

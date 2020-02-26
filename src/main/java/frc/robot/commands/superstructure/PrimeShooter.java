@@ -7,12 +7,17 @@
 
 package frc.robot.commands.superstructure;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.index.IndexHomeShooter;
 import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Shooter;
 
-public class PrimeShooter extends ParallelCommandGroup {
-  public PrimeShooter(Indexer indexer, Shooter shooter) {
-    super();
-  }
+public class PrimeShooter extends ParallelRaceGroup {
+    
+    public PrimeShooter(Indexer indexer) {
+        super(
+            new WaitCommand(2.5),
+            new IndexHomeShooter(indexer)
+        );
+    }
 }

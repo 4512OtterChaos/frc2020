@@ -32,8 +32,6 @@ import frc.robot.util.MathHelp;
 
 public class Shooter extends SubsystemBase implements Testable{
 
-    TreeMap<Double, ShooterState> shooterMap = new TreeMap<Double, ShooterState>();
-    
     private CANSparkMax shootLeft;
     private CANSparkMax shootRight;
     private CANSparkMax wrist;
@@ -44,7 +42,8 @@ public class Shooter extends SubsystemBase implements Testable{
     private CANEncoder rightEncoder;
     private DutyCycleEncoder wristEncoder;
     
-    private SimpleMotorFeedforward shootFF = new SimpleMotorFeedforward(ShooterConstants.kStaticFF, ShooterConstants.kVelocityFF, ShooterConstants.kAccelerationFF);
+    private SimpleMotorFeedforward leftShootFF = new SimpleMotorFeedforward(ShooterConstants.klStaticFF, ShooterConstants.klVelocityFF, 0);
+    private SimpleMotorFeedforward rightShootFF = new SimpleMotorFeedforward(ShooterConstants.krStaticFF, ShooterConstants.krVelocityFF, 0);
     private SimpleMotorFeedforward wristFF = new SimpleMotorFeedforward(ShooterWristConstants.kStaticFF, ShooterWristConstants.kVelocityFF, ShooterWristConstants.kAccelerationFF);
     
     private CANPIDController leftController;
@@ -54,8 +53,6 @@ public class Shooter extends SubsystemBase implements Testable{
     new Constraints(ShooterWristConstants.kVelocityConstraint, ShooterWristConstants.kAccelerationConstraint), kRobotDelta); // Positional PID controller
     
     public Shooter() {
-        shooterMap.put(120.0, new ShooterState(30, 4000));
-        
         shootLeft = OCConfig.createMAX(6, ConfigType.SHOOTER);
         shootRight = OCConfig.createMAX(5, ConfigType.SHOOTER);
         wrist = OCConfig.createMAX(7, ConfigType.SHOOTERWRIST);
@@ -79,6 +76,15 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     
     public void periodic() {
+        double minVolts = -12;
+        double maxVolts = 12;
+        final double deg = getWristDegrees();
+        final double low = ShooterWristConstants.kClearIntakeRotations;
+        final double high = ShooterWristConstants.kHigherSafeRotations;
+        final double buffer = ShooterWristConstants.kBufferRotations;
+        if(deg<=low+buffer) minVolts = 0;
+        if(deg>=high-buffer) maxVolts = 0;
+        wristVolts = MathHelp.clamp(wristVolts, minVolts, maxVolts);
         wrist.setVoltage(wristVolts);
     }
 
@@ -102,19 +108,16 @@ public class Shooter extends SubsystemBase implements Testable{
         shootRight.setVoltage(volts);
     }
     public void setWristVolts(double volts){
-        double minVolts = -12;
-        double maxVolts = 12;
-        if(getWristDegrees()>=ShooterWristConstants.kHigherSafeRotations) maxVolts=0;
-        if(getWristDegrees()<=ShooterWristConstants.kBufferRotations) minVolts=0;
-        wristVolts = MathHelp.clamp(volts, minVolts, maxVolts);
+        wristVolts = volts;
     }
     
     public void setShooterPID(double rpm){
-        leftController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
-        rightController.setReference(rpm, ControlType.kVelocity, 0, shootFF.calculate(rpm), ArbFFUnits.kVoltage);
+        double rps = rpm / 60.0;
+        leftController.setReference(rpm, ControlType.kVelocity, 0, leftShootFF.calculate(rps), ArbFFUnits.kVoltage);
+        rightController.setReference(rpm, ControlType.kVelocity, 0, rightShootFF.calculate(rps), ArbFFUnits.kVoltage);
     }
     public void setWristPID(double rotations){
-        rotations = MathHelp.clamp(rotations, ShooterWristConstants.kLowerSafeRotations, ShooterWristConstants.kHigherSafeRotations);
+        rotations = MathHelp.clamp(rotations, ShooterWristConstants.kClearIntakeRotations, ShooterWristConstants.kHigherSafeRotations);
         double volts = wristController.calculate(getWristDegrees(), rotations);
         volts += wristFF.calculate(wristController.getGoal().velocity);
         setWristVolts(volts);
@@ -125,8 +128,7 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     
     public void setShooterBrakeOn(boolean is){
-        shootLeft.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
-        shootRight.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+        OCConfig.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast, shootLeft, shootRight);
     }
     public void setWristBrakeOn(boolean is){
         wrist.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
