@@ -26,7 +26,7 @@ public class Constants {
         public static final double kWheelRadiusMeters = Units.inchesToMeters(3);
 
         public static final double kMaxVelocityMeters = Units.feetToMeters(14);
-        public static final double kMaxVelocityRadians = Units.degreesToRadians(500);
+        public static final double kMaxVelocityRadians = Units.degreesToRadians(450);
         
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
@@ -82,10 +82,10 @@ public class Constants {
         public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeRotations = 30; // above is safe
-        public static final double kClearIntakeRotations = 35;
-        public static final double kHigherSafeRotations = 43.5; // below is safe
-        public static final double kBufferRotations = 2; // amount to clear "safe" bounds by
+        public static final double kLowerSafeDegrees = 30; // above is safe
+        public static final double kClearIntakeDegrees = 35;
+        public static final double kHigherSafeDegrees = 43; // below is safe
+        public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
     }
 
     public static class IntakeConstants{
@@ -112,19 +112,19 @@ public class Constants {
         public static final double kEncoderOffset = 0.05; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeRotations = 12; // below is safe
-        public static final double kHigherSafeRotations = 78; // above is safe
-        public static final double kBufferRotations = 1; // amount to clear "safe" bounds by
-        public static final double kMaxUpwardRotations = 76; // 90 degrees up
+        public static final double kLowerSafeDegrees = 12; // below is safe
+        public static final double kHigherSafeDegrees = 78; // above is safe
+        public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
+        public static final double kMaxUpwardDegrees = 76; // 90 degrees up
         public static final int kVelocityConstraint = 5000; // Motor RPM
         public static final int kAccelerationConstraint = 6000; // Motor RPM per second
     }
 
     public static class IndexerConstants{
         public static final int kFreeLimit = 22;
-        public static final int kStallLimit = 27;
+        public static final int kStallLimit = 25;
 
-        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.12; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
         public static final double kVelocityFF = 0; // per meters per second

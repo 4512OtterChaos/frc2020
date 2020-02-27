@@ -56,7 +56,7 @@ public class Intake extends SubsystemBase implements Testable{
         OCConfig.configMotors(ConfigType.INTAKEARM, arm);
         OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
 
-        controller.setTolerance(kBufferRotations);
+        controller.setTolerance(kBufferDegrees);
 
         boolean ext = true;
         sliderExtended = ext;
@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase implements Testable{
     public void periodic() {
         boolean nowSliderExtended;
         // Block the slider if it wants to extend while the arm is in the way
-        boolean conflicts = MathHelp.isBetweenBounds(getArmDegrees(), kLowerSafeRotations, kHigherSafeRotations);
+        boolean conflicts = MathHelp.isBetweenBounds(getArmDegrees(), kLowerSafeDegrees, kHigherSafeDegrees);
         if(sliderWantsExtended && !conflicts) nowSliderExtended = true;
         else nowSliderExtended = false;
         
@@ -90,7 +90,7 @@ public class Intake extends SubsystemBase implements Testable{
         }
         lastSliderExtended=nowSliderExtended;
 
-        boolean armLowered = getArmDegrees()<=kLowerSafeRotations;
+        boolean armLowered = getArmDegrees()<=kLowerSafeDegrees;
         // avoid rolling rollers when arm is up
         rollerVolts = armLowered ? rollerVolts : 0;
         // avoid rolling fences when slider is in or arm is up
@@ -103,10 +103,10 @@ public class Intake extends SubsystemBase implements Testable{
         // arm safety
         double enc = getArmDegrees();
         boolean ext = getSliderExtended();
-        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeRotations, kHigherSafeRotations+kBufferRotations)) lowLimit=0; // just in case, anti-collide on slider
-        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeRotations-kBufferRotations, kLowerSafeRotations)) highLimit=0;
-        if(enc<=0) lowLimit=0;
-        if(enc>=kMaxUpwardRotations) highLimit=0;
+        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeDegrees, kHigherSafeDegrees+kBufferDegrees)) lowLimit=0; // just in case, anti-collide on slider
+        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeDegrees-kBufferDegrees, kLowerSafeDegrees)) highLimit=0;
+        if(enc<=kBufferDegrees) lowLimit=0;
+        if(enc>=kMaxUpwardDegrees) highLimit=0;
         
         armVolts = MathHelp.clamp(armVolts, lowLimit, highLimit);
 
@@ -140,7 +140,6 @@ public class Intake extends SubsystemBase implements Testable{
     }
     
     public void setSliderExtended(boolean is){
-        System.out.println("Set slider: "+is);
         sliderWantsExtended = is;
     }
     
@@ -160,15 +159,15 @@ public class Intake extends SubsystemBase implements Testable{
         // adjust goal to avoid obliterating slider
         if(getSliderExtended()){
             boolean constrainUpper; // false: limit lower, true: limit higher
-            if(MathHelp.isBetweenBounds(degrees, 0, kLowerSafeRotations)) constrainUpper=false;
-            else if(MathHelp.isBetweenBounds(degrees, kHigherSafeRotations, kMaxUpwardRotations)) constrainUpper=true;
+            if(MathHelp.isBetweenBounds(degrees, 0, kLowerSafeDegrees)) constrainUpper=false;
+            else if(MathHelp.isBetweenBounds(degrees, kHigherSafeDegrees, kMaxUpwardDegrees)) constrainUpper=true;
             else{
-                double mid = (kHigherSafeRotations-kLowerSafeRotations)/2.0;
+                double mid = (kHigherSafeDegrees-kLowerSafeDegrees)/2.0;
                 constrainUpper = !(degrees<=mid); // in case we extend slider while arm is conflicting
             }
             
-            if(constrainUpper) degrees = MathHelp.clamp(degrees, kHigherSafeRotations+kBufferRotations, kMaxUpwardRotations-kBufferRotations);
-            else degrees = MathHelp.clamp(degrees, 0, kLowerSafeRotations-kBufferRotations);
+            if(constrainUpper) degrees = MathHelp.clamp(degrees, kHigherSafeDegrees+kBufferDegrees, kMaxUpwardDegrees-kBufferDegrees);
+            else degrees = MathHelp.clamp(degrees, 0, kLowerSafeDegrees-kBufferDegrees);
         }
         
         double volts = controller.calculate(getArmDegrees(), degrees);

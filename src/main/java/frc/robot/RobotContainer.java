@@ -77,7 +77,7 @@ public class RobotContainer {
     }
     
     private void configureButtonBindings() {
-        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeedPID(driver.getForward(), driver.getTurn()), drivetrain);
+        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
         /*
         drivetrain.setDefaultCommand(new RunCommand(()->{
             double left = driver.getLeftArcade();
@@ -124,7 +124,7 @@ public class RobotContainer {
                 }, intake);
         */
         new JoystickButton(driver, XboxController.Button.kA.value)
-                .whenPressed(new IntakeIndexIncoming(intake, indexer))
+                .whenPressed(new IntakeIndexIncoming(intake, indexer, shooter))
                 .whenReleased(()->{
                     intake.setRollerVolts(0);
                     intake.setFenceVolts(0);
@@ -148,16 +148,16 @@ public class RobotContainer {
             .whenPressed(()->intake.setSliderExtended(!intake.getSliderExtended()));
 
         new JoystickButton(driver, XboxController.Button.kY.value)
-            .whenPressed(()->shooter.setShooterPID(4500))
-            .whenReleased(()->shooter.setShooterPID(0));
+            .whenPressed(()->shooter.setShooterVelocity(4500))
+            .whenReleased(()->shooter.setShooterVelocity(0));
 
         new JoystickButton(driver, XboxController.Button.kBack.value)
-            .whenPressed(()->shooter.setShooterPID(-1000))
-            .whenReleased(()->shooter.setShooterPID(0));
+            .whenPressed(()->shooter.setShooterVelocity(-1000))
+            .whenReleased(()->shooter.setShooterVelocity(0));
 
         new JoystickButton(driver, XboxController.Button.kStart.value)
-            .whenPressed(()->shooter.setShooterPID(3000))
-            .whenReleased(()->shooter.setShooterPID(0));
+            .whenPressed(()->shooter.setShooterVelocity(3000))
+            .whenReleased(()->shooter.setShooterVelocity(0));
 
         new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.2)
                 .whenActive(()->lift.setVolts(-12), lift)
@@ -187,7 +187,7 @@ public class RobotContainer {
         intake.setRollerBrakeOn(is);
         indexer.setBrakeOn(is);
         shooter.setWristBrakeOn(is);
-        lift.setBrakeOn(is);
+        if(DriverStation.getInstance().isFMSAttached()) lift.setBrakeOn(true);
     }
     public void stop(){
         drivetrain.tankDrive(0, 0);

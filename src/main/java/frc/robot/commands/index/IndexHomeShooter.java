@@ -10,6 +10,7 @@ package frc.robot.commands.index;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
 
 public class IndexHomeShooter extends CommandBase {
   

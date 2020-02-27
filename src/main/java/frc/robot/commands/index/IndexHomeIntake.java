@@ -18,9 +18,7 @@ public class IndexHomeIntake extends CommandBase {
 
   boolean foundHome = false;
   double homeTime = 0;
-  /**
-   * Creates a new IndexIncoming.
-   */
+  
   public IndexHomeIntake(Indexer indexer) {
     this.indexer = indexer;
 

@@ -16,7 +16,7 @@ import frc.robot.util.MathHelp;
 public class ShooterState {
     public final double angle;
     public final double rpm;
-    public static final ShooterState kIdleState = new ShooterState(0, kClearIntakeRotations);
+    public static final ShooterState kIdleState = new ShooterState(0, kClearIntakeDegrees);
 
     public ShooterState(double angle, double rpm){
         this.angle = angle;

@@ -43,4 +43,7 @@ public final class FieldUtil {
         Rotation2d theta = getRelativeHeading(robotPose.getTranslation(), targetTran);
         return theta.minus(robotPose.getRotation());
     }
+    public static Rotation2d getTargetedHeading(Pose2d robotPose, Translation2d targetTran){
+        return robotPose.getRotation().plus(getRelativeHeading(robotPose, targetTran));
+    }
 }

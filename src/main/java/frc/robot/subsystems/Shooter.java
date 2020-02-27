@@ -73,9 +73,9 @@ public class Shooter extends SubsystemBase implements Testable{
         double minVolts = -12;
         double maxVolts = 12;
         final double deg = getWristDegrees();
-        final double low = ShooterWristConstants.kClearIntakeRotations;
-        final double high = ShooterWristConstants.kHigherSafeRotations;
-        final double buffer = ShooterWristConstants.kBufferRotations;
+        final double low = ShooterWristConstants.kClearIntakeDegrees;
+        final double high = ShooterWristConstants.kHigherSafeDegrees;
+        final double buffer = ShooterWristConstants.kBufferDegrees;
         if(deg<=low+buffer) minVolts = 0;
         if(deg>=high-buffer) maxVolts = 0;
         wristVolts = MathHelp.clamp(wristVolts, minVolts, maxVolts);
@@ -105,20 +105,21 @@ public class Shooter extends SubsystemBase implements Testable{
         wristVolts = volts;
     }
     
-    public void setShooterPID(double rpm){
+    public void setShooterVelocity(double rpm){
         double rps = rpm / 60.0;
         leftController.setReference(rpm, ControlType.kVelocity, 0, leftShootFF.calculate(rps), ArbFFUnits.kVoltage);
         rightController.setReference(rpm, ControlType.kVelocity, 0, rightShootFF.calculate(rps), ArbFFUnits.kVoltage);
     }
-    public void setWristPID(double rotations){
-        rotations = MathHelp.clamp(rotations, ShooterWristConstants.kClearIntakeRotations, ShooterWristConstants.kHigherSafeRotations);
-        double volts = wristController.calculate(getWristDegrees(), rotations);
+    public void setWristPosition(double degrees){
+        degrees = MathHelp.clamp(degrees, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);
+        double volts = wristController.calculate(getWristDegrees(), degrees);
         volts += wristFF.calculate(wristController.getGoal().velocity);
+
         setWristVolts(volts);
     }
     public void setState(ShooterState state){
-        setShooterPID(state.rpm);
-        setWristPID(state.angle);
+        setShooterVelocity(state.rpm);
+        setWristPosition(state.angle);
     }
     
     public void setShooterBrakeOn(boolean is){

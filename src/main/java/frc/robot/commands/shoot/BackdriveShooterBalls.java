@@ -5,35 +5,38 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands.superstructure;
+package frc.robot.commands.shoot;
 
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.common.Constants.VisionConstants;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Limelight;
-import frc.robot.util.FieldUtil;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import frc.robot.subsystems.Shooter;
 
-public class TurnToOuter extends CommandBase {
+public class BackdriveShooterBalls extends ConditionalCommand {
     
-    private final Drivetrain drivetrain;
-    private final Limelight limelight;
-    private double targetHeading;
-    
-    public TurnToOuter(Drivetrain drivetrain, Limelight limelight){
-        this.drivetrain = drivetrain;
-        this.limelight = limelight;
-        
-        addRequirements(drivetrain);
+    private final BooleanSupplier getIndexFlightBeam;
+
+    public BackdriveShooterBalls(Shooter shooter, BooleanSupplier getIndexFlightBeam) {
+        super(
+            new StartEndCommand(
+                ()->{
+                    shooter.setShooterVelocity(-1000);
+                }, 
+                ()->{
+                    shooter.setShooterVelocity(0);
+                }, shooter).withInterrupt(()->!getIndexFlightBeam.getAsBoolean()),
+            new InstantCommand(),
+            getIndexFlightBeam
+        );
+        this.getIndexFlightBeam = getIndexFlightBeam;
     }
     
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        if(!limelight.getHasTarget()){
-            targetHeading = FieldUtil.getRelativeHeading(drivetrain.getOdometry().getPoseMeters(), VisionConstants.kTargetTranslation).getDegrees();
-        }
     }
     
     // Called every time the scheduler runs while the command is scheduled.
@@ -49,6 +52,6 @@ public class TurnToOuter extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return !getIndexFlightBeam.getAsBoolean();
     }
 }

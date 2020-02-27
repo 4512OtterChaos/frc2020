@@ -128,25 +128,34 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * Feeds percentages into chassis speeds for velocity PID.
      * Positive: linear forward, angular left
      */
-    public void setChassisSpeedPID(double linearPercent, double angularPercent){
-        linearPercent *= driveSpeed;
-        angularPercent *= driveSpeed;
+    public void setChassisSpeed(double linearPercent, double angularPercent){
+        linearPercent = MathHelp.clamp(linearPercent * driveSpeed, 0, 1);
+        angularPercent = MathHelp.clamp(angularPercent * driveSpeed, 0, 1);
         double linear = linearPercent*kMaxVelocityMeters;
         double angular = (angularPercent*(kMaxVelocityRadians));
-        setChassisSpeedPID(new ChassisSpeeds(linear, 0, angular));
+        setChassisSpeed(new ChassisSpeeds(linear, 0, angular));
+    }
+    /**
+     * Feeds percentages into chassis speeds for velocity PID.
+     * Positive: linear forward, angular left
+     * @param scaleTurning Whether to adjust turning power for driver control
+     */
+    public void setChassisSpeed(double linearPercent, double angularPercent, boolean scaleTurning){
+        if(scaleTurning) angularPercent = Math.pow(angularPercent, 0.4)*0.8; // re-scale for better low speeds control and less top speed
+        setChassisSpeed(linearPercent, angularPercent);
     }
     /**
      * Feeds chassis speeds into differential drive wheel speeds for velocity PID.
      */
-    public void setChassisSpeedPID(ChassisSpeeds chassisSpeeds){
+    public void setChassisSpeed(ChassisSpeeds chassisSpeeds){
         DifferentialDriveWheelSpeeds dSpeeds = getKinematics().toWheelSpeeds(chassisSpeeds);
-        setVelocityPID(dSpeeds.leftMetersPerSecond, dSpeeds.rightMetersPerSecond);
+        setVelocityMeters(dSpeeds.leftMetersPerSecond, dSpeeds.rightMetersPerSecond);
     }
     /**
      * Uses PID + FF to achieve given wheel speeds.
      * <p><b>! Note: All inputs are in meters and all outputs are in volts.
      */
-    public void setVelocityPID(double leftMetersPerSecond, double rightMetersPerSecond){
+    public void setVelocityMeters(double leftMetersPerSecond, double rightMetersPerSecond){
         DifferentialDriveWheelSpeeds speeds = getWheelSpeeds();
         double leftVolts = 0;
         double rightVolts = 0;
@@ -200,10 +209,16 @@ public class Drivetrain extends SubsystemBase implements Testable{
         return kinematics;
     }
     
-    public Rotation2d getHeading(){
+    public double getYawPosition(){
         pigeon.getYawPitchRoll(ypr);
+        return ypr[0];
+    }
+    public double getYawVelocity(){
         pigeon.getRawGyro(xyz);
-        return Rotation2d.fromDegrees(ypr[0]);
+        return xyz[0];
+    }
+    public Rotation2d getHeading(){
+        return Rotation2d.fromDegrees(getYawPosition());
     }
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
@@ -257,6 +272,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     public void log(){
         SmartDashboard.putNumber("Heading", getHeading().getDegrees());
         SmartDashboard.putNumber("Angular Velocity", Units.radiansToDegrees(kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Gyro Velocity", getYawVelocity());
         SmartDashboard.putNumber("Linear Velocity", kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond);
     }
 
