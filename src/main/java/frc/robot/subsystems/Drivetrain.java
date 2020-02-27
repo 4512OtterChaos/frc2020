@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ExternalFollower;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
@@ -65,10 +67,17 @@ public class Drivetrain extends SubsystemBase implements Testable{
         OCConfig.configMotors(ConfigType.DRIVE, rightMaster, rightSlave);
         
         //OCConfig.configureDrivetrain(new CANSparkMax[]{leftMaster, leftSlave}, new CANSparkMax[]{leftMaster, leftSlave}, false);
+        //OCConfig.setStatusFast(leftMaster,leftSlave,rightMaster,rightSlave);
+        leftMaster.follow(ExternalFollower.kFollowerDisabled, 0);
+        leftSlave.follow(ExternalFollower.kFollowerDisabled, 0);
+        rightMaster.follow(ExternalFollower.kFollowerDisabled, 0);
+        rightSlave.follow(ExternalFollower.kFollowerDisabled, 0);
         leftMaster.setInverted(false);
-        leftSlave.follow(leftMaster);
+        leftMaster.setInverted(false);
+        //leftSlave.follow(leftMaster);
         rightMaster.setInverted(true);
-        rightSlave.follow(rightMaster);
+        rightSlave.setInverted(true);
+        //rightSlave.follow(rightMaster);
     }
     
     @Override
@@ -94,7 +103,9 @@ public class Drivetrain extends SubsystemBase implements Testable{
      */
     public void tankDriveVolts(double leftVolts, double rightVolts){
         leftMaster.setVoltage(leftVolts);
+        leftSlave.setVoltage(leftVolts);
         rightMaster.setVoltage(rightVolts);
+        rightSlave.setVoltage(rightVolts);
         //return tankDrive(leftVolts / 12.0, rightVolts / 12.0, 1.0);
     }
     /**
@@ -245,6 +256,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
     public void log(){
         SmartDashboard.putNumber("Heading", getHeading().getDegrees());
+        SmartDashboard.putNumber("Angular Velocity", Units.radiansToDegrees(kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Linear Velocity", kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond);
     }
 
     

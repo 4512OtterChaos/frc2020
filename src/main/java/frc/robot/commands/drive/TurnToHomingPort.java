@@ -5,42 +5,37 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands.index;
+package frc.robot.commands.drive;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Indexer;
+import frc.robot.common.Constants.VisionConstants;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.util.FieldUtil;
 
-public class IndexIncoming extends CommandBase {
-  
-  final Indexer indexer;
-  /**
-   * Creates a new IndexIncoming.
-   */
-  public IndexIncoming(Indexer indexer) {
-    this.indexer = indexer;
+public class TurnToHomingPort extends TurnTo {
 
-    addRequirements(indexer);
+    public TurnToHomingPort(Drivetrain drivetrain) {
+      super(
+          drivetrain,
+          FieldUtil.getRelativeHeading(drivetrain.getOdometry().getPoseMeters(), VisionConstants.kTargetTranslation).getDegrees()
+      );
   }
 
+  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
   }
 
+  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(indexer.getFrontBeam()){
-      indexer.setVolts(2, 2);
-    }
-    else{
-      indexer.setVolts(0,0);
-    }
   }
 
+  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-      indexer.setVolts(0, 0);
   }
 
+  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;

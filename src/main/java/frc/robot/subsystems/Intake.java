@@ -94,7 +94,7 @@ public class Intake extends SubsystemBase implements Testable{
         // avoid rolling rollers when arm is up
         rollerVolts = armLowered ? rollerVolts : 0;
         // avoid rolling fences when slider is in or arm is up
-        fenceVolts = nowSliderExtended&&armLowered ? fenceVolts : 0;
+        //fenceVolts = nowSliderExtended&&armLowered ? fenceVolts : 0;
 
         // arm safety
         double lowLimit = armVolts;

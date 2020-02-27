@@ -103,13 +103,13 @@ public final class OCConfig {
             motor.setOpenLoopRampRate(rampRate);
             motor.setClosedLoopRampRate(rampRate);
 
-            motor.enableVoltageCompensation(12);
+            //motor.enableVoltageCompensation(12);
 
             // Current limits (don't kill the motors)
             if(stallLimit!=freeLimit) motor.setSmartCurrentLimit(stallLimit, freeLimit);
             else motor.setSmartCurrentLimit(stallLimit);
         }
-        setStatusNormal(motors);
+        //setStatusNormal(motors);
         saveConfig(motors);
     }
     /**

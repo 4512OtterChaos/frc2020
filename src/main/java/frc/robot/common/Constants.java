@@ -22,11 +22,11 @@ public class Constants {
     // All distance measurements should be in meters when being used
     
     public static class DrivetrainConstants{
-        public static final double kTrackWidthMeters = Units.inchesToMeters(23); // Distance between center of drivetrain sides
+        public static final double kTrackWidthMeters = Units.inchesToMeters(23.1); // Distance between center of drivetrain sides
         public static final double kWheelRadiusMeters = Units.inchesToMeters(3);
 
         public static final double kMaxVelocityMeters = Units.feetToMeters(14);
-        public static final double kMaxVelocityRadians = Units.degreesToRadians(400);
+        public static final double kMaxVelocityRadians = Units.degreesToRadians(500);
         
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
@@ -35,11 +35,11 @@ public class Constants {
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
         
-        public static final double kStaticFF = 0; // volts (Given from the characterization tool)
-        public static final double kVelocityFF = 0; // per meters per second
-        public static final double kAccelerationFF = 0; // per meters per second squared
+        public static final double kStaticFF = 0.241; // volts (Given from the characterization tool)
+        public static final double kVelocityFF = 2.32; // per meters per second
+        public static final double kAccelerationFF = 0.376; // per meters per second squared
         
-        public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 0.8; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
@@ -92,7 +92,7 @@ public class Constants {
         public static final int kFreeLimit = 22;
         public static final int kStallLimit = 27;
 
-        public static final double kRampRaw = 0.4; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.3; // seconds to full output(on the motor)
     }
     public static class IntakeArmConstants{
         public static final int kFreeLimit = 25;
@@ -117,7 +117,7 @@ public class Constants {
         public static final double kBufferRotations = 1; // amount to clear "safe" bounds by
         public static final double kMaxUpwardRotations = 76; // 90 degrees up
         public static final int kVelocityConstraint = 5000; // Motor RPM
-        public static final int kAccelerationConstraint = 8000; // Motor RPM per second
+        public static final int kAccelerationConstraint = 6000; // Motor RPM per second
     }
 
     public static class IndexerConstants{
@@ -154,8 +154,8 @@ public class Constants {
         public static final double kD = 0;
 
         // Constraints
-        public static final int kMaxHeightRotations = 132; // Max height in motor rotations
-        public static final int kMinHeightRotations = 15; // Min height while climbing
+        public static final int kMaxHeightRotations = 265; // Max height in motor rotations
+        public static final int kMinHeightRotations = -85; // Min height while climbing
         public static final int kVelocityConstraint = 7000; // Motor RPM
         public static final int kAccelerationConstraint = 10000; // Motor RPM per second
     }

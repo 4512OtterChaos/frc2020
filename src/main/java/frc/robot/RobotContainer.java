@@ -11,15 +11,18 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
 import frc.robot.commands.index.IndexIncoming;
+import frc.robot.commands.superstructure.IntakeIndexIncoming;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.subsystems.*;
@@ -47,6 +50,8 @@ public class RobotContainer {
     private AddressableLEDBuffer ledBuffer;
     
     private AutoOptions autoOptions;
+
+    private double testRPM = 0;
     
     public RobotContainer() {
         drivetrain = new Drivetrain();
@@ -73,7 +78,7 @@ public class RobotContainer {
     
     private void configureButtonBindings() {
         RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeedPID(driver.getForward(), driver.getTurn()), drivetrain);
-        
+        /*
         drivetrain.setDefaultCommand(new RunCommand(()->{
             double left = driver.getLeftArcade();
             double right = driver.getRightArcade();
@@ -81,6 +86,8 @@ public class RobotContainer {
             SmartDashboard.putNumber("Right", right);
             drivetrain.tankDrive(left, right);
         }, drivetrain));
+        */
+        drivetrain.setDefaultCommand(velocityControl);
         
         new JoystickButton(driver, XboxController.Button.kBumperRight.value)
             .whenPressed(()->drivetrain.setDriveSpeed(0.5))
@@ -102,6 +109,7 @@ public class RobotContainer {
             });
         */
 
+        /*
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenHeld(new IndexIncoming(indexer)
             .alongWith(new InstantCommand(()->
@@ -114,7 +122,14 @@ public class RobotContainer {
                     intake.setRollerVolts(0);
                     intake.setFenceVolts(0);
                 }, intake);
-
+        */
+        new JoystickButton(driver, XboxController.Button.kA.value)
+                .whenPressed(new IntakeIndexIncoming(intake, indexer))
+                .whenReleased(()->{
+                    intake.setRollerVolts(0);
+                    intake.setFenceVolts(0);
+                    indexer.setVolts(0, 0);
+                }, intake, indexer);
         
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(()->indexer.setVolts(4, 4))
@@ -134,15 +149,23 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kY.value)
             .whenPressed(()->shooter.setShooterPID(4500))
-            .whenReleased(()->shooter.setShooterVolts(0));
+            .whenReleased(()->shooter.setShooterPID(0));
 
         new JoystickButton(driver, XboxController.Button.kBack.value)
-            .whenPressed(()->shooter.setShooterPID(1000))
-            .whenReleased(()->shooter.setShooterVolts(0));
+            .whenPressed(()->shooter.setShooterPID(-1000))
+            .whenReleased(()->shooter.setShooterPID(0));
 
         new JoystickButton(driver, XboxController.Button.kStart.value)
             .whenPressed(()->shooter.setShooterPID(3000))
-            .whenReleased(()->shooter.setShooterVolts(0));
+            .whenReleased(()->shooter.setShooterPID(0));
+
+        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.2)
+                .whenActive(()->lift.setVolts(-12), lift)
+                .whenInactive(()->lift.setVolts(0), lift);
+
+        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.2)
+                .whenActive(()->lift.setVolts(12), lift)
+                .whenInactive(()->lift.setVolts(0), lift);
 
         new POVButton(driver, 0)
             .whenPressed(()->shooter.setWristVolts(2.5))

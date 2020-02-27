@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ExternalFollower;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -85,9 +86,6 @@ public class Lift extends SubsystemBase implements Testable{
     
     public void setVolts(double volts){
         this.volts = volts;
-    }
-    public void set(double percent){
-        master.set(1);
     }
     
     /**

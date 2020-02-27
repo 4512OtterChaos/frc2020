@@ -123,6 +123,7 @@ public class Limelight implements Testable{
     public double[] get3d(){
         double[] camtran = visionTable.getEntry("camtran").getDoubleArray(new double[]{});
         SmartDashboard.putNumberArray("camtran", camtran);
+        if(!getHasTarget()) return new double[6];
         return camtran;
     }
     public double getPNP_X(){
