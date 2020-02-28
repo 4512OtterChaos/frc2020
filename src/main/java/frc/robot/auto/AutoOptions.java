@@ -30,7 +30,12 @@ import frc.robot.subsystems.Shooter;
  * Class for holding commandGroups defining different auto options.
  */
 public class AutoOptions {
+    public enum StartingOrientation{
+        FORWARD,
+        BACKWARD
+    }
     // Chooser boxes for creating autos
+    SendableChooser<StartingOrientation> startingOrientation = new SendableChooser<>();
     SendableChooser<Command> stage1Options = new SendableChooser<>();
     SendableChooser<Command> stage2Options = new SendableChooser<>();
     SendableChooser<Command> stage3Options = new SendableChooser<>();
@@ -42,7 +47,7 @@ public class AutoOptions {
     HashMap<String, Command> fullOptions = new HashMap<>();
 
     /**
-     * Constructs different auto options given drivetrain.
+     * Constructs different auto options given subsystems.
      */
     public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
         Command nothing = new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain);
@@ -71,6 +76,7 @@ public class AutoOptions {
         for(Entry<String,Command> entry:fullOptions.entrySet()){
             fullAutoOptions.addOption(entry.getKey(), entry.getValue());
         }
+
     }
 
     private void putStageOption(String name, Command command){
@@ -111,6 +117,7 @@ public class AutoOptions {
      * Display sendable choosers
      */
     public void submit(){
+        SmartDashboard.putData("Starting Orientation", startingOrientation);
         SmartDashboard.putData("Stage 1 Options", stage1Options);
         SmartDashboard.putData("Stage 2 Options", stage2Options);
         SmartDashboard.putData("Stage 3 Options", stage3Options);
