@@ -33,12 +33,13 @@ public class SetShooterState extends CommandBase {
   @Override
   public void initialize() {
     started = true;
-    shooter.setState(state);
     lastTime = Timer.getFPGATimestamp();
+    shooter.getWristController().reset(shooter.getWristDegrees());
   }
 
   @Override
   public void execute() {
+    shooter.setState(state);
   }
 
   @Override

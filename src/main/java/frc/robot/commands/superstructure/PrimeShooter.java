@@ -26,7 +26,7 @@ public class PrimeShooter extends ParallelCommandGroup {
                 .alongWith(
                     new BackdriveShooterBalls(shooter, indexer::getFlightBeam)
                 )
-                .withTimeout(2.5)
+                .withTimeout(2)
         );
     }
 }

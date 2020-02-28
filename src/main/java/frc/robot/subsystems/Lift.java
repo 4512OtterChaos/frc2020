@@ -61,8 +61,7 @@ public class Lift extends SubsystemBase implements Testable{
         double maxVolts = 12;
         if(encoder.getPosition()<=kMinHeightRotations) minVolts = 0;
         if(encoder.getPosition()>=kMaxHeightRotations) maxVolts = 0;
-        if(ratchet.get()==Value.kForward){
-            minVolts = -1;
+        if(getRatchetEngaged()){
             maxVolts = 0;
         }
         volts = MathHelp.clamp(volts, minVolts, maxVolts);
@@ -75,6 +74,9 @@ public class Lift extends SubsystemBase implements Testable{
     }
     public boolean getRatchetSwitch(){
         return ratchetSwitch.get();
+    }
+    public boolean getRatchetEngaged(){
+        return ratchet.get()!=Value.kForward;
     }
     
     public ProfiledPIDController getController(){
@@ -110,7 +112,7 @@ public class Lift extends SubsystemBase implements Testable{
         SmartDashboard.putNumber("Lift Encoder", encoder.getPosition());
         SmartDashboard.putNumber("Lift Master Percent", master.getAppliedOutput());
         SmartDashboard.putNumber("Lift Slave Percent", slave.getAppliedOutput());
-        SmartDashboard.putNumber("Lift Ramp", master.getClosedLoopRampRate());
+        SmartDashboard.putBoolean("Lift Ratchet Engaged", getRatchetEngaged());
     }
     
     @Override

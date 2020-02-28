@@ -59,7 +59,7 @@ public class TurnTo extends ProfiledPIDCommand {
         addRequirements(drivetrain);
     }
     
-    
+    /*
     @Override
     public void initialize(){
         if(resetFlag){
@@ -67,11 +67,14 @@ public class TurnTo extends ProfiledPIDCommand {
             resetFlag = false;
         }
     }
+    */
     
+    /*
     @Override
     public void end(boolean interrupted){
         resetFlag = true;
     }
+    */
     
     @Override
     public boolean isFinished() {
@@ -89,9 +92,9 @@ public class TurnTo extends ProfiledPIDCommand {
     public static Command createTurnToTarget(Drivetrain drivetrain, Limelight limelight){
         TurnTo turnToLimelightTarget = new TurnTo(drivetrain,
             ()->{
-                double heading = drivetrain.getPoseFromHistory(limelight.getLatencySeconds()).getRotation().getDegrees()+limelight.getTx();
-                FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
-                return heading; // TODO: latency comp
+                double heading = drivetrain.getPoseFromHistory(limelight.getLatencySeconds()).getRotation().getDegrees()-limelight.getTx();
+                //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
+                return heading;
             }
         );
         
@@ -102,5 +105,16 @@ public class TurnTo extends ProfiledPIDCommand {
                 .andThen(createTurnToTarget(drivetrain, limelight)), 
             limelight::getHasTarget
         );
+    }
+
+    public static Command createSimpleTurnToTarget(Drivetrain drivetrain, Limelight limelight){
+        TurnTo turnToLimelightTarget = new TurnTo(drivetrain,
+            ()->{
+                double heading = drivetrain.getPoseFromHistory(limelight.getLatencySeconds()).getRotation().getDegrees()-limelight.getTx();
+                //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
+                return heading;
+            }
+        );
+        return turnToLimelightTarget;
     }
 }

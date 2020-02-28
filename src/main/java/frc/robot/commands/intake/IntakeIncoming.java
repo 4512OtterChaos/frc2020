@@ -35,7 +35,10 @@ public class IntakeIncoming extends CommandBase {
     public void execute() {
         boolean seesBall = ballDetector.getAsBoolean();
         if(seesBall){
-            if(!wasBallSeen) unjamTimer.start();
+            if(!wasBallSeen){
+                unjamTimer.start();
+                //intake.setSliderExtended(false);
+            }
             if(unjamTimer.get()<=unjamTime){
                 intake.setRollerVolts(1);
                 intake.setFenceVolts(-12);
@@ -48,6 +51,7 @@ public class IntakeIncoming extends CommandBase {
             if(wasBallSeen){
                 unjamTimer.stop();
                 unjamTimer.reset();
+                //intake.setSliderExtended(true);
             }
             intake.setRollerVolts(9);
             intake.setFenceVolts(12);

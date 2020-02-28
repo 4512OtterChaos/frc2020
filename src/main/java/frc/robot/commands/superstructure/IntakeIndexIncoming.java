@@ -20,7 +20,7 @@ public class IntakeIndexIncoming extends ParallelCommandGroup {
     
     public IntakeIndexIncoming(Intake intake, Indexer indexer, Shooter shooter) {
         super(
-            new IndexIncoming(indexer),
+            new IndexIncoming(indexer, intake::getSliderExtended),
             new IntakeIncoming(intake, indexer::getFrontBeam),
             new StartEndCommand(()->{
                 shooter.setShooterBrakeOn(true);

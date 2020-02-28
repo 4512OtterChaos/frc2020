@@ -25,20 +25,22 @@ public class SetIntakeState extends CommandBase {
 
   @Override
   public void initialize() {
-    intake.setState(state);
     started = true;
+    intake.getController().reset();
   }
 
   @Override
   public void execute() {
+    intake.setState(state);
   }
 
   @Override
   public void end(boolean interrupted) {
+      intake.setArmVolts(0);
   }
 
   @Override
   public boolean isFinished() {
-    return started && intake.getController().atGoal() && intake.getSliderExtended()==state.extended;
+    return started && intake.getController().atSetpoint() && intake.getSliderExtended()==state.extended;
   }
 }

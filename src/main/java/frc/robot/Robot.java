@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         container.setAllBrake(true);
+        container.init();
         
         autoCommand = container.getAutonomousCommand();
         
@@ -91,6 +92,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         container.setAllBrake(true);
+        container.init();
         
         if (autoCommand != null) {
             autoCommand.cancel();

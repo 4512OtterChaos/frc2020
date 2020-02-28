@@ -17,8 +17,8 @@ public class IndexHomeShooter extends CommandBase {
   final Indexer indexer;
   final double kVolts = 3;
 
-  boolean foundHome = false;
-  double homeTime = 0;
+  boolean findHome;
+  boolean foundHome;
   /**
    * Creates a new IndexIncoming.
    */
@@ -30,22 +30,24 @@ public class IndexHomeShooter extends CommandBase {
 
   @Override
   public void initialize() {
+    findHome = false;
+    foundHome = false;
   }
 
   @Override
   public void execute() {
     double volts = 0;
-    foundHome = indexer.getFlightBeam();
+    findHome = indexer.getFlightBeam();
     // home to front sensor, then back up a bit
-    if(homeTime==0){
-      if(!foundHome) volts = kVolts;
+    if(!foundHome){
+      if(!findHome) volts = kVolts;
       else{
         volts = 0;
-        homeTime = Timer.getFPGATimestamp();
+        foundHome = true;
       }
     }
     else{
-      if(foundHome) volts = -kVolts;
+      if(findHome) volts = -kVolts;
       else{
         end(false);
       }

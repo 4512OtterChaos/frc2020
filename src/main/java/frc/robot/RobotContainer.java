@@ -16,16 +16,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
-import frc.robot.commands.index.IndexIncoming;
+import frc.robot.commands.drive.TurnTo;
+import frc.robot.commands.intake.IntakeDown;
+import frc.robot.commands.intake.IntakeUp;
+import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.commands.superstructure.IntakeIndexIncoming;
+import frc.robot.commands.superstructure.PrimeIntake;
+import frc.robot.commands.superstructure.PrimeShooter;
+import frc.robot.common.Constants;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
+import frc.robot.common.Constants.ShooterWristConstants;
+import frc.robot.common.Constants.VisionConstants;
+import frc.robot.states.ShooterState;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Limelight.Configuration;
 import frc.robot.util.SAS;
 
 public class RobotContainer {
@@ -52,6 +63,7 @@ public class RobotContainer {
     private AutoOptions autoOptions;
 
     private double testRPM = 0;
+    private double testWristAngle = ShooterWristConstants.kClearIntakeDegrees;
     
     public RobotContainer() {
         drivetrain = new Drivetrain();
@@ -76,7 +88,11 @@ public class RobotContainer {
         configureButtonBindings();
     }
     
-    private void configureButtonBindings() {
+    private void configureButtonBindings(){
+        configureDriverBindings();
+        if(operator != null) configureOperatorBindings();
+    }
+    private void configureDriverBindings() {
         RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
         /*
         drivetrain.setDefaultCommand(new RunCommand(()->{
@@ -130,10 +146,13 @@ public class RobotContainer {
                     intake.setFenceVolts(0);
                     indexer.setVolts(0, 0);
                 }, intake, indexer);
-        
+        /*
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(()->indexer.setVolts(4, 4))
             .whenReleased(()->indexer.setVolts(0, 0));
+        */
+        new JoystickButton(driver, XboxController.Button.kB.value)
+                .whenPressed(new PrimeShooter(indexer, shooter));
         
         /*
         new JoystickButton(driver, XboxController.Button.kB.value)
@@ -144,6 +163,12 @@ public class RobotContainer {
             .whenPressed(()->indexer.setVolts(-4, -4))
             .whenReleased(()->indexer.setVolts(0, 0));
         
+        new JoystickButton(driver, XboxController.Button.kStickLeft.value)
+                .toggleWhenPressed(new StartEndCommand(
+                    ()->lift.setRatchetEngaged(true),
+                    ()->lift.setRatchetEngaged(false)
+                ));
+        
         new JoystickButton(driver, XboxController.Button.kX.value)
             .whenPressed(()->intake.setSliderExtended(!intake.getSliderExtended()));
 
@@ -152,8 +177,7 @@ public class RobotContainer {
             .whenReleased(()->shooter.setShooterVelocity(0));
 
         new JoystickButton(driver, XboxController.Button.kBack.value)
-            .whenPressed(()->shooter.setShooterVelocity(-1000))
-            .whenReleased(()->shooter.setShooterVelocity(0));
+            .whileActiveOnce(new PrimeIntake(intake,indexer,shooter));
 
         new JoystickButton(driver, XboxController.Button.kStart.value)
             .whenPressed(()->shooter.setShooterVelocity(3000))
@@ -175,9 +199,39 @@ public class RobotContainer {
             .whenPressed(()->shooter.setWristVolts(-2.5))
             .whenReleased(()->shooter.setWristVolts(0));
     }
+    private void configureOperatorBindings(){
+        
+        intake.setDefaultCommand(new RunCommand(()->{
+            double armVolts = operator.getForward()*12;
+            intake.setArmVolts(armVolts);
+        }, intake));
+
+        
+        new JoystickButton(operator, XboxController.Button.kX.value)
+            .whenPressed(new SetShooterState(shooter, new ShooterState(31.5, 0)));
+        
+        new JoystickButton(operator, XboxController.Button.kY.value)
+            .whenPressed(new SetShooterState(shooter, new ShooterState(41.5, 0)));
+
+        new JoystickButton(operator, XboxController.Button.kA.value)
+            .whenPressed(new IntakeDown(intake));
+        
+        new JoystickButton(operator, XboxController.Button.kB.value)
+            .whenPressed(new IntakeUp(intake));
+
+        new Trigger(()->operator.getTriggerAxis(Hand.kRight) > 0.2)
+            .whenActive(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)
+                .alongWith(new InstantCommand(()->limelight.setConfiguration(Configuration.PNP))))
+            .whenInactive(()->drivetrain.tankDrive(0,0), drivetrain);
+        
+    }
     
     public Command getAutonomousCommand() {
         return autoOptions.getSelected();
+    }
+
+    public void init(){
+        intake.init();
     }
     
     public void setAllBrake(boolean is){
@@ -188,6 +242,7 @@ public class RobotContainer {
         indexer.setBrakeOn(is);
         shooter.setWristBrakeOn(is);
         if(DriverStation.getInstance().isFMSAttached()) lift.setBrakeOn(true);
+        else lift.setBrakeOn(is);
     }
     public void stop(){
         drivetrain.tankDrive(0, 0);

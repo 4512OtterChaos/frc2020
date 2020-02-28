@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.common.Constants.*;
 
@@ -73,13 +74,15 @@ public class Shooter extends SubsystemBase implements Testable{
         double minVolts = -12;
         double maxVolts = 12;
         final double deg = getWristDegrees();
-        final double low = ShooterWristConstants.kClearIntakeDegrees;
+        final double low = ShooterWristConstants.kLowerSafeDegrees;
         final double high = ShooterWristConstants.kHigherSafeDegrees;
         final double buffer = ShooterWristConstants.kBufferDegrees;
         if(deg<=low+buffer) minVolts = 0;
         if(deg>=high-buffer) maxVolts = 0;
         wristVolts = MathHelp.clamp(wristVolts, minVolts, maxVolts);
-        wrist.setVoltage(wristVolts);
+        double volts = wristVolts + ShooterWristConstants.kCounterGravityFF*Math.cos(Units.degreesToRadians(getWristDegrees()));
+        SmartDashboard.putNumber("Wrist Volts", volts);
+        wrist.setVoltage(volts);
     }
 
     public ProfiledPIDController getWristController(){
@@ -91,6 +94,9 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     public double getRightRPM(){
         return rightEncoder.getVelocity();
+    }
+    public double getRPM(){
+        return (getLeftRPM()+getRightRPM())/2.0;
     }
 
     public double getWristDegrees(){
@@ -112,8 +118,9 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     public void setWristPosition(double degrees){
         degrees = MathHelp.clamp(degrees, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);
+        SmartDashboard.putNumber("Wrist Target Position", degrees);
         double volts = wristController.calculate(getWristDegrees(), degrees);
-        volts += wristFF.calculate(wristController.getGoal().velocity);
+        //volts += wristFF.calculate(wristController.getGoal().velocity);
 
         setWristVolts(volts);
     }

@@ -7,19 +7,29 @@
 
 package frc.robot.commands.index;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Indexer;
 
 public class IndexIncoming extends CommandBase {
   
   final Indexer indexer;
+  final BooleanSupplier isSafe;
   /**
    * Creates a new IndexIncoming.
    */
   public IndexIncoming(Indexer indexer) {
     this.indexer = indexer;
+    this.isSafe = null;
 
     addRequirements(indexer);
+  }
+  public IndexIncoming(Indexer indexer, BooleanSupplier isSafe){
+      this.indexer = indexer;
+      this.isSafe = isSafe;
+
+      addRequirements(indexer);
   }
 
   @Override
@@ -28,7 +38,7 @@ public class IndexIncoming extends CommandBase {
 
   @Override
   public void execute() {
-    if(indexer.getFrontBeam()){
+    if(indexer.getFrontBeam()&&isSafe.getAsBoolean()){
       indexer.setVolts(2, 2);
     }
     else{

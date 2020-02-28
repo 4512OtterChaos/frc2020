@@ -32,6 +32,7 @@ public class BackdriveShooterBalls extends ConditionalCommand {
             getIndexFlightBeam
         );
         this.getIndexFlightBeam = getIndexFlightBeam;
+        addRequirements(shooter);
     }
     
     // Called when the command is initially scheduled.

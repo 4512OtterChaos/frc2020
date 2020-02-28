@@ -26,7 +26,7 @@ public class Constants {
         public static final double kWheelRadiusMeters = Units.inchesToMeters(3);
 
         public static final double kMaxVelocityMeters = Units.feetToMeters(14);
-        public static final double kMaxVelocityRadians = Units.degreesToRadians(450);
+        public static final double kMaxVelocityRadians = Units.degreesToRadians(700); // actual = ~500 degrees
         
         public static final double kGearRatio = 8.8888; // Motor rotations per wheel rotation
 
@@ -69,22 +69,23 @@ public class Constants {
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
+        public static final double kCounterGravityFF = 0.175;
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 0.55; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
 
-        public static final int kVelocityConstraint = 7000; // Motor RPM
-        public static final int kAccelerationConstraint = 10000; // Motor RPM per second
+        public static final int kVelocityConstraint = 50; // Cruise Velocity Degrees
+        public static final int kAccelerationConstraint = 80;
 
         public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kLowerSafeDegrees = 30; // above is safe
         public static final double kClearIntakeDegrees = 35;
-        public static final double kHigherSafeDegrees = 43; // below is safe
+        public static final double kHigherSafeDegrees = 42.5; // below is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
     }
 
@@ -98,26 +99,26 @@ public class Constants {
         public static final int kFreeLimit = 25;
         public static final int kStallLimit = 32;
 
-        public static final double kRampRaw = 0.2; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.175; // seconds to full output(on the motor)
 
-        public static final double kStaticFF = 0; // volts (Given from the characterization tool)
-        public static final double kCounterGravityFF = 0;
+        public static final double kStaticFF = 0.1; // volts (Given from the characterization tool)
+        public static final double kCounterGravityFF = 0.15;
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 0.25; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
 
-        public static final double kEncoderOffset = 0.05; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = 0.04; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kLowerSafeDegrees = 12; // below is safe
-        public static final double kHigherSafeDegrees = 78; // above is safe
+        public static final double kHigherSafeDegrees = 76; // above is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
-        public static final double kMaxUpwardDegrees = 76; // 90 degrees up
-        public static final int kVelocityConstraint = 5000; // Motor RPM
-        public static final int kAccelerationConstraint = 6000; // Motor RPM per second
+        public static final double kMaxUpwardDegrees = 78; // 90 degrees up
+        public static final int kVelocityConstraint = 60; // Angular velocity Degrees
+        public static final int kAccelerationConstraint = 80; // Angular acceleration
     }
 
     public static class IndexerConstants{

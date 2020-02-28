@@ -17,10 +17,9 @@ import frc.robot.util.MathHelp;
 public class OCXboxController extends XboxController{
 
     private static final double deadband = 0.12;
-    private static final double rateLimit = 5;
     
-    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(rateLimit);
-    private SlewRateLimiter turnLimiter = new SlewRateLimiter(rateLimit);
+    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(7);
+    private SlewRateLimiter turnLimiter = new SlewRateLimiter(7);
 
     /**
      * Constructs XboxController on DS joystick port.
