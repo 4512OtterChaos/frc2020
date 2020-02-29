@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
         disableTimer.start();
         
         container.stop();
+        container.disable();
     }
     
     @Override

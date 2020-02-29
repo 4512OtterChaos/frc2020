@@ -39,8 +39,8 @@ public class Lift extends SubsystemBase implements Testable{
     
     private CANEncoder encoder = new CANEncoder(master);
     
-    private DigitalInput botSwitch;
-    private DigitalInput ratchetSwitch;
+    //private DigitalInput botSwitch;
+    //private DigitalInput ratchetSwitch;
     
     private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
     
@@ -62,19 +62,21 @@ public class Lift extends SubsystemBase implements Testable{
         if(encoder.getPosition()<=kMinHeightRotations) minVolts = 0;
         if(encoder.getPosition()>=kMaxHeightRotations) maxVolts = 0;
         if(getRatchetEngaged()){
-            maxVolts = 0;
+            maxVolts = 0.5;
         }
         volts = MathHelp.clamp(volts, minVolts, maxVolts);
         master.setVoltage(volts);
         slave.setVoltage(volts);
     }
     
+    /*
     public boolean getBotSwitch(){
         return botSwitch.get();
     }
     public boolean getRatchetSwitch(){
         return ratchetSwitch.get();
     }
+    */
     public boolean getRatchetEngaged(){
         return ratchet.get()!=Value.kForward;
     }

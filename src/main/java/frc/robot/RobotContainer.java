@@ -31,12 +31,15 @@ import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.commands.superstructure.IntakeIndexIncoming;
 import frc.robot.commands.superstructure.PrimeIntake;
 import frc.robot.commands.superstructure.PrimeShooter;
+import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.common.Constants;
+import frc.robot.common.OCLedManager;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.common.Constants.IntakeArmConstants;
 import frc.robot.common.Constants.ShooterWristConstants;
 import frc.robot.common.Constants.VisionConstants;
+import frc.robot.common.OCLedManager.Pattern;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Limelight.Configuration;
@@ -83,6 +86,15 @@ public class RobotContainer {
         sas = new SAS();
         
         testableSystems = new Testable[]{drivetrain, limelight};
+
+        led = new AddressableLED(0);
+        ledBuffer = new AddressableLEDBuffer(120);
+        led.setLength(120);
+        led.start();
+
+        OCLedManager.setBuffer(ledBuffer);
+        OCLedManager.setEffectiveLength(ledBuffer.getLength()/2);
+        OCLedManager.setPattern(Pattern.AutomaticWave);
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight);
         autoOptions.submit();
@@ -139,31 +151,7 @@ public class RobotContainer {
 
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
-                TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
-                .alongWith(
-                    new PrimeShooter(indexer, intake)
-                    .alongWith(
-                        new StartEndCommand(
-                            ()->shooter.setShooterVelocity(-1500),
-                            ()->shooter.setShooterVelocity(0),
-                            shooter
-                        )
-                        .withInterrupt(()->!indexer.getFlightBeam())
-                    )
-                    .andThen(
-                        new SetShooterState(shooter, new ShooterState(30, 3100))
-                    )
-                    .andThen(
-                        new RunCommand(()->{
-                            if(shooter.checkIfStable()){
-                                indexer.setVolts(4, 4);
-                            }
-                            else{
-                                indexer.setVolts(0, 0);
-                            }
-                        }, indexer)
-                    )
-                )
+                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight)
             )
             .whenInactive(()->{
                 drivetrain.tankDrive(0, 0);
@@ -172,6 +160,25 @@ public class RobotContainer {
                 shooter.setShooterVelocity(0);
             },
             drivetrain, shooter, indexer
+            );
+
+        new POVButton(driver, 90)
+            .whenPressed(
+                ()->lift.setVolts(12),
+                lift
+            )
+            .whenReleased(
+                ()->lift.setVolts(0),
+                lift
+            );
+        new POVButton(driver, 270)
+            .whenPressed(
+                ()->lift.setVolts(-12),
+                lift
+            )
+            .whenReleased(
+                ()->lift.setVolts(0),
+                lift
             );
     }
     private void configureDriverBindings() {
@@ -328,6 +335,9 @@ public class RobotContainer {
 
         limelight.setConfiguration(Configuration.PNP);
     }
+    public void disable(){
+        limelight.setConfiguration(Configuration.DRIVE);
+    }
     
     public void setAllBrake(boolean is){
         drivetrain.setBrakeOn(is);
@@ -344,7 +354,8 @@ public class RobotContainer {
     }
     
     public void log(){
-        //led.setData(ledBuffer);
+        OCLedManager.periodic();
+        led.setData(ledBuffer);
         
         drivetrain.log();
         intake.log();
