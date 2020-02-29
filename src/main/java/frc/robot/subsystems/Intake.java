@@ -109,8 +109,8 @@ public class Intake extends SubsystemBase implements Testable{
         // arm safety
         double enc = getArmDegrees();
         boolean ext = getSliderExtended();
-        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeDegrees, kHigherSafeDegrees+kBufferDegrees)) lowLimit=0; // just in case, anti-collide on slider
-        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeDegrees-kBufferDegrees, kLowerSafeDegrees)) highLimit=0;
+        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeDegrees-kBufferDegrees, kHigherSafeDegrees)) lowLimit=0; // just in case, anti-collide on slider
+        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeDegrees, kLowerSafeDegrees+kBufferDegrees)) highLimit=0;
         if(enc<=kBufferDegrees) highLimit=0;
         if(enc>=kMaxUpwardDegrees) lowLimit=0;
         
@@ -121,7 +121,6 @@ public class Intake extends SubsystemBase implements Testable{
         else slider.set(Value.kReverse);
 
         double adjustedVolts = armVolts-kCounterGravityFF*Math.cos(Units.degreesToRadians(enc));
-        SmartDashboard.putNumber("Arm Volts", adjustedVolts);
         arm.setVoltage(adjustedVolts);
         roller.setVoltage(rollerVolts);
         fence.setVoltage(fenceVolts);

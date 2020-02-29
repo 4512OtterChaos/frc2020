@@ -53,7 +53,7 @@ public class IntakeIncoming extends CommandBase {
                 unjamTimer.reset();
                 //intake.setSliderExtended(true);
             }
-            intake.setRollerVolts(9);
+            intake.setRollerVolts(7);
             intake.setFenceVolts(12);
         }
 

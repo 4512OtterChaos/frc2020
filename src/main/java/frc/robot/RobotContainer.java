@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -25,6 +26,7 @@ import frc.robot.auto.Paths;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.intake.IntakeDown;
 import frc.robot.commands.intake.IntakeUp;
+import frc.robot.commands.intake.IntakeUpClear;
 import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.commands.superstructure.IntakeIndexIncoming;
 import frc.robot.commands.superstructure.PrimeIntake;
@@ -32,6 +34,7 @@ import frc.robot.commands.superstructure.PrimeShooter;
 import frc.robot.common.Constants;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
+import frc.robot.common.Constants.IntakeArmConstants;
 import frc.robot.common.Constants.ShooterWristConstants;
 import frc.robot.common.Constants.VisionConstants;
 import frc.robot.states.ShooterState;
@@ -89,8 +92,87 @@ public class RobotContainer {
     }
     
     private void configureButtonBindings(){
-        configureDriverBindings();
+        //configureDriverBindings();
+        configureCompBindings();
         if(operator != null) configureOperatorBindings();
+    }
+    private void configureCompBindings(){
+        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
+        drivetrain.setDefaultCommand(velocityControl);
+
+        new JoystickButton(driver, XboxController.Button.kBumperRight.value)
+            .whenPressed(()->drivetrain.setDriveSpeed(0.5))
+            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
+
+        new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
+            .whenPressed(()->drivetrain.setDriveSpeed(0.8))
+            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
+        
+        ConditionalCommand conditionalIntake = new ConditionalCommand(
+            new PrimeIntake(intake, indexer, shooter),
+            new InstantCommand(
+                ()->intake.setSliderExtended(true),
+                intake
+            ).andThen(
+                new IntakeIndexIncoming(intake, indexer, shooter)
+            ), 
+            ()->intake.getArmDegrees() > IntakeArmConstants.kLowerSafeDegrees
+        );
+
+        new JoystickButton(driver, XboxController.Button.kA.value)
+            .whenPressed(
+                conditionalIntake
+            )
+            .whenReleased(
+                ()->{
+                    intake.setRollerVolts(0);
+                    intake.setFenceVolts(0);
+                    indexer.setVolts(0, 0);
+                },
+                intake, indexer
+            );
+
+        new JoystickButton(driver, XboxController.Button.kB.value)
+            .whenPressed(
+                new IntakeUpClear(intake)
+            );
+
+        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
+            .whenActive(
+                TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+                .alongWith(
+                    new PrimeShooter(indexer, intake)
+                    .alongWith(
+                        new StartEndCommand(
+                            ()->shooter.setShooterVelocity(-1500),
+                            ()->shooter.setShooterVelocity(0),
+                            shooter
+                        )
+                        .withInterrupt(()->!indexer.getFlightBeam())
+                    )
+                    .andThen(
+                        new SetShooterState(shooter, new ShooterState(30, 3100))
+                    )
+                    .andThen(
+                        new RunCommand(()->{
+                            if(shooter.checkIfStable()){
+                                indexer.setVolts(4, 4);
+                            }
+                            else{
+                                indexer.setVolts(0, 0);
+                            }
+                        }, indexer)
+                    )
+                )
+            )
+            .whenInactive(()->{
+                drivetrain.tankDrive(0, 0);
+                indexer.setVolts(0, 0);
+                shooter.setWristVolts(0);
+                shooter.setShooterVelocity(0);
+            },
+            drivetrain, shooter, indexer
+            );
     }
     private void configureDriverBindings() {
         RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
@@ -171,10 +253,18 @@ public class RobotContainer {
         
         new JoystickButton(driver, XboxController.Button.kX.value)
             .whenPressed(()->intake.setSliderExtended(!intake.getSliderExtended()));
-
+        /*
         new JoystickButton(driver, XboxController.Button.kY.value)
             .whenPressed(()->shooter.setShooterVelocity(4500))
             .whenReleased(()->shooter.setShooterVelocity(0));
+        */
+        new JoystickButton(driver, XboxController.Button.kY.value)
+                .whenPressed(()->{
+                    indexer.setVolts(3, 3);
+                }, indexer)
+                .whenReleased(()->{
+                    indexer.setVolts(0, 0);
+                }, indexer);
 
         new JoystickButton(driver, XboxController.Button.kBack.value)
             .whileActiveOnce(new PrimeIntake(intake,indexer,shooter));
@@ -220,9 +310,12 @@ public class RobotContainer {
             .whenPressed(new IntakeUp(intake));
 
         new Trigger(()->operator.getTriggerAxis(Hand.kRight) > 0.2)
-            .whenActive(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)
-                .alongWith(new InstantCommand(()->limelight.setConfiguration(Configuration.PNP))))
-            .whenInactive(()->drivetrain.tankDrive(0,0), drivetrain);
+            .whenActive(TurnTo.createSimpleTurnToTarget(drivetrain, limelight))
+                //.alongWith(new InstantCommand(()->limelight.setConfiguration(Configuration.PNP))))
+            .whenInactive(()->{
+                drivetrain.tankDrive(0,0);
+                //limelight.setConfiguration(Configuration.DRIVE);
+            }, drivetrain);
         
     }
     
@@ -232,6 +325,8 @@ public class RobotContainer {
 
     public void init(){
         intake.init();
+
+        limelight.setConfiguration(Configuration.PNP);
     }
     
     public void setAllBrake(boolean is){

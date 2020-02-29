@@ -16,6 +16,9 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.LinearFilter;
+import edu.wpi.first.wpilibj.SlewRateLimiter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,6 +42,9 @@ public class Shooter extends SubsystemBase implements Testable{
     private CANSparkMax wrist = new CANSparkMax(7, MotorType.kBrushless);
 
     private double wristVolts = 0;
+    private double leftTarget = 0;
+    private double rightTarget = 0;
+    private final double rpmTolerance = 80;
     
     private CANEncoder leftEncoder = new CANEncoder(shootLeft);
     private CANEncoder rightEncoder = new CANEncoder(shootRight);
@@ -68,6 +74,8 @@ public class Shooter extends SubsystemBase implements Testable{
         shootLeft.setInverted(false);
         shootRight.setInverted(true);
         wrist.setInverted(false);
+
+        wristController.setTolerance(0.25, 1);
     }
     
     public void periodic() {
@@ -99,6 +107,14 @@ public class Shooter extends SubsystemBase implements Testable{
         return (getLeftRPM()+getRightRPM())/2.0;
     }
 
+    public boolean checkIfStable(){
+        boolean leftStable = Math.abs(leftTarget - getLeftRPM()) < rpmTolerance;
+        boolean rightStable = Math.abs(rightTarget - getRightRPM()) < rpmTolerance;
+        boolean stable = leftStable && rightStable;
+        SmartDashboard.putBoolean("Shooter Stable", stable);
+        return stable;
+    }
+
     public double getWristDegrees(){
         return (wristEncoder.get()+ShooterWristConstants.kEncoderOffset)*360;
     }
@@ -113,8 +129,10 @@ public class Shooter extends SubsystemBase implements Testable{
     
     public void setShooterVelocity(double rpm){
         double rps = rpm / 60.0;
-        leftController.setReference(rpm, ControlType.kVelocity, 0, leftShootFF.calculate(rps), ArbFFUnits.kVoltage);
-        rightController.setReference(rpm, ControlType.kVelocity, 0, rightShootFF.calculate(rps), ArbFFUnits.kVoltage);
+        leftTarget = rpm;
+        rightTarget = rpm;
+        leftController.setReference(leftTarget, ControlType.kVelocity, 0, leftShootFF.calculate(rps), ArbFFUnits.kVoltage);
+        rightController.setReference(rightTarget, ControlType.kVelocity, 0, rightShootFF.calculate(rps), ArbFFUnits.kVoltage);
     }
     public void setWristPosition(double degrees){
         degrees = MathHelp.clamp(degrees, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);
@@ -141,6 +159,7 @@ public class Shooter extends SubsystemBase implements Testable{
         SmartDashboard.putNumber("Shooter Left RPM", leftEncoder.getVelocity());
         SmartDashboard.putNumber("Shooter Right RPM", rightEncoder.getVelocity());
         SmartDashboard.putNumber("Shooter Diff", leftEncoder.getVelocity()-rightEncoder.getVelocity());
+        SmartDashboard.putNumber("Shooter Left Amps", shootLeft.getOutputCurrent());
     }
     
     @Override

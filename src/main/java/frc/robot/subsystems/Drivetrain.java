@@ -44,8 +44,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private CANSparkMax rightMaster = new CANSparkMax(3, MotorType.kBrushless);
     private CANSparkMax rightSlave = new CANSparkMax(4, MotorType.kBrushless);
         
-    private CANEncoder leftEncoder = leftMaster.getEncoder();
-    private CANEncoder rightEncoder = rightMaster.getEncoder();
+    private CANEncoder leftEncoder;
+    private CANEncoder rightEncoder;
 
     private PigeonIMU pigeon = new PigeonIMU(13);
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
@@ -78,10 +78,16 @@ public class Drivetrain extends SubsystemBase implements Testable{
         rightMaster.setInverted(true);
         rightSlave.setInverted(true);
         //rightSlave.follow(rightMaster);
+
+        leftEncoder = new CANEncoder(leftMaster);
+        rightEncoder = new CANEncoder(rightMaster);
+
+        odometry = new DifferentialDriveOdometry(new Rotation2d());
     }
     
     @Override
     public void periodic() {
+        updateOdometry();
     }
 
     //----- Drivetrain control
@@ -268,6 +274,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
         if(getPoseHistoryDuration()>poseHistoryWindow){ // if the pose history spans more than 0.75 seconds
             poseHistory.remove(oldestTime);
         }
+        SmartDashboard.putNumber("1 Second old Yaw", getPoseFromHistory(1.0).getRotation().getDegrees());
     }
 
     public void log(){

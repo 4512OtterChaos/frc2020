@@ -74,7 +74,7 @@ public class Limelight implements Testable{
         changeTimer.start();
         setLedMode(configuration.getLedMode());
         setPipeline(configuration.getPipeline());
-        setStreamMode(configuration.getStreamMode());
+        //setStreamMode(configuration.getStreamMode());
     }
     protected void setLedMode(int value){
         if(getLedMode() != value)

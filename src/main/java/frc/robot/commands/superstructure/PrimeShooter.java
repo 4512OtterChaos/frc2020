@@ -16,10 +16,20 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.index.IndexHomeShooter;
 import frc.robot.commands.shoot.BackdriveShooterBalls;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public class PrimeShooter extends ParallelCommandGroup {
     
+    public PrimeShooter(Indexer indexer, Intake intake) {
+        super(
+            new IndexHomeShooter(indexer)
+                .alongWith(
+                    new InstantCommand((()->intake.setSliderExtended(true)), intake)
+                )
+                .withTimeout(1.5)
+        );
+    }
     public PrimeShooter(Indexer indexer, Shooter shooter) {
         super(
             new IndexHomeShooter(indexer)
