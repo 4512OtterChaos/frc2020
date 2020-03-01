@@ -82,7 +82,7 @@ public class Shooter extends SubsystemBase implements Testable{
         double minVolts = -12;
         double maxVolts = 12;
         final double deg = getWristDegrees();
-        final double low = ShooterWristConstants.kLowerSafeDegrees;
+        final double low = 10*ShooterWristConstants.kBufferDegrees;
         final double high = ShooterWristConstants.kHigherSafeDegrees;
         final double buffer = ShooterWristConstants.kBufferDegrees;
         if(deg<=low+buffer) minVolts = 0;
@@ -107,10 +107,13 @@ public class Shooter extends SubsystemBase implements Testable{
         return (getLeftRPM()+getRightRPM())/2.0;
     }
 
+    public double getShooterError(){
+        double leftError = Math.abs(leftTarget - getLeftRPM());
+        double rightError = Math.abs(rightTarget - getRightRPM());
+        return Math.max(leftError, rightError);
+    }
     public boolean checkIfStable(){
-        boolean leftStable = Math.abs(leftTarget - getLeftRPM()) < rpmTolerance;
-        boolean rightStable = Math.abs(rightTarget - getRightRPM()) < rpmTolerance;
-        boolean stable = leftStable && rightStable;
+        boolean stable = getShooterError() < rpmTolerance;
         SmartDashboard.putBoolean("Shooter Stable", stable);
         return stable;
     }

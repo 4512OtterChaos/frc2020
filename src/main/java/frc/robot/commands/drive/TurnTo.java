@@ -32,7 +32,7 @@ public class TurnTo extends ProfiledPIDCommand {
     
     private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians)*0.8;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.04, 0, 0, 
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.03, 0, 0, 
     new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*2),
     Constants.kRobotDelta);
     private static boolean resetFlag = false;
@@ -76,7 +76,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public void initialize(){
         super.initialize();
         started = true;
-        controller.setTolerance(0.4, 3);
+        controller.setTolerance(0.4, 2);
     }
     
     @Override
@@ -94,6 +94,7 @@ public class TurnTo extends ProfiledPIDCommand {
     
     @Override
     public boolean isFinished() {
+        SmartDashboard.putNumber("TurnTo Error", getController().getPositionError());
         return getController().atGoal() && started;
     }
     
@@ -131,7 +132,7 @@ public class TurnTo extends ProfiledPIDCommand {
             return heading;
         }
         );
-        return turnToLimelightTarget;
+        return turnToLimelightTarget.withTimeout(1.6);
     }
     
     public static Command createSimplerTurnToTarget(Drivetrain drivetrain, Limelight limelight){
@@ -142,6 +143,6 @@ public class TurnTo extends ProfiledPIDCommand {
             return heading;
         }
         );
-        return turnToLimelightTarget;
+        return turnToLimelightTarget.withTimeout(1.6);
     }
 }

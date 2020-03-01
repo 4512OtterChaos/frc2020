@@ -60,7 +60,7 @@ public class Intake extends SubsystemBase implements Testable{
         OCConfig.configMotors(ConfigType.INTAKEARM, arm);
         OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
 
-        controller.setTolerance(2*kBufferDegrees, 5*kBufferDegrees);
+        controller.setTolerance(3*kBufferDegrees, 6*kBufferDegrees);
         
         roller.setInverted(false);
         fence.setInverted(false);
@@ -120,7 +120,7 @@ public class Intake extends SubsystemBase implements Testable{
         if(nowSliderExtended) slider.set(Value.kForward);
         else slider.set(Value.kReverse);
 
-        double adjustedVolts = armVolts-kCounterGravityFF*Math.cos(Units.degreesToRadians(enc));
+        double adjustedVolts = armVolts-kCounterGravityFF*Math.sin(Units.degreesToRadians(enc));
         arm.setVoltage(adjustedVolts);
         roller.setVoltage(rollerVolts);
         fence.setVoltage(fenceVolts);
@@ -184,6 +184,8 @@ public class Intake extends SubsystemBase implements Testable{
         setArmVolts(volts);
     }
     public void setState(IntakeState state){
+        if(state.angle < kLowerSafeDegrees) setArmBrakeOn(false);
+        else setArmBrakeOn(true);
         setArmPID(state.angle);
         setSliderExtended(state.extended);
     }

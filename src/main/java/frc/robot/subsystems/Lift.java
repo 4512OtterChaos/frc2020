@@ -103,7 +103,7 @@ public class Lift extends SubsystemBase implements Testable{
     }
     
     public void setRatchetEngaged(boolean engaged){
-        ratchet.set(engaged ? Value.kForward : Value.kReverse);
+        ratchet.set(engaged ? Value.kReverse : Value.kForward);
     }
     
     public void setBrakeOn(boolean is){

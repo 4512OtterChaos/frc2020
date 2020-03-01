@@ -8,6 +8,7 @@
 package frc.robot.commands.shoot;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Shooter;
@@ -43,6 +44,8 @@ public class SetShooterState extends CommandBase {
 
   @Override
   public boolean isFinished() {
+    SmartDashboard.putNumber("Wrist Error", shooter.getWristController().getPositionError());
+    SmartDashboard.putNumber("Shooter Error", shooter.getShooterError());
     return started && shooter.getWristController().atGoal() && shooter.checkIfStable();
   }
 }

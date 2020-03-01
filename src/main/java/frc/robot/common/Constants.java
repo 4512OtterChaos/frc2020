@@ -99,15 +99,15 @@ public class Constants {
         public static final int kFreeLimit = 25;
         public static final int kStallLimit = 32;
 
-        public static final double kRampRaw = 0.175; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.15; // seconds to full output(on the motor)
 
-        public static final double kStaticFF = 0.1; // volts (Given from the characterization tool)
+        public static final double kStaticFF = 0.4; // volts (Given from the characterization tool)
         public static final double kCounterGravityFF = 0.1;
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0.275; // PID Gains (For one meter/second of error, kP volts are applied)
-        public static final double kI = 0; // Only P should be used for velocity control
+        public static final double kP = 0.275; // PID Gains
+        public static final double kI = 0;
         public static final double kD = 0;
 
         public static final double kEncoderOffset = 0.04; // Add this to encoder value to make "0" flat
@@ -117,8 +117,8 @@ public class Constants {
         public static final double kHigherSafeDegrees = 72; // above is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
         public static final double kMaxUpwardDegrees = 78; // 90 degrees up
-        public static final int kVelocityConstraint = 60; // Angular velocity Degrees
-        public static final int kAccelerationConstraint = 80; // Angular acceleration
+        public static final int kVelocityConstraint = 90; // Angular velocity Degrees
+        public static final int kAccelerationConstraint = 110; // Angular acceleration
     }
 
     public static class IndexerConstants{

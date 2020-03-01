@@ -19,7 +19,7 @@ public class IntakeDown extends SequentialCommandGroup {
     super(
       new InstantCommand(()->intake.setSliderExtended(false),intake),
       new WaitCommand(0.2),
-      new SetIntakeState(intake, IntakeState.kDownIdle)
+      new SetIntakeState(intake, IntakeState.kDownIdle).withTimeout(1.2)
       .andThen(()->intake.setSliderExtended(true), intake)
     );
   }

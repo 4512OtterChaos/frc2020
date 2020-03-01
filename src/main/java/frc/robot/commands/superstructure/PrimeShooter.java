@@ -24,19 +24,10 @@ public class PrimeShooter extends ParallelCommandGroup {
     public PrimeShooter(Indexer indexer, Intake intake) {
         super(
             new IndexHomeShooter(indexer)
-                .alongWith(
-                    new InstantCommand((()->intake.setSliderExtended(true)), intake)
-                )
-                .withTimeout(1.5)
-        );
-    }
-    public PrimeShooter(Indexer indexer, Shooter shooter) {
-        super(
-            new IndexHomeShooter(indexer)
-                .alongWith(
-                    new BackdriveShooterBalls(shooter, indexer::getFlightBeam)
-                )
-                .withTimeout(2)
+            .withTimeout(0.75)
+            .alongWith(
+                new InstantCommand((()->intake.setSliderExtended(true)), intake)
+            )
         );
     }
 }

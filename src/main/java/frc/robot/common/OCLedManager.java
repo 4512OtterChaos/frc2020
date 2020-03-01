@@ -36,6 +36,8 @@ public class OCLedManager {
         Tide(()->tide(blue, 0)),
         BluePulsing(()->pulsing(blue, 255, 10)),
         RedPulsing(()->pulsing(red, 255, 10)),
+        YellowPulsing(()->pulsing(yellow, 255, 10)),
+        GreenPulsing(()->pulsing(green, 255, 10)),
         RockingWave(()->rockingWave(180, 0)),
         Random(OCLedManager::random),
         Hmmm(()->pulsing(60, 255, 10)),

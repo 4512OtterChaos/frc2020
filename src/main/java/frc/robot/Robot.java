@@ -17,7 +17,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import static frc.robot.common.Constants.*;
+
+import frc.robot.common.OCLedManager;
 import frc.robot.common.Testable;
+import frc.robot.common.OCLedManager.Pattern;
 import frc.robot.common.Testable.Status;
 import frc.robot.common.Testable.TestableResult;
 
@@ -118,23 +121,26 @@ public class Robot extends TimedRobot {
         for(TestableResult result:results){
             Status status = result.status;
             
-            //LED blank
-            Timer.delay(0.25);
+            Pattern prevPattern = OCLedManager.getPattern();
+            OCLedManager.setPattern(Pattern.YellowDash);
+            Timer.delay(0.5);
             System.out.println(result.name+": "+status.toString());
             switch(status){
                 case FAILED:
-                //LED failed
-                Timer.delay(0.75);
+                OCLedManager.setPattern(Pattern.RedPulsing);
+                Timer.delay(1.5);
                 break;
                 case WARNING:
-                //LED warning
-                Timer.delay(0.5);
+                OCLedManager.setPattern(Pattern.YellowPulsing);
+                Timer.delay(1);
                 break;
                 case PASSED:
-                //LED passed
-                Timer.delay(0.25);
+                OCLedManager.setPattern(Pattern.GreenPulsing);
+                Timer.delay(0.5);
                 break;
             }
+            Timer.delay(1);
+            OCLedManager.setPattern(prevPattern);
         }
     }
     

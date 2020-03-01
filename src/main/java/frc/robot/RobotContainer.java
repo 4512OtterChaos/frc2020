@@ -62,6 +62,7 @@ public class RobotContainer {
     
     private OCXboxController driver = new OCXboxController(0);
     private OCXboxController operator;
+    private boolean operatorConfigured = false;
     
     private AddressableLED led;
     private AddressableLEDBuffer ledBuffer;
@@ -99,16 +100,13 @@ public class RobotContainer {
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight);
         autoOptions.submit();
         
-        if(DriverStation.getInstance().getJoystickIsXbox(1)) operator = new OCXboxController(1);
         configureButtonBindings();
     }
     
     private void configureButtonBindings(){
-        //configureDriverBindings();
-        configureCompBindings();
-        if(operator != null) configureOperatorBindings();
+        configureDriverBindings();
     }
-    private void configureCompBindings(){
+    private void configureDriverBindings(){
         RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
         drivetrain.setDefaultCommand(velocityControl);
 
@@ -148,10 +146,15 @@ public class RobotContainer {
             .whenPressed(
                 new IntakeUpClear(intake)
             );
+        
+        new JoystickButton(driver, XboxController.Button.kX.value)
+            .whenPressed(
+                new SetShooterState(shooter, ShooterState.kLowest).withTimeout(1.25)
+            );
 
-        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
+        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
             .whenActive(
-                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight)
+                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine)
             )
             .whenInactive(()->{
                 drivetrain.tankDrive(0, 0);
@@ -162,7 +165,20 @@ public class RobotContainer {
             drivetrain, shooter, indexer
             );
 
-        new POVButton(driver, 90)
+        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
+            .whenActive(
+                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
+            )
+            .whenInactive(()->{
+                drivetrain.tankDrive(0, 0);
+                indexer.setVolts(0, 0);
+                shooter.setWristVolts(0);
+                shooter.setShooterVelocity(0);
+            },
+            drivetrain, shooter, indexer
+            );            
+
+        new POVButton(driver, 0)
             .whenPressed(
                 ()->lift.setVolts(12),
                 lift
@@ -171,7 +187,7 @@ public class RobotContainer {
                 ()->lift.setVolts(0),
                 lift
             );
-        new POVButton(driver, 270)
+        new POVButton(driver, 180)
             .whenPressed(
                 ()->lift.setVolts(-12),
                 lift
@@ -180,150 +196,35 @@ public class RobotContainer {
                 ()->lift.setVolts(0),
                 lift
             );
-    }
-    private void configureDriverBindings() {
-        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
-        /*
-        drivetrain.setDefaultCommand(new RunCommand(()->{
-            double left = driver.getLeftArcade();
-            double right = driver.getRightArcade();
-            SmartDashboard.putNumber("Left", left);
-            SmartDashboard.putNumber("Right", right);
-            drivetrain.tankDrive(left, right);
-        }, drivetrain));
-        */
-        drivetrain.setDefaultCommand(velocityControl);
-        
-        new JoystickButton(driver, XboxController.Button.kBumperRight.value)
-            .whenPressed(()->drivetrain.setDriveSpeed(0.5))
-            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
 
-        new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
-            .whenPressed(()->drivetrain.setDriveSpeed(0.8))
-            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
-
-        /*
-        new JoystickButton(driver, XboxController.Button.kA.value)
-            .whenPressed(()->{
-                intake.setRollerVolts(8);
-                intake.setFenceVolts(12);
-            })
-            .whenReleased(()->{
-                intake.setRollerVolts(0);
-                intake.setFenceVolts(0);
-            });
-        */
-
-        /*
-        new JoystickButton(driver, XboxController.Button.kA.value)
-            .whenHeld(new IndexIncoming(indexer)
-            .alongWith(new InstantCommand(()->
-                {
-                    intake.setRollerVolts(9);
-                    intake.setFenceVolts(12);
-                }, intake)))
-            .whenReleased(()->
-                {
-                    intake.setRollerVolts(0);
-                    intake.setFenceVolts(0);
-                }, intake);
-        */
-        new JoystickButton(driver, XboxController.Button.kA.value)
-                .whenPressed(new IntakeIndexIncoming(intake, indexer, shooter))
-                .whenReleased(()->{
-                    intake.setRollerVolts(0);
-                    intake.setFenceVolts(0);
-                    indexer.setVolts(0, 0);
-                }, intake, indexer);
-        /*
-        new JoystickButton(driver, XboxController.Button.kB.value)
-            .whenPressed(()->indexer.setVolts(4, 4))
-            .whenReleased(()->indexer.setVolts(0, 0));
-        */
-        new JoystickButton(driver, XboxController.Button.kB.value)
-                .whenPressed(new PrimeShooter(indexer, shooter));
-        
-        /*
-        new JoystickButton(driver, XboxController.Button.kB.value)
-                .whenPressed(()->intake.setArmVolts(4), intake)
-                .whenReleased(()->intake.setArmVolts(0), intake);
-        */
         new JoystickButton(driver, XboxController.Button.kStickRight.value)
-            .whenPressed(()->indexer.setVolts(-4, -4))
-            .whenReleased(()->indexer.setVolts(0, 0));
-        
+            .whenPressed(
+                ()->lift.setRatchetEngaged(true));
+
         new JoystickButton(driver, XboxController.Button.kStickLeft.value)
-                .toggleWhenPressed(new StartEndCommand(
-                    ()->lift.setRatchetEngaged(true),
-                    ()->lift.setRatchetEngaged(false)
-                ));
-        
-        new JoystickButton(driver, XboxController.Button.kX.value)
-            .whenPressed(()->intake.setSliderExtended(!intake.getSliderExtended()));
-        /*
-        new JoystickButton(driver, XboxController.Button.kY.value)
-            .whenPressed(()->shooter.setShooterVelocity(4500))
-            .whenReleased(()->shooter.setShooterVelocity(0));
-        */
-        new JoystickButton(driver, XboxController.Button.kY.value)
-                .whenPressed(()->{
-                    indexer.setVolts(3, 3);
-                }, indexer)
-                .whenReleased(()->{
-                    indexer.setVolts(0, 0);
-                }, indexer);
-
-        new JoystickButton(driver, XboxController.Button.kBack.value)
-            .whileActiveOnce(new PrimeIntake(intake,indexer,shooter));
-
-        new JoystickButton(driver, XboxController.Button.kStart.value)
-            .whenPressed(()->shooter.setShooterVelocity(3000))
-            .whenReleased(()->shooter.setShooterVelocity(0));
-
-        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.2)
-                .whenActive(()->lift.setVolts(-12), lift)
-                .whenInactive(()->lift.setVolts(0), lift);
-
-        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.2)
-                .whenActive(()->lift.setVolts(12), lift)
-                .whenInactive(()->lift.setVolts(0), lift);
-
-        new POVButton(driver, 0)
-            .whenPressed(()->shooter.setWristVolts(2.5))
-            .whenReleased(()->shooter.setWristVolts(0));
-
-        new POVButton(driver, 180)
-            .whenPressed(()->shooter.setWristVolts(-2.5))
-            .whenReleased(()->shooter.setWristVolts(0));
+            .whenPressed(
+                ()->lift.setRatchetEngaged(false));
     }
-    private void configureOperatorBindings(){
-        
-        intake.setDefaultCommand(new RunCommand(()->{
-            double armVolts = operator.getForward()*12;
-            intake.setArmVolts(armVolts);
-        }, intake));
-
-        
-        new JoystickButton(operator, XboxController.Button.kX.value)
-            .whenPressed(new SetShooterState(shooter, new ShooterState(31.5, 0)));
-        
-        new JoystickButton(operator, XboxController.Button.kY.value)
-            .whenPressed(new SetShooterState(shooter, new ShooterState(41.5, 0)));
-
+    
+    private void configureOperatorBindings(){ 
         new JoystickButton(operator, XboxController.Button.kA.value)
-            .whenPressed(new IntakeDown(intake));
-        
+            .whenPressed(
+                ()->lift.setRatchetEngaged(true)
+            );
         new JoystickButton(operator, XboxController.Button.kB.value)
-            .whenPressed(new IntakeUp(intake));
+            .whenPressed(
+                ()->lift.setRatchetEngaged(false)
+            );
 
-        new Trigger(()->operator.getTriggerAxis(Hand.kRight) > 0.2)
-            .whenActive(TurnTo.createSimpleTurnToTarget(drivetrain, limelight))
-                //.alongWith(new InstantCommand(()->limelight.setConfiguration(Configuration.PNP))))
-            .whenInactive(()->{
-                drivetrain.tankDrive(0,0);
-                //limelight.setConfiguration(Configuration.DRIVE);
-            }, drivetrain);
-        
+        new JoystickButton(operator, XboxController.Button.kX.value)
+            .whenPressed(
+                ()->intake.setRollerVolts(-8),
+                intake
+            )
+            .whenReleased(
+                ()->intake.setRollerVolts(0),
+                intake
+            );
     }
     
     public Command getAutonomousCommand() {
@@ -331,7 +232,13 @@ public class RobotContainer {
     }
 
     public void init(){
+        if(DriverStation.getInstance().getJoystickIsXbox(1) && !operatorConfigured){
+            operator = new OCXboxController(1);
+            configureOperatorBindings();
+            operatorConfigured = true;
+        }
         intake.init();
+        lift.setRatchetEngaged(false);
 
         limelight.setConfiguration(Configuration.PNP);
     }

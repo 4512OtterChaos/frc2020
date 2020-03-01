@@ -7,6 +7,7 @@
 
 package frc.robot.auto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -19,7 +20,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.auto.StandardRamseteCommand;
+import frc.robot.commands.drive.TurnTo;
+import frc.robot.commands.intake.IntakeDown;
+import frc.robot.commands.superstructure.SimplerShootOuter;
+import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
@@ -40,45 +46,177 @@ public class AutoOptions {
     SendableChooser<Command> stage2Options = new SendableChooser<>();
     SendableChooser<Command> stage3Options = new SendableChooser<>();
     SendableChooser<Command> stage4Options = new SendableChooser<>();
+    List<SendableChooser<Command>> stageOptions = new ArrayList<SendableChooser<Command>>(
+        List.of(
+            stage1Options,
+            stage2Options,
+            stage3Options,
+            stage4Options
+        )
+    );
     SendableChooser<Command> fullAutoOptions = new SendableChooser<>();
 
     // Maps of modular commands as well as complete preset auto command groups
-    HashMap<String, Command> stageOptions = new HashMap<>();
-    HashMap<String, Command> fullOptions = new HashMap<>();
+    //HashMap<String, Command> stageOptions = new HashMap<>();
+    //HashMap<String, Command> fullOptions = new HashMap<>();
 
     /**
      * Constructs different auto options given subsystems.
      */
     public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
-        Command nothing = new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain);
 
         SimpleMotorFeedforward driveFF = drivetrain.getFeedForward();
         DifferentialDriveKinematics driveKin = drivetrain.getKinematics();
         // add modular/preset commands
-        /*
-        stageOptions.put("Short Backward", 
-            new StandardRamseteCommand(drivetrain, new OCPath(
-                List.of(
-                    new Pose2d(1, 0, new Rotation2d()),
-                    new Pose2d(0, 0, new Rotation2d())
-                ), driveFF, driveKin).getReversed()
-            )
+         
+        
+
+        for(SendableChooser<Command> chooser:stageOptions){
+            chooser.setDefaultOption("Nothing",
+                new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain)
+            );
+            chooser.addOption("Short Backward", 
+                new StandardRamseteCommand(drivetrain, new OCPath(
+                    List.of(
+                        new Pose2d(0, 0, new Rotation2d()),
+                        new Pose2d(1, 0, new Rotation2d())
+                    ), driveFF, driveKin).getReversed()
+                )
+            );
+        
+            chooser.addOption("Simple Short Backward",
+                new StartEndCommand(
+                    ()->{
+                        drivetrain.setDriveSpeed(0.3);
+                        drivetrain.setChassisSpeed(-1, 0);
+                    },
+                    ()->drivetrain.tankDrive(0, 0),
+                    drivetrain
+                    ).withTimeout(0.75)
+            );
+
+            chooser.addOption("Simpler Shoot", 
+                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, new ShooterState(30, 3000))
+            );
+        }
+        // preset autos
+        fullAutoOptions.setDefaultOption("Nothing",
+            new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain)
         );
-        */
+
+        fullAutoOptions.addOption("Simple Long Backward",
+                new StartEndCommand(
+                    ()->{
+                        drivetrain.setDriveSpeed(0.3);
+                        drivetrain.setChassisSpeed(-1, 0);
+                    },
+                    ()->drivetrain.tankDrive(0, 0),
+                    drivetrain
+                    ).withTimeout(0.9)
+                    .alongWith(
+                        new IntakeDown(intake)
+                    )
+                    .andThen(
+                        new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
+                    ).withTimeout(6)
+                    .andThen(
+                        new InstantCommand(
+                            ()->{
+                                drivetrain.tankDrive(0, 0);
+                                indexer.setVolts(0, 0);
+                                shooter.setWristVolts(0);
+                                shooter.setShooterVelocity(0);
+                            },
+                            drivetrain, indexer, shooter
+                        )
+                    )
+            );
+            fullAutoOptions.addOption("Simple Short Backward",
+                new StartEndCommand(
+                    ()->{
+                        drivetrain.setDriveSpeed(0.3);
+                        drivetrain.setChassisSpeed(-1, 0);
+                    },
+                    ()->drivetrain.tankDrive(0, 0),
+                    drivetrain
+                    ).withTimeout(0.5)
+                    .alongWith(
+                        new IntakeDown(intake)
+                    )
+                    .andThen(
+                        new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine)
+                    ).withTimeout(6)
+                    .andThen(
+                        new InstantCommand(
+                            ()->{
+                                drivetrain.tankDrive(0, 0);
+                                indexer.setVolts(0, 0);
+                                shooter.setWristVolts(0);
+                                shooter.setShooterVelocity(0);
+                            },
+                            drivetrain, indexer, shooter
+                        )
+                    )
+            );
+
+            fullAutoOptions.addOption("Ramsete 6 ball l o l",
+                new StandardRamseteCommand(drivetrain, new OCPath(
+                    List.of(
+                        new Pose2d(),
+                        new Pose2d(6, 0, new Rotation2d())
+                    ), driveFF, driveKin).getReversed()
+                )
+                .alongWith(
+                    new IntakeDown(intake)
+                )
+                .andThen(
+                    new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)
+                )
+                .andThen(
+                    new TurnTo(drivetrain, -45).withTimeout(0.75)
+                )
+                .andThen(
+                    new StandardRamseteCommand(drivetrain, new OCPath(
+                        List.of(
+                            new Pose2d(-6, 0, Rotation2d.fromDegrees(-45)),
+                            new Pose2d(-6, -3.75, Rotation2d.fromDegrees(-135)),
+                            new Pose2d(-9.5, -3.75, Rotation2d.fromDegrees(-180)),
+                            new Pose2d(-16, -3.75, Rotation2d.fromDegrees(-180))
+                        ), driveFF, driveKin)
+                    )
+                )
+                .andThen(
+                    new StandardRamseteCommand(drivetrain, new OCPath(
+                        List.of(
+                            new Pose2d(-6, 0, Rotation2d.fromDegrees(-90)),
+                            new Pose2d(-16, -3.75, Rotation2d.fromDegrees(-180))
+                        ), driveFF, driveKin).getReversed()
+                    )
+                )
+                .andThen(
+                    new TurnTo(drivetrain, 0).withTimeout(0.75)
+                )
+                .andThen(
+                    new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)
+                )
+            );
 
         // populate sendable choosers with constructed commands
-        putStageDefaultOption("Nothing", nothing);
-        fullAutoOptions.setDefaultOption("Nothing", nothing);
+        //putStageDefaultOption("Nothing", nothing);
+        //fullAutoOptions.setDefaultOption("Nothing", nothing);
 
+        /*
         for(Entry<String,Command> entry:stageOptions.entrySet()){
             putStageOption(entry.getKey(), entry.getValue());
         }
         for(Entry<String,Command> entry:fullOptions.entrySet()){
             fullAutoOptions.addOption(entry.getKey(), entry.getValue());
         }
+        */
 
     }
 
+    /*
     private void putStageOption(String name, Command command){
         stage1Options.addOption(name, command);
         stage2Options.addOption(name, command);
@@ -91,6 +229,7 @@ public class AutoOptions {
         stage3Options.setDefaultOption(name, command);
         stage4Options.setDefaultOption(name, command);
     }
+    */
 
     /**
      * Constructs a command group based off of selected stage commands.
@@ -98,7 +237,8 @@ public class AutoOptions {
      */
     public Command getSelected(){
         Command selected;
-        if(fullAutoOptions.getSelected()==fullOptions.get("Nothing")){
+        /*
+        if(fullAutoOptions.getSelected().getName(){
             selected = 
                 stage1Options.getSelected().andThen(
                 stage2Options.getSelected()).andThen(
@@ -111,6 +251,8 @@ public class AutoOptions {
                 fullAutoOptions.getSelected()
                 .withInterrupt(()->Paths.getHasAbandonedTrajectory());
         }
+        */
+        selected = fullAutoOptions.getSelected();
         return selected;
     }
     /**

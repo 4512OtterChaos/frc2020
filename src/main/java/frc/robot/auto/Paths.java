@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.util.Units;
 /**
@@ -32,7 +33,7 @@ public class Paths {
     public final OCPath example;
     //-----
 
-    private static boolean hasAbadonedTrajectory = false;
+    private static boolean hasAbandonedTrajectory = false;
 
     /**
      * Generates autonomous paths given drivetrain specifications.
@@ -57,6 +58,14 @@ public class Paths {
             new Pose2d(),
             new Pose2d(4, 2, new Rotation2d()),
             new Pose2d(8, 0, new Rotation2d())
+        );
+        public static final List<Pose2d> straightBack6feet = feetToMeters(
+            new Pose2d(),
+            new Pose2d(6,0,new Rotation2d())
+        );
+        public static final List<Pose2d> nearTrenchTake3 = feetToMeters(
+            new Pose2d(),
+            new Pose2d(0, 0, new Rotation2d(-135))
         );
         
         /**
@@ -90,13 +99,14 @@ public class Paths {
      * Since this method is static, it is useful as a global flag for interrupting autonomous command groups.
      */
     public static boolean getHasAbandonedTrajectory(){
-        return hasAbadonedTrajectory;
+        SmartDashboard.putBoolean("Abandoned Trajectory", hasAbandonedTrajectory);
+        return hasAbandonedTrajectory;
     }
     /**
      * Sets a flag that a trajectory was abandoned while being followed, interrupting current auto command.
      */
     public static void abandonTrajectory(){
-        hasAbadonedTrajectory = true;
+        hasAbandonedTrajectory = true;
     }
 
     /**

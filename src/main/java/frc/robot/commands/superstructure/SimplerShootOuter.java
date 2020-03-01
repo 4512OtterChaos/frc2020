@@ -7,6 +7,7 @@
 
 package frc.robot.commands.superstructure;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -18,13 +19,19 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Limelight.Configuration;
 
 public class SimplerShootOuter extends SequentialCommandGroup {
     
-    public SimplerShootOuter(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight) {
+    public SimplerShootOuter(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, ShooterState shooterState) {
         super(
-            TurnTo.createSimplerTurnToTarget(drivetrain, limelight),
-            new PrimeShooter(indexer, intake)
+            new InstantCommand(
+                ()->limelight.setConfiguration(Configuration.PNP)
+                ),
+            TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+            .alongWith(
+                new PrimeShooter(indexer, intake)
+            )
             .alongWith(
                 new StartEndCommand(
                     ()->shooter.setShooterVelocity(-1500),
@@ -32,10 +39,11 @@ public class SimplerShootOuter extends SequentialCommandGroup {
                     shooter
                 )
                 .withInterrupt(()->!indexer.getFlightBeam())
+                .withTimeout(0.7)
             ),
-            new SetShooterState(shooter, new ShooterState(30, 3100)),
+            new SetShooterState(shooter, shooterState).withTimeout(1.25),
             new RunCommand(()->{
-                if(shooter.checkIfStable()){
+                if(shooter.checkIfStable()||!indexer.getFlightBeam()){
                     indexer.setVolts(4, 4);
                 }
                 else{
