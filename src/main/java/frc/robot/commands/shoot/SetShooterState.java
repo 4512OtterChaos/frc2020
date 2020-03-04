@@ -39,7 +39,7 @@ public class SetShooterState extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-      shooter.setWristVolts(0);
+      started = false;
   }
 
   @Override

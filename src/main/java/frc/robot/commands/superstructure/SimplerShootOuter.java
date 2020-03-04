@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.drive.TurnTo;
+import frc.robot.commands.index.IndexFeedShooter;
 import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Drivetrain;
@@ -42,14 +43,7 @@ public class SimplerShootOuter extends SequentialCommandGroup {
                 .withTimeout(0.7)
             ),
             new SetShooterState(shooter, shooterState).withTimeout(1.25),
-            new RunCommand(()->{
-                if(shooter.checkIfStable()||!indexer.getFlightBeam()){
-                    indexer.setVolts(4, 4);
-                }
-                else{
-                    indexer.setVolts(0, 0);
-                }
-            }, indexer)
+            new IndexFeedShooter(indexer, ()->shooter.checkIfStable())
         );
     }
 }

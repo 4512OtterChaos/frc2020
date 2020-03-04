@@ -139,13 +139,13 @@ public class AutoOptions {
                     },
                     ()->drivetrain.tankDrive(0, 0),
                     drivetrain
-                    ).withTimeout(0.5)
+                    ).withTimeout(0.6)
                     .alongWith(
-                        new IntakeDown(intake)
+                        new IntakeDown(intake).withTimeout(2)
                     )
                     .andThen(
-                        new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine)
-                    ).withTimeout(6)
+                        new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine).withTimeout(7)
+                    )
                     .andThen(
                         new InstantCommand(
                             ()->{

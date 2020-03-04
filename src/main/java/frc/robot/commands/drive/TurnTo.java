@@ -7,6 +7,7 @@
 
 package frc.robot.commands.drive;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
@@ -31,8 +32,12 @@ public class TurnTo extends ProfiledPIDCommand {
     private final Drivetrain drivetrain;
     
     private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians)*0.8;
+
+    private double targetedTime = 0;
+    private final double targetThresholdTime = 0.1;
+    private double lastTime = 0;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.03, 0, 0, 
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.025, 0, 0, 
     new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*2),
     Constants.kRobotDelta);
     private static boolean resetFlag = false;
@@ -76,6 +81,8 @@ public class TurnTo extends ProfiledPIDCommand {
     public void initialize(){
         super.initialize();
         started = true;
+        targetedTime = 0;
+        lastTime = Timer.getFPGATimestamp();
         controller.setTolerance(0.4, 2);
     }
     
@@ -95,7 +102,17 @@ public class TurnTo extends ProfiledPIDCommand {
     @Override
     public boolean isFinished() {
         SmartDashboard.putNumber("TurnTo Error", getController().getPositionError());
-        return getController().atGoal() && started;
+        boolean atGoal = getController().atGoal();
+        double now = Timer.getFPGATimestamp();
+        double dt = now - lastTime;
+        lastTime = now;
+
+        if(atGoal && targetedTime < targetThresholdTime) targetedTime+=dt;
+        else if(targetedTime > 0)targetedTime-=dt;
+
+        boolean targeted = targetedTime >= targetThresholdTime;
+
+        return atGoal && started && targeted;
     }
     
     /**
@@ -132,7 +149,7 @@ public class TurnTo extends ProfiledPIDCommand {
             return heading;
         }
         );
-        return turnToLimelightTarget.withTimeout(1.6);
+        return turnToLimelightTarget.withTimeout(1.4);
     }
     
     public static Command createSimplerTurnToTarget(Drivetrain drivetrain, Limelight limelight){
@@ -143,6 +160,6 @@ public class TurnTo extends ProfiledPIDCommand {
             return heading;
         }
         );
-        return turnToLimelightTarget.withTimeout(1.6);
+        return turnToLimelightTarget.withTimeout(1.4);
     }
 }

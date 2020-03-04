@@ -120,7 +120,8 @@ public class Intake extends SubsystemBase implements Testable{
         if(nowSliderExtended) slider.set(Value.kForward);
         else slider.set(Value.kReverse);
 
-        double adjustedVolts = armVolts-kCounterGravityFF*Math.sin(Units.degreesToRadians(enc));
+        double adjustedVolts = armVolts-7*kCounterGravityFF*Math.sin(Units.degreesToRadians(enc))+5*kCounterGravityFF;
+        SmartDashboard.putNumber("Arm Volts", armVolts);
         arm.setVoltage(adjustedVolts);
         roller.setVoltage(rollerVolts);
         fence.setVoltage(fenceVolts);

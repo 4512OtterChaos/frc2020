@@ -134,12 +134,18 @@ public class RobotContainer {
                 conditionalIntake
             )
             .whenReleased(
-                ()->{
-                    intake.setRollerVolts(0);
-                    intake.setFenceVolts(0);
-                    indexer.setVolts(0, 0);
-                },
-                intake, indexer
+                new ConditionalCommand(
+                    new InstantCommand(
+                        ()->{
+                            intake.setRollerVolts(0);
+                            intake.setFenceVolts(0);
+                            indexer.setVolts(0, 0);
+                        },
+                        intake, indexer
+                    ),
+                    new InstantCommand(),
+                    ()->intake.getArmDegrees() < IntakeArmConstants.kLowerSafeDegrees
+                )
             );
 
         new JoystickButton(driver, XboxController.Button.kB.value)
@@ -199,11 +205,23 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kStickRight.value)
             .whenPressed(
-                ()->lift.setRatchetEngaged(true));
+                ()->{
+                    intake.setArmVolts(0);
+                    intake.setRollerVolts(0);
+                    intake.setFenceVolts(0);
+                }, intake
+                
+            );
 
         new JoystickButton(driver, XboxController.Button.kStickLeft.value)
             .whenPressed(
-                ()->lift.setRatchetEngaged(false));
+                ()->{
+                    intake.setSliderExtended(true);
+                    indexer.setVolts(-6, -6);
+                    intake.setFenceVolts(-12);
+                }, intake, indexer
+                
+            );
     }
     
     private void configureOperatorBindings(){ 

@@ -93,7 +93,7 @@ public class Constants {
         public static final int kFreeLimit = 22;
         public static final int kStallLimit = 27;
 
-        public static final double kRampRaw = 0.3; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.35; // seconds to full output(on the motor)
     }
     public static class IntakeArmConstants{
         public static final int kFreeLimit = 25;
@@ -113,7 +113,7 @@ public class Constants {
         public static final double kEncoderOffset = 0.04; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeDegrees = 12; // below is safe
+        public static final double kLowerSafeDegrees = 20; // below is safe
         public static final double kHigherSafeDegrees = 72; // above is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
         public static final double kMaxUpwardDegrees = 78; // 90 degrees up

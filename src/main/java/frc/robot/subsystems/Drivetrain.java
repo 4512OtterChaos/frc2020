@@ -136,6 +136,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
      */
     public void setChassisSpeed(double linearPercent, double angularPercent){
         linearPercent = MathHelp.clamp(linearPercent * driveSpeed, -1, 1);
+        if(angularPercent!=0) angularPercent+=Math.copySign(0.05, angularPercent);
         angularPercent = MathHelp.clamp(angularPercent * driveSpeed, -1, 1);
         double linear = linearPercent*kMaxVelocityMeters;
         double angular = (angularPercent*(kMaxVelocityRadians));
@@ -147,7 +148,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * @param scaleTurning Whether to adjust turning power for driver control
      */
     public void setChassisSpeed(double linearPercent, double angularPercent, boolean scaleTurning){
-        if(scaleTurning) angularPercent = Math.copySign(Math.pow(Math.abs(angularPercent), 0.3)*0.8, angularPercent); // re-scale for better low speeds control and less top speed
+        if(scaleTurning) angularPercent = Math.copySign(Math.pow(Math.abs(angularPercent), 0.3)*0.7, angularPercent); // re-scale for better low speeds control and less top speed
         setChassisSpeed(linearPercent, angularPercent);
     }
     /**
