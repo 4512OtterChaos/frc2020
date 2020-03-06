@@ -106,6 +106,9 @@ public class Shooter extends SubsystemBase implements Testable{
     public double getRPM(){
         return (getLeftRPM()+getRightRPM())/2.0;
     }
+    public double getTargetRPM(){
+        return (leftTarget+rightTarget)/2.0;
+    }
 
     public double getShooterError(){
         double leftError = Math.abs(leftTarget - getLeftRPM());
@@ -159,10 +162,11 @@ public class Shooter extends SubsystemBase implements Testable{
 
     public void log(){
         SmartDashboard.putNumber("Wrist Degrees", getWristDegrees());
-        SmartDashboard.putNumber("Shooter Left RPM", leftEncoder.getVelocity());
-        SmartDashboard.putNumber("Shooter Right RPM", rightEncoder.getVelocity());
+        SmartDashboard.putNumber("Shooter RPM", getRPM());
+        SmartDashboard.putNumber("Shooter Target RPM", getTargetRPM());
         SmartDashboard.putNumber("Shooter Diff", leftEncoder.getVelocity()-rightEncoder.getVelocity());
         SmartDashboard.putNumber("Shooter Left Amps", shootLeft.getOutputCurrent());
+        SmartDashboard.putNumberArray("Shooter Reference", new double[]{getRPM(), getTargetRPM()});
     }
     
     @Override

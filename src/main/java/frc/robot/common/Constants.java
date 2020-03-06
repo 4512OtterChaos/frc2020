@@ -48,7 +48,7 @@ public class Constants {
         public static final int kFreeLimit = 40;
         public static final int kStallLimit = 80;
 
-        public static final double kRampRaw = 0.06; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
         public static final double klStaticFF = 0.483; // volts (Given from the characterization tool)
         public static final double klVelocityFF = 0.135; // per meters per second
@@ -58,7 +58,7 @@ public class Constants {
         public static final double krVelocityFF = 0.132; // per meters per second
         public static final double krAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0.00008; // PID Gains
+        public static final double kP = 0.0008; // PID Gains
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
