@@ -89,4 +89,64 @@ public final class MathHelp {
       }
       return error;
     }
+
+    /**
+     * Finds the average of an array of doubles.
+     */
+    public static double findAverage(double[] values){
+        if(values.length==0) return 0;
+        double average = 0;
+        for(double value : values){
+            average += value; // sum
+        }
+        return average / values.length;
+    }
+
+    /**
+     * Returns the given array of doubles with the farthest outlier removed.
+     * Outliers are found by the largest distance to the average of the array.
+     */
+    public static double[] trimOutlier(double[] values){
+        if(values.length<=2) return values;
+
+        double average = findAverage(values);
+
+        int outlierIndex = 0;
+        double largestDistance = 0;
+        for(int i=0;i<values.length;i++){
+            double distance = Math.abs(average - values[i]);
+            if(distance > largestDistance){
+                outlierIndex = i;
+                largestDistance = distance;
+            }
+        }
+
+        double[] trimmedValues = new double[values.length-1];
+        for(int i=0;i<values.length;i++){
+            if(i!=outlierIndex){
+                int index = i;
+                if(i>outlierIndex) index--;
+                trimmedValues[index] = values[i];
+            }
+        }
+        return trimmedValues;
+    }
+    /**
+     * Returns the given array with outlierCount outliers removed.
+     * Outliers are found by the largest distance to the average of the array.
+     */
+    public static double[] trimOutliers(double[] values, int outlierCount){
+        double[] result = values;
+        for(int i=0;i<outlierCount;i++){ // trimming too many times will just return values[]
+            result = trimOutlier(result);
+        }
+        return result;
+    }
+    /**
+     * Finds the average of given array of doubles with outliers removed.
+     * @param outlierCount the amount of outliers to remove from the array
+     */
+    public static double getTrimmedAverage(double[] values, int outlierCount){
+        return findAverage(trimOutliers(values, outlierCount));
+    }
 }
