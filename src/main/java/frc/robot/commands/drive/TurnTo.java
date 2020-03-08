@@ -31,14 +31,14 @@ public class TurnTo extends ProfiledPIDCommand {
     
     private final Drivetrain drivetrain;
     
-    private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians)*0.8;
+    private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians)*0.4;
 
     private double targetedTime = 0;
     private final double targetThresholdTime = 0.1;
     private double lastTime = 0;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.025, 0, 0, 
-    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*2),
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.015, 0, 0, 
+    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*5),
     Constants.kRobotDelta);
     private static boolean resetFlag = false;
     private boolean started = false;
@@ -46,7 +46,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public TurnTo(Drivetrain drivetrain, double target) {
         super(
             controller,
-            () -> drivetrain.getYawPosition(),
+            () -> drivetrain.getContinuousYawPosition(),
             () -> target,
             (output, setpoint) -> {
                 drivetrain.setChassisSpeed(0, output);
@@ -58,7 +58,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public TurnTo(Drivetrain drivetrain, DoubleSupplier target) {
         super(
             controller,
-            () -> drivetrain.getYawPosition(),
+            () -> drivetrain.getContinuousYawPosition(),
             target,
             (output, setpoint) -> {
                 drivetrain.setChassisSpeed(0, output);
@@ -83,13 +83,15 @@ public class TurnTo extends ProfiledPIDCommand {
         started = true;
         targetedTime = 0;
         lastTime = Timer.getFPGATimestamp();
-        controller.setTolerance(0.4, 2);
+        controller.enableContinuousInput(-180, 180);
+        controller.setTolerance(0.4, 6);
     }
     
     @Override
     public void execute(){
         super.execute();
         SmartDashboard.putNumber("TurnTo Target", controller.getGoal().position);
+        SmartDashboard.putNumber("TurnTo State Target", controller.getSetpoint().position);
     }
     
     @Override
@@ -98,10 +100,10 @@ public class TurnTo extends ProfiledPIDCommand {
         started = false;
     }
     
-    
     @Override
     public boolean isFinished() {
-        SmartDashboard.putNumber("TurnTo Error", getController().getPositionError());
+        SmartDashboard.putNumber("TurnTo Error", controller.getPositionError());
+        
         boolean atGoal = getController().atGoal();
         double now = Timer.getFPGATimestamp();
         double dt = now - lastTime;
@@ -155,7 +157,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public static Command createSimplerTurnToTarget(Drivetrain drivetrain, Limelight limelight){
         TurnTo turnToLimelightTarget = new TurnTo(drivetrain,
         ()->{
-            double heading = drivetrain.getYawPosition()-limelight.getTx();
+            double heading = drivetrain.getContinuousYawPosition()-limelight.getTx();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
             return heading;
         }

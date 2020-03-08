@@ -46,19 +46,19 @@ public class Constants {
 
     public static class ShooterConstants{
         public static final int kFreeLimit = 40;
-        public static final int kStallLimit = 80;
+        public static final int kStallLimit = 50;
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
 
         public static final double klStaticFF = 0.483; // volts (Given from the characterization tool)
-        public static final double klVelocityFF = 0.135; // per meters per second
+        public static final double klVelocityFF = 0.13; // per meters per second
         public static final double klAccelerationFF = 0; // per meters per second squared
 
         public static final double krStaticFF = 0.609; // volts (Given from the characterization tool)
-        public static final double krVelocityFF = 0.132; // per meters per second
+        public static final double krVelocityFF = 0.13; // per meters per second
         public static final double krAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0.0008; // PID Gains
+        public static final double kP = 0.0001; // PID Gains
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
@@ -125,7 +125,7 @@ public class Constants {
         public static final int kFreeLimit = 22;
         public static final int kStallLimit = 25;
 
-        public static final double kRampRaw = 0.12; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.2; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
         public static final double kVelocityFF = 0; // per meters per second

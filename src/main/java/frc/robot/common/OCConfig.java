@@ -109,7 +109,7 @@ public final class OCConfig {
             if(stallLimit!=freeLimit) motor.setSmartCurrentLimit(stallLimit, freeLimit);
             else motor.setSmartCurrentLimit(stallLimit);
         }
-        //setStatusNormal(motors);
+        setStatusNormal(motors);
         saveConfig(motors);
     }
     /**

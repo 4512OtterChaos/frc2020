@@ -26,9 +26,6 @@ public class SimplerShootOuter extends SequentialCommandGroup {
     
     public SimplerShootOuter(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, ShooterState shooterState) {
         super(
-            new InstantCommand(
-                ()->limelight.setConfiguration(Configuration.PNP)
-                ),
             TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
             .alongWith(
                 new PrimeShooter(indexer, intake)

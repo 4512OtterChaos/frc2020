@@ -136,7 +136,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
      */
     public void setChassisSpeed(double linearPercent, double angularPercent){
         linearPercent = MathHelp.clamp(linearPercent * driveSpeed, -1, 1);
-        if(angularPercent!=0) angularPercent+=Math.copySign(0.05, angularPercent);
+        //if(angularPercent!=0) angularPercent+=Math.copySign(0.0075, angularPercent);
         angularPercent = MathHelp.clamp(angularPercent * driveSpeed, -1, 1);
         double linear = linearPercent*kMaxVelocityMeters;
         double angular = (angularPercent*(kMaxVelocityRadians));
@@ -148,7 +148,11 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * @param scaleTurning Whether to adjust turning power for driver control
      */
     public void setChassisSpeed(double linearPercent, double angularPercent, boolean scaleTurning){
-        if(scaleTurning) angularPercent = Math.copySign(Math.pow(Math.abs(angularPercent), 0.3)*0.7, angularPercent); // re-scale for better low speeds control and less top speed
+        if(scaleTurning){
+            double adjustedDriveSpeed = driveSpeed;
+            adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(adjustedDriveSpeed), 0.2)*0.4, adjustedDriveSpeed);
+            angularPercent *= adjustedDriveSpeed*(1/driveSpeed);
+        }
         setChassisSpeed(linearPercent, angularPercent);
     }
     /**
@@ -221,6 +225,9 @@ public class Drivetrain extends SubsystemBase implements Testable{
         pigeon.getRawGyro(xyz);
         return ypr[0];
     }
+    public double getContinuousYawPosition(){
+        return MathHelp.getContinuousError(getYawPosition(), 360);
+    }
     public double getYawVelocity(){
         pigeon.getRawGyro(xyz);
         return xyz[0];
@@ -279,7 +286,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     }
 
     public void log(){
-        SmartDashboard.putNumber("Heading", getHeading().getDegrees());
+        SmartDashboard.putNumber("Heading", getContinuousYawPosition());
         SmartDashboard.putNumber("Angular Velocity", Units.radiansToDegrees(kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond));
         SmartDashboard.putNumber("Gyro Velocity", xyz[2]);
         SmartDashboard.putNumber("Linear Velocity", kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond);

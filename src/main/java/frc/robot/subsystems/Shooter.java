@@ -54,8 +54,8 @@ public class Shooter extends SubsystemBase implements Testable{
     private SimpleMotorFeedforward rightShootFF = new SimpleMotorFeedforward(ShooterConstants.krStaticFF, ShooterConstants.krVelocityFF, 0);
     private SimpleMotorFeedforward wristFF = new SimpleMotorFeedforward(ShooterWristConstants.kStaticFF, ShooterWristConstants.kVelocityFF, ShooterWristConstants.kAccelerationFF);
     
-    private CANPIDController leftController = new CANPIDController(shootLeft);
-    private CANPIDController rightController = new CANPIDController(shootRight);
+    private CANPIDController leftController;
+    private CANPIDController rightController;
     private ProfiledPIDController wristController =
     new ProfiledPIDController(ShooterWristConstants.kP, ShooterWristConstants.kI, ShooterWristConstants.kD,
     new Constraints(ShooterWristConstants.kVelocityConstraint, ShooterWristConstants.kAccelerationConstraint), kRobotDelta); // Positional PID controller
@@ -63,13 +63,23 @@ public class Shooter extends SubsystemBase implements Testable{
     public Shooter() {
         OCConfig.configMotors(ConfigType.SHOOTER, shootLeft, shootRight);
         OCConfig.configMotors(ConfigType.SHOOTERWRIST, wrist);
-        
+
+        Timer.delay(0.3);
+
+        leftController = shootLeft.getPIDController();
+        rightController = shootRight.getPIDController();
+
         leftController.setP(ShooterConstants.kP);
         leftController.setI(ShooterConstants.kI);
         leftController.setD(ShooterConstants.kD);
         rightController.setP(ShooterConstants.kP);
         rightController.setI(ShooterConstants.kI);
         rightController.setD(ShooterConstants.kD);
+
+        shootLeft.burnFlash();
+        shootRight.burnFlash();
+
+        Timer.delay(0.3);
         
         shootLeft.setInverted(false);
         shootRight.setInverted(true);
@@ -137,8 +147,15 @@ public class Shooter extends SubsystemBase implements Testable{
         double rps = rpm / 60.0;
         leftTarget = rpm;
         rightTarget = rpm;
-        leftController.setReference(leftTarget, ControlType.kVelocity, 0, leftShootFF.calculate(rps), ArbFFUnits.kVoltage);
-        rightController.setReference(rightTarget, ControlType.kVelocity, 0, rightShootFF.calculate(rps), ArbFFUnits.kVoltage);
+        double leftVolts = leftShootFF.calculate(rps);
+        double rightVolts = rightShootFF.calculate(rps);
+        if(rpm!=0){
+            leftController.setReference(leftTarget, ControlType.kVelocity, 0, leftVolts, ArbFFUnits.kVoltage);
+            rightController.setReference(rightTarget, ControlType.kVelocity, 0, rightVolts, ArbFFUnits.kVoltage);
+        }
+        else{
+            setShooterVolts(0);
+        }
     }
     public void setWristPosition(double degrees){
         degrees = MathHelp.clamp(degrees, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);

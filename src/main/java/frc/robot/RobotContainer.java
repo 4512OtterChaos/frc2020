@@ -210,7 +210,6 @@ public class RobotContainer {
                     intake.setRollerVolts(0);
                     intake.setFenceVolts(0);
                 }, intake
-                
             );
 
         new JoystickButton(driver, XboxController.Button.kStickLeft.value)
@@ -220,7 +219,21 @@ public class RobotContainer {
                     indexer.setVolts(-6, -6);
                     intake.setFenceVolts(-12);
                 }, intake, indexer
-                
+            )
+            .whenReleased(
+                ()->{
+                    indexer.setVolts(0,0);
+                    intake.setFenceVolts(0);
+                }, intake, indexer
+            );
+
+        new JoystickButton(driver, XboxController.Button.kStart.value)
+            .whenPressed(
+                new TurnTo(drivetrain, 0)
+            );
+        new JoystickButton(driver, XboxController.Button.kBack.value)
+            .whenPressed(
+                new TurnTo(drivetrain, 180)
             );
     }
     
