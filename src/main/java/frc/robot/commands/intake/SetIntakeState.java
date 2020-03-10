@@ -27,11 +27,11 @@ public class SetIntakeState extends CommandBase {
   public void initialize() {
     started = true;
     intake.getController().reset();
+    intake.setState(state);
   }
 
   @Override
   public void execute() {
-    intake.setState(state);
   }
 
   @Override

@@ -30,11 +30,11 @@ public class SetShooterState extends CommandBase {
   public void initialize() {
     started = true;
     shooter.getWristController().reset(shooter.getWristDegrees());
+    shooter.setState(state);
   }
 
   @Override
   public void execute() {
-    shooter.setState(state);
   }
 
   @Override
