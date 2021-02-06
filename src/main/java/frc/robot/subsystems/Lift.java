@@ -30,15 +30,13 @@ import frc.robot.util.MathHelp;
 
 public class Lift extends SubsystemBase implements Testable{
     
-    private CANSparkMax master = new CANSparkMax(8, MotorType.kBrushless);
-    private CANSparkMax slave = new CANSparkMax(9, MotorType.kBrushless);
+    //private CANSparkMax master = new CANSparkMax(8, MotorType.kBrushless);
+    //private CANSparkMax slave = new CANSparkMax(9, MotorType.kBrushless);
     
     private double volts = 0;
     
     private DoubleSolenoid ratchet = new DoubleSolenoid(2, 3);
-    
-    private CANEncoder encoder = new CANEncoder(master);
-    
+        
     //private DigitalInput botSwitch;
     //private DigitalInput ratchetSwitch;
     
@@ -47,16 +45,17 @@ public class Lift extends SubsystemBase implements Testable{
     private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
     
     public Lift() {
-        OCConfig.configMotors(ConfigType.LIFT, master, slave);
+        //OCConfig.configMotors(ConfigType.LIFT, master, slave);
         //botSwitch = new DigitalInput(0);
         //ratchetSwitch = new DigitalInput(0);
         
-        master.setInverted(false);
+        //master.setInverted(false);
         //OCConfig.setStatusSlow(slave);
     }
     
     @Override
     public void periodic() {
+        /*
         double minVolts = -12;
         double maxVolts = 12;
         if(encoder.getPosition()<=kMinHeightRotations) minVolts = 0;
@@ -67,6 +66,7 @@ public class Lift extends SubsystemBase implements Testable{
         volts = MathHelp.clamp(volts, minVolts, maxVolts);
         master.setVoltage(volts);
         slave.setVoltage(volts);
+        */
     }
     
     /*
@@ -85,7 +85,7 @@ public class Lift extends SubsystemBase implements Testable{
         return controller;
     }
     public double getRotations(){
-        return encoder.getPosition();
+        return 0;
     }
     
     public void setVolts(double volts){
@@ -97,9 +97,9 @@ public class Lift extends SubsystemBase implements Testable{
     * @param rotations Motor rotations setpoint
     */
     public void setPID(double rotations){
-        double volts = controller.calculate(encoder.getPosition(), rotations);
-        volts += feedForward.calculate(controller.getGoal().velocity);
-        setVolts(volts);
+        //double volts = controller.calculate(encoder.getPosition(), rotations);
+        //volts += feedForward.calculate(controller.getGoal().velocity);
+        //setVolts(volts);
     }
     
     public void setRatchetEngaged(boolean engaged){
@@ -107,13 +107,13 @@ public class Lift extends SubsystemBase implements Testable{
     }
     
     public void setBrakeOn(boolean is){
-        OCConfig.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast, master, slave);
+        //OCConfig.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast, master, slave);
     }
     
     public void log(){
-        SmartDashboard.putNumber("Lift Encoder", encoder.getPosition());
-        SmartDashboard.putNumber("Lift Master Percent", master.getAppliedOutput());
-        SmartDashboard.putNumber("Lift Slave Percent", slave.getAppliedOutput());
+        //SmartDashboard.putNumber("Lift Encoder", encoder.getPosition());
+        //SmartDashboard.putNumber("Lift Master Percent", master.getAppliedOutput());
+        //SmartDashboard.putNumber("Lift Slave Percent", slave.getAppliedOutput());
         SmartDashboard.putBoolean("Lift Ratchet Engaged", getRatchetEngaged());
     }
     
