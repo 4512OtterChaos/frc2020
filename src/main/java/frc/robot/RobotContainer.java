@@ -129,11 +129,11 @@ public class RobotContainer {
             ()->intake.getArmDegrees() > IntakeArmConstants.kLowerSafeDegrees
         );
 
-        new JoystickButton(driver, XboxController.Button.kA.value)
-            .whenPressed(
+        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
+            .whenActive(
                 conditionalIntake
             )
-            .whenReleased(
+            .whenInactive(
                 new ConditionalCommand(
                     new InstantCommand(
                         ()->{
@@ -158,11 +158,11 @@ public class RobotContainer {
                 new SetShooterState(shooter, ShooterState.kLowest).withTimeout(1.25)
             );
 
-        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
-            .whenActive(
-                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine)
+        new JoystickButton(driver, XboxController.Button.kA.value)
+            .whenPressed(
+                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kClose)
             )
-            .whenInactive(()->{
+            .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0, 0);
                 shooter.setWristVolts(0);
@@ -171,7 +171,7 @@ public class RobotContainer {
             drivetrain, shooter, indexer
             );
 
-        new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
+        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
             .whenActive(
                 new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
             )

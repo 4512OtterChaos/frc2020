@@ -42,8 +42,11 @@ public class Shooter extends SubsystemBase implements Testable{
     private CANSparkMax wrist = new CANSparkMax(7, MotorType.kBrushless);
 
     private double wristVolts = 0;
+    private double wristTarget = ShooterWristConstants.kClearIntakeDegrees;
+    private double shooterTarget = 0;
     private double leftTarget = 0;
     private double rightTarget = 0;
+    private double lastShooterVel = 0;
     private final double rpmTolerance = 80;
     
     private CANEncoder leftEncoder = new CANEncoder(shootLeft);
@@ -89,18 +92,36 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     
     public void periodic() {
+        wristTarget = MathHelp.clamp(wristTarget, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);
+        SmartDashboard.putNumber("Wrist Goal", wristTarget);
+        double volts = wristController.calculate(getWristDegrees(), wristTarget);
+        volts += wristFF.calculate(wristController.getGoal().velocity);
+        SmartDashboard.putNumber("Wrist PID", volts);
+
         double minVolts = -12;
         double maxVolts = 12;
         final double deg = getWristDegrees();
-        final double low = 10*ShooterWristConstants.kBufferDegrees;
+        final double low = ShooterWristConstants.kLowerSafeDegrees;
         final double high = ShooterWristConstants.kHigherSafeDegrees;
         final double buffer = ShooterWristConstants.kBufferDegrees;
         if(deg<=low+buffer) minVolts = 0;
         if(deg>=high-buffer) maxVolts = 0;
-        wristVolts = MathHelp.clamp(wristVolts, minVolts, maxVolts);
-        double volts = wristVolts + ShooterWristConstants.kCounterGravityFF*Math.cos(Units.degreesToRadians(getWristDegrees()));
+        volts = MathHelp.clamp(volts, minVolts, maxVolts);
+        volts += ShooterWristConstants.kCounterGravityFF*Math.cos(Units.degreesToRadians(getWristDegrees()));
         SmartDashboard.putNumber("Wrist Volts", volts);
         wrist.setVoltage(volts);
+
+        double rps = shooterTarget / 60.0;
+        double leftVolts = leftShootFF.calculate(rps);
+        double rightVolts = rightShootFF.calculate(rps);
+        SmartDashboard.putNumber("Shooter FF", leftVolts);
+        if(shooterTarget!=0){
+            leftController.setReference(shooterTarget, ControlType.kVelocity, 0, leftVolts, ArbFFUnits.kVoltage);
+            rightController.setReference(shooterTarget, ControlType.kVelocity, 0, rightVolts, ArbFFUnits.kVoltage);
+        }
+        else{
+            setShooterVolts(0);
+        }
     }
 
     public ProfiledPIDController getWristController(){
@@ -117,7 +138,7 @@ public class Shooter extends SubsystemBase implements Testable{
         return (getLeftRPM()+getRightRPM())/2.0;
     }
     public double getTargetRPM(){
-        return (leftTarget+rightTarget)/2.0;
+        return shooterTarget;
     }
 
     public double getShooterError(){
@@ -126,7 +147,10 @@ public class Shooter extends SubsystemBase implements Testable{
         return Math.max(leftError, rightError);
     }
     public boolean checkIfStable(){
-        boolean stable = getShooterError() < rpmTolerance;
+        double rpm = getRPM();
+        boolean stable = (getShooterError() < rpmTolerance) && (Math.abs(getRPM()-lastShooterVel) < 100);
+        SmartDashboard.putNumber("Shooter Accel", getRPM()-lastShooterVel);
+        lastShooterVel = rpm;
         SmartDashboard.putBoolean("Shooter Stable", stable);
         return stable;
     }
@@ -139,31 +163,19 @@ public class Shooter extends SubsystemBase implements Testable{
         shootLeft.setVoltage(volts);
         shootRight.setVoltage(volts);
     }
+    /**
+     * NOT USED ATM(manual control)
+     * @param volts
+     */
     public void setWristVolts(double volts){
         wristVolts = volts;
     }
     
-    public void setShooterVelocity(double rpm){
-        double rps = rpm / 60.0;
-        leftTarget = rpm;
-        rightTarget = rpm;
-        double leftVolts = leftShootFF.calculate(rps);
-        double rightVolts = rightShootFF.calculate(rps);
-        if(rpm!=0){
-            leftController.setReference(leftTarget, ControlType.kVelocity, 0, leftVolts, ArbFFUnits.kVoltage);
-            rightController.setReference(rightTarget, ControlType.kVelocity, 0, rightVolts, ArbFFUnits.kVoltage);
-        }
-        else{
-            setShooterVolts(0);
-        }
-    }
     public void setWristPosition(double degrees){
-        degrees = MathHelp.clamp(degrees, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);
-        SmartDashboard.putNumber("Wrist Target Position", degrees);
-        double volts = wristController.calculate(getWristDegrees(), degrees);
-        //volts += wristFF.calculate(wristController.getGoal().velocity);
-
-        setWristVolts(volts);
+        wristTarget = degrees;
+    }
+    public void setShooterVelocity(double rpm){
+        shooterTarget = rpm;
     }
     public void setState(ShooterState state){
         setShooterVelocity(state.rpm);
@@ -179,6 +191,8 @@ public class Shooter extends SubsystemBase implements Testable{
 
     public void log(){
         SmartDashboard.putNumber("Wrist Degrees", getWristDegrees());
+        SmartDashboard.putNumber("Wrist Setpoint", wristController.getSetpoint().position);
+        
         SmartDashboard.putNumber("Shooter RPM", getRPM());
         SmartDashboard.putNumber("Shooter Target RPM", getTargetRPM());
         SmartDashboard.putNumber("Shooter Diff", leftEncoder.getVelocity()-rightEncoder.getVelocity());

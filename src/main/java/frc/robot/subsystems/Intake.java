@@ -43,6 +43,8 @@ public class Intake extends SubsystemBase implements Testable{
     private double armVolts = 0;
     private double rollerVolts = 0;
     private double fenceVolts = 0;
+
+    private double armTarget = IntakeState.kUpIdle.angle;
     
     private DoubleSolenoid slider = new DoubleSolenoid(0, 1);
     private boolean sliderExtended = false;
@@ -54,8 +56,8 @@ public class Intake extends SubsystemBase implements Testable{
     
     //private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
     
-    //private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
-    private PIDController controller = new PIDController(kP, kI, kD, Constants.kRobotDelta);
+    private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
+    //private PIDController controller = new PIDController(kP, kI, kD, Constants.kRobotDelta);
     public Intake() {
         OCConfig.configMotors(ConfigType.INTAKEARM, arm);
         OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
@@ -64,7 +66,7 @@ public class Intake extends SubsystemBase implements Testable{
         
         roller.setInverted(false);
         fence.setInverted(false);
-        arm.setInverted(true);
+        arm.setInverted(false);
     }
 
     public void init(){
@@ -111,23 +113,44 @@ public class Intake extends SubsystemBase implements Testable{
         boolean ext = getSliderExtended();
         if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeDegrees-kBufferDegrees, kHigherSafeDegrees)) lowLimit=0; // just in case, anti-collide on slider
         if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeDegrees, kLowerSafeDegrees+kBufferDegrees)) highLimit=0;
-        if(enc<=kBufferDegrees) highLimit=0;
-        if(enc>=kMaxUpwardDegrees) lowLimit=0;
+        if(enc<=-3*kBufferDegrees) lowLimit=-0.2;
+        if(enc>=kMaxUpwardDegrees) highLimit=0;
+
+        // adjust goal to avoid obliterating slider
+        if(ext){
+            boolean constrainUpper; // false: limit lower, true: limit higher
+            if(MathHelp.isBetweenBounds(enc, 0, kLowerSafeDegrees)) constrainUpper=false;
+            else if(MathHelp.isBetweenBounds(enc, kHigherSafeDegrees, kMaxUpwardDegrees)) constrainUpper=true;
+            else{
+                double mid = (kHigherSafeDegrees-kLowerSafeDegrees)/2.0;
+                constrainUpper = !(enc<=mid); // in case we extend slider while arm is conflicting
+            }
+            
+            if(constrainUpper) armTarget = MathHelp.clamp(armTarget, kHigherSafeDegrees+kBufferDegrees, kMaxUpwardDegrees-kBufferDegrees);
+            else armTarget = MathHelp.clamp(armTarget, 0, kLowerSafeDegrees-kBufferDegrees);
+        }
         
-        armVolts = MathHelp.clamp(armVolts, lowLimit, highLimit);
+        SmartDashboard.putNumber("Arm Target", armTarget);
+        double volts = controller.calculate(enc, armTarget);
+        
+        //volts += feedForward.calculate(controller.getGoal().velocity);
+        
+        volts = MathHelp.clamp(volts, lowLimit, highLimit);
+        SmartDashboard.putNumber("Arm PID", volts);
 
         // set mechanisms with safety
         if(nowSliderExtended) slider.set(Value.kForward);
         else slider.set(Value.kReverse);
 
-        double adjustedVolts = armVolts-7*kCounterGravityFF*Math.sin(Units.degreesToRadians(enc))+5*kCounterGravityFF;
-        SmartDashboard.putNumber("Arm Volts", armVolts);
-        arm.setVoltage(adjustedVolts);
+        double adjustedVolts = volts + kCounterGravityFF*Math.cos(Units.degreesToRadians(enc));
+        if(enc <= 3) adjustedVolts -= 1.5;
+        SmartDashboard.putNumber("Arm Volts", adjustedVolts);
+        arm.setVoltage(-adjustedVolts);
         roller.setVoltage(rollerVolts);
         fence.setVoltage(fenceVolts);
     }
 
-    public PIDController getController(){
+    public ProfiledPIDController getController(){
         return controller;
     }
     
@@ -151,7 +174,7 @@ public class Intake extends SubsystemBase implements Testable{
     }
     
     public void setArmVolts(double volts){
-        armVolts = -volts;
+        armVolts = volts;
     }
     public void setRollerVolts(double volts){
         rollerVolts = volts;
@@ -163,31 +186,13 @@ public class Intake extends SubsystemBase implements Testable{
     * Sets the controller goal. Automatically adjusts goal to avoid conflicting with the slider.
     * @param degrees Motor degrees setpoint
     */
-    public void setArmPID(double degrees){
-        // adjust goal to avoid obliterating slider
-        double enc = getArmDegrees();
-        if(getSliderExtended()){
-            boolean constrainUpper; // false: limit lower, true: limit higher
-            if(MathHelp.isBetweenBounds(enc, 0, kLowerSafeDegrees)) constrainUpper=false;
-            else if(MathHelp.isBetweenBounds(enc, kHigherSafeDegrees, kMaxUpwardDegrees)) constrainUpper=true;
-            else{
-                double mid = (kHigherSafeDegrees-kLowerSafeDegrees)/2.0;
-                constrainUpper = !(enc<=mid); // in case we extend slider while arm is conflicting
-            }
-            
-            if(constrainUpper) degrees = MathHelp.clamp(degrees, kHigherSafeDegrees+kBufferDegrees, kMaxUpwardDegrees-kBufferDegrees);
-            else degrees = MathHelp.clamp(degrees, 0, kLowerSafeDegrees-kBufferDegrees);
-        }
-        
-        double volts = controller.calculate(getArmDegrees(), degrees);
-        //volts += feedForward.calculate(controller.getGoal().velocity);
-        
-        setArmVolts(volts);
+    public void setArmPosition(double degrees){
+        armTarget = degrees;
     }
     public void setState(IntakeState state){
         if(state.angle < kLowerSafeDegrees) setArmBrakeOn(false);
         else setArmBrakeOn(true);
-        setArmPID(state.angle);
+        setArmPosition(state.angle);
         setSliderExtended(state.extended);
     }
     
@@ -205,10 +210,10 @@ public class Intake extends SubsystemBase implements Testable{
         SmartDashboard.putNumber("Arm Degrees", getArmDegrees());
         SmartDashboard.putNumber("Arm Encoder", getEncoder());
         SmartDashboard.putNumber("Arm Power", arm.getAppliedOutput());
+        SmartDashboard.putNumber("Arm Setpoint", controller.getSetpoint().position);
         SmartDashboard.putBoolean("Slider Extended", getSliderExtended());
         SmartDashboard.putBoolean("Slider Wants", sliderWantsExtended);
         SmartDashboard.putBoolean("Slider Extended Now", getNowSliderExtended());
-        SmartDashboard.putNumber("Target Arm Position", controller.getSetpoint());
     }
     
     @Override

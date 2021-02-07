@@ -18,7 +18,8 @@ public class ShooterState {
     public final double rpm;
     public static final ShooterState kLowest = new ShooterState(10*kBufferDegrees, 0);
     public static final ShooterState kIdleState = new ShooterState(kLowerSafeDegrees, 0);
-    public static final ShooterState kInitLine = new ShooterState(35, 2500);
+    public static final ShooterState kClose = new ShooterState(44, 3200);
+    public static final ShooterState kInitLine = new ShooterState(35, 3000);
     public static final ShooterState kTrenchLine = new ShooterState(30, 3000);
 
     public ShooterState(double angle, double rpm){

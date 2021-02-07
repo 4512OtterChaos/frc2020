@@ -26,7 +26,7 @@ public class SetIntakeState extends CommandBase {
   @Override
   public void initialize() {
     started = true;
-    intake.getController().reset();
+    intake.getController().reset(intake.getArmDegrees());
     intake.setState(state);
   }
 
@@ -41,6 +41,6 @@ public class SetIntakeState extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return started && intake.getController().atSetpoint() && intake.getSliderExtended()==state.extended;
+    return started && intake.getController().atGoal() && intake.getSliderExtended()==state.extended;
   }
 }
