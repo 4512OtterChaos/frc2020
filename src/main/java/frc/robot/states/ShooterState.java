@@ -8,6 +8,8 @@
 package frc.robot.states;
 
 import static frc.robot.common.Constants.ShooterWristConstants.*;
+
+import frc.robot.subsystems.Shooter;
 import frc.robot.util.MathHelp;
 
 /**
@@ -25,6 +27,13 @@ public class ShooterState {
     public ShooterState(double angle, double rpm){
         this.angle = angle;
         this.rpm = rpm;
+    }
+    /**
+     * Shoots at current angle and 3000 rpm
+     */
+    public ShooterState(Shooter shooter){
+        this.angle = shooter.getWristDegrees();
+        this.rpm = 3000;
     }
 
     /**

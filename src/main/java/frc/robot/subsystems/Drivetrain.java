@@ -51,7 +51,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
     private double[] xyz = new double[3]; // x, y, z degrees per second
 
-    private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
+    private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kLinearStaticFF, kLinearVelocityFF, kLinearAccelerationFF);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
     private DifferentialDriveOdometry odometry;
     private TreeMap<Double, Pose2d> poseHistory = new TreeMap<>();

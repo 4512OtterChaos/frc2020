@@ -35,9 +35,13 @@ public class Constants {
 
         public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
         
-        public static final double kStaticFF = 0.241; // volts (Given from the characterization tool)
-        public static final double kVelocityFF = 2.32; // per meters per second
-        public static final double kAccelerationFF = 0.376; // per meters per second squared
+        public static final double kLinearStaticFF = 0.241; // volts (Given from the characterization tool)
+        public static final double kLinearVelocityFF = 2.32; // per meters per second
+        public static final double kLinearAccelerationFF = 0.376; // per meters per second squared
+
+        public static final double kAngularStaticFF = 0; // volts (Given from the characterization tool)
+        public static final double kAngularVelocityFF = 0; // per radians per second
+        public static final double kAngularAccelerationFF = 0; // per radians per second squared
         
         public static final double kP = 0.8; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control

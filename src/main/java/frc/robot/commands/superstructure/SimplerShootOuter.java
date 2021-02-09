@@ -28,9 +28,7 @@ public class SimplerShootOuter extends SequentialCommandGroup {
         super(
             TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
             .alongWith(
-                new PrimeShooter(indexer, intake)
-            )
-            .alongWith(
+                new PrimeShooter(indexer, intake),
                 new StartEndCommand(
                     ()->shooter.setShooterVelocity(-1500),
                     ()->shooter.setShooterVelocity(0),

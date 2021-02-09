@@ -32,6 +32,7 @@ import frc.robot.commands.superstructure.IntakeIndexIncoming;
 import frc.robot.commands.superstructure.PrimeIntake;
 import frc.robot.commands.superstructure.PrimeShooter;
 import frc.robot.commands.superstructure.SimplerShootOuter;
+import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.common.Constants;
 import frc.robot.common.OCLedManager;
 import frc.robot.common.OCXboxController;
@@ -153,10 +154,16 @@ public class RobotContainer {
                 new IntakeUpClear(intake)
             );
         
+        
         new JoystickButton(driver, XboxController.Button.kX.value)
             .whenPressed(
-                new SetShooterState(shooter, ShooterState.kLowest).withTimeout(1.25)
+                new SetShooterState(shooter, new ShooterState(shooter)).withTimeout(1.25)
             );
+        /*
+        new JoystickButton(driver, XboxController.Button.kX.value)
+            .whenPressed(
+                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, sas)  
+            );*/
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
@@ -229,11 +236,11 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kStart.value)
             .whenPressed(
-                new TurnTo(drivetrain, 0, false)
+                new TurnTo(drivetrain, 0)
             );
         new JoystickButton(driver, XboxController.Button.kBack.value)
             .whenPressed(
-                new TurnTo(drivetrain, 180, false)
+                new TurnTo(drivetrain, 180)
             );
     }
     

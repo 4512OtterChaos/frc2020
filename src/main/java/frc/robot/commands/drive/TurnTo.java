@@ -41,7 +41,7 @@ public class TurnTo extends ProfiledPIDCommand {
     private boolean endless;
     private boolean started = false;
     
-    public TurnTo(Drivetrain drivetrain, double target, boolean endless) {
+    public TurnTo(Drivetrain drivetrain, double target) {
         super(
             controller,
             () -> drivetrain.getContinuousYawPosition(),
@@ -54,7 +54,7 @@ public class TurnTo extends ProfiledPIDCommand {
         this.endless = endless;
         addRequirements(drivetrain);
     }
-    public TurnTo(Drivetrain drivetrain, DoubleSupplier target, boolean endless) {
+    public TurnTo(Drivetrain drivetrain, DoubleSupplier target) {
         super(
             controller,
             () -> drivetrain.getContinuousYawPosition(),
@@ -117,7 +117,7 @@ public class TurnTo extends ProfiledPIDCommand {
     * It 'homes' as there is one constant heading that points to the target, which is not updated.
     */
     public static TurnTo createHomeToTarget(Drivetrain drivetrain, Translation2d targetTranslation){
-        return new TurnTo(drivetrain, FieldUtil.getTargetedHeading(drivetrain.getOdometry().getPoseMeters(), targetTranslation).getDegrees(), false);
+        return new TurnTo(drivetrain, FieldUtil.getTargetedHeading(drivetrain.getOdometry().getPoseMeters(), targetTranslation).getDegrees());
     }
     
     public static Command createTurnToTarget(Drivetrain drivetrain, Limelight limelight){
@@ -126,9 +126,7 @@ public class TurnTo extends ProfiledPIDCommand {
             double heading = drivetrain.getPoseFromHistory(limelight.getLatencySeconds()).getRotation().getDegrees()-limelight.getTx();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
             return heading;
-        },
-        false
-        );
+        });
         
         return new ConditionalCommand(
         turnToLimelightTarget,
@@ -145,9 +143,7 @@ public class TurnTo extends ProfiledPIDCommand {
             double heading = drivetrain.getPoseFromHistory(limelight.getLatencySeconds()).getRotation().getDegrees()-limelight.getTx();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
             return heading;
-        },
-        false
-        );
+        });
         return turnToLimelightTarget.withTimeout(1.4);
     }
     
@@ -157,9 +153,7 @@ public class TurnTo extends ProfiledPIDCommand {
             double heading = drivetrain.getContinuousYawPosition()-limelight.getTx();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(limelight.getTrigDistance()));
             return heading;
-        },
-        false
-        );
+        });
         return turnToLimelightTarget.withTimeout(1.4);
     }
 }
