@@ -79,8 +79,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
         rightSlave.setInverted(true);
         //rightSlave.follow(rightMaster);
 
-        leftEncoder = new CANEncoder(leftMaster);
-        rightEncoder = new CANEncoder(rightMaster);
+        leftEncoder = leftMaster.getEncoder();
+        rightEncoder = rightMaster.getEncoder();
 
         odometry = new DifferentialDriveOdometry(new Rotation2d());
     }
@@ -199,15 +199,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
         return rightController;
     }
 
-    /**
-     * @return DifferentialDriveWheelSpeeds object in meters per second
-     */
-    public DifferentialDriveWheelSpeeds getWheelSpeeds(){
-        double circumference = Math.PI * 2.0 * kWheelRadiusMeters;
-        return new DifferentialDriveWheelSpeeds(
-            (leftEncoder.getVelocity() / kGearRatio * circumference) / 60.0,
-            (rightEncoder.getVelocity() / kGearRatio * circumference) / 60.0);
-    }
     public double getEncoderDistance(CANEncoder encoder){
         return encoder.getPosition() / kGearRatio * (Math.PI * 2.0 * kWheelRadiusMeters);
     }
@@ -218,6 +209,18 @@ public class Drivetrain extends SubsystemBase implements Testable{
     
     public DifferentialDriveKinematics getKinematics(){
         return kinematics;
+    }
+    /**
+     * @return DifferentialDriveWheelSpeeds object in meters per second
+     */
+    public DifferentialDriveWheelSpeeds getWheelSpeeds(){
+        double circumference = Math.PI * 2.0 * kWheelRadiusMeters;
+        return new DifferentialDriveWheelSpeeds(
+            (leftEncoder.getVelocity() / kGearRatio * circumference) / 60.0,
+            (rightEncoder.getVelocity() / kGearRatio * circumference) / 60.0);
+    }
+    public ChassisSpeeds getChassisSpeed(){
+        return getKinematics().toChassisSpeeds(getWheelSpeeds());
     }
     
     public double getYawPosition(){

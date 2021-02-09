@@ -10,6 +10,7 @@ package frc.robot.util;
 import java.util.TreeMap;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.states.ShooterState;
 
 /**
@@ -24,7 +25,7 @@ public class SAS {
     private double innerConfidentTime = 0;
     private double lastInnerTime = Timer.getFPGATimestamp();
     private final double confidentTimeThreshold = 0.3;
-    private final double confidenceThreshold = 0.9;
+    private final double confidenceThreshold = 0.8;
     
 
     public SAS(){
@@ -64,15 +65,15 @@ public class SAS {
      * @param isInnerShot Whether to check for an inner or outer port shot
      * @return Percentage(0-1) confidence
      */
-    public double getShotConfidence(ShooterState targetState, ShooterState currState, double inchesDist, double targetHeading, double currHeading, boolean isInnerShot){
+    public double getShotConfidence(ShooterState targetState, ShooterState currState, double inchesDist, Rotation2d targetHeading, Rotation2d currHeading, boolean isInnerShot){
         ShooterState error = targetState.minus(currState);
         double angleError = Math.abs(error.angle);
         double rpmError = Math.abs(error.rpm);
-        double headingError = Math.abs(MathHelp.getContinuousError(targetHeading - currHeading, 360));
+        double headingError = Math.abs(MathHelp.getContinuousError(targetHeading.getDegrees() - currHeading.getDegrees(), 360));
 
         double distPercent = MathHelp.findPercentage(inchesDist, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        final double angleTolerance = MathHelp.lerp(distPercent, 5, 1);
-        final double rpmTolerance = MathHelp.lerp(distPercent, 400, 50);
+        final double angleTolerance = MathHelp.lerp(distPercent, 2, 1);
+        final double rpmTolerance = MathHelp.lerp(distPercent, 300, 100);
         final double headingTolerance = MathHelp.lerp(distPercent, 4, 0.75);
         double angleConfidence = angleError > angleTolerance ? 0 : MathHelp.findPercentage(angleError, angleTolerance, 0);
         double rpmConfidence = rpmError > rpmTolerance ? 0 : MathHelp.findPercentage(rpmError, rpmTolerance, 0);
@@ -82,7 +83,7 @@ public class SAS {
 
         // yaw = angle to inner port
         final double yawTolerance = MathHelp.lerp(distPercent, 12, 8);
-        double yawMagnitude = Math.abs(currHeading);
+        double yawMagnitude = Math.abs(currHeading.getDegrees());
         double yawConfidence = yawMagnitude > yawTolerance ? 0 : MathHelp.findPercentage(yawMagnitude, yawTolerance, 0);
 
         double innerConfidence = Math.pow(outerConfidence, 2)*yawConfidence;
@@ -98,7 +99,7 @@ public class SAS {
      * @param currHeading Actual robot heading
      * @param isInnerShot Whether to check for an inner or outer port shot
      */
-    public boolean getIsReady(ShooterState targetState, ShooterState currState, double inchesDist, double targetHeading, double currHeading, boolean innerShot){
+    public boolean getIsReady(ShooterState targetState, ShooterState currState, double inchesDist, Rotation2d targetHeading, Rotation2d currHeading, boolean innerShot){
         boolean isConfident = getShotConfidence(targetState, currState, inchesDist, targetHeading, currHeading, innerShot) >= confidenceThreshold;
         boolean isReadyAndConfident = false; // I believe in you SAS
         double now = Timer.getFPGATimestamp();

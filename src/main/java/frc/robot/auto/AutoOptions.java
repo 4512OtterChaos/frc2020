@@ -173,7 +173,7 @@ public class AutoOptions {
                     new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)
                 )
                 .andThen(
-                    new TurnTo(drivetrain, -45).withTimeout(0.75)
+                    new TurnTo(drivetrain, -45, false).withTimeout(0.75)
                 )
                 .andThen(
                     new StandardRamseteCommand(drivetrain, new OCPath(
@@ -194,7 +194,7 @@ public class AutoOptions {
                     )
                 )
                 .andThen(
-                    new TurnTo(drivetrain, 0).withTimeout(0.75)
+                    new TurnTo(drivetrain, 0, false).withTimeout(0.75)
                 )
                 .andThen(
                     new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)

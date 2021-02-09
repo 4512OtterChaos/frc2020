@@ -73,19 +73,19 @@ public class Constants {
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0.5; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 0.1; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
 
-        public static final int kVelocityConstraint = 100; // Cruise Velocity Degrees
-        public static final int kAccelerationConstraint = 140;
+        public static final int kVelocityConstraint = 120; // Cruise Velocity Degrees
+        public static final int kAccelerationConstraint = 160;
 
         public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kLowerSafeDegrees = 30; // above is safe
         public static final double kClearIntakeDegrees = 35;
-        public static final double kHigherSafeDegrees = 45; // below is safe
+        public static final double kHigherSafeDegrees = 64; // below is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
     }
 

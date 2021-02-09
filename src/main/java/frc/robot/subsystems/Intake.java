@@ -74,6 +74,7 @@ public class Intake extends SubsystemBase implements Testable{
         sliderExtended = ext;
         sliderWantsExtended = ext;
         lastSliderExtended = ext;
+        if(getArmDegrees()<kLowerSafeDegrees) armTarget = IntakeState.kDownIdle.angle;
     }
     
     @Override

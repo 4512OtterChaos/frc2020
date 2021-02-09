@@ -229,11 +229,11 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kStart.value)
             .whenPressed(
-                new TurnTo(drivetrain, 0)
+                new TurnTo(drivetrain, 0, false)
             );
         new JoystickButton(driver, XboxController.Button.kBack.value)
             .whenPressed(
-                new TurnTo(drivetrain, 180)
+                new TurnTo(drivetrain, 180, false)
             );
     }
     
