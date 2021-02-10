@@ -54,7 +54,7 @@ public class Intake extends SubsystemBase implements Testable{
     
     private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
     
-    //private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
+    private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
     
     private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
     //private PIDController controller = new PIDController(kP, kI, kD, Constants.kRobotDelta);
@@ -106,8 +106,8 @@ public class Intake extends SubsystemBase implements Testable{
         //fenceVolts = nowSliderExtended&&armLowered ? fenceVolts : 0;
 
         // arm safety
-        double lowLimit = -5;
-        double highLimit = 5;
+        double lowLimit = -6;
+        double highLimit = 6;
         
         // arm safety
         double enc = getArmDegrees();
@@ -134,7 +134,7 @@ public class Intake extends SubsystemBase implements Testable{
         SmartDashboard.putNumber("Arm Target", armTarget);
         double volts = controller.calculate(enc, armTarget);
         
-        //volts += feedForward.calculate(controller.getGoal().velocity);
+        volts += feedForward.calculate(controller.getGoal().velocity);
         
         volts = MathHelp.clamp(volts, lowLimit, highLimit);
         SmartDashboard.putNumber("Arm PID", volts);

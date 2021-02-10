@@ -62,7 +62,7 @@ public class Constants {
         public static final double krVelocityFF = 0.13; // per meters per second
         public static final double krAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0.0001; // PID Gains
+        public static final double kP = 0.0005; // PID Gains
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
@@ -77,7 +77,7 @@ public class Constants {
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
 
-        public static final double kP = 0.1; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 0.2; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
 
@@ -87,9 +87,9 @@ public class Constants {
         public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeDegrees = 30; // above is safe
-        public static final double kClearIntakeDegrees = 35;
-        public static final double kHigherSafeDegrees = 64; // below is safe
+        public static final double kLowestSafeDegrees = 10; // above is safe
+        public static final double kClearIntakeDegrees = 30;
+        public static final double kHighestSafeDegrees = 64; // below is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
     }
 
@@ -121,7 +121,7 @@ public class Constants {
         public static final double kHigherSafeDegrees = 72; // above is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
         public static final double kMaxUpwardDegrees = 78; // 90 degrees up
-        public static final int kVelocityConstraint = 90; // Angular velocity Degrees
+        public static final int kVelocityConstraint = 70; // Angular velocity Degrees
         public static final int kAccelerationConstraint = 110; // Angular acceleration
     }
 

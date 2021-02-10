@@ -15,7 +15,7 @@ import static frc.robot.common.Constants.IntakeArmConstants.*;
 public class IntakeState {
     public final double angle;
     public final boolean extended;
-    public static final IntakeState kDownIdle = new IntakeState(0, false);
+    public static final IntakeState kDownIdle = new IntakeState(-1, false);
     public static final IntakeState kUpIdle = new IntakeState(kHigherSafeDegrees, false);
 
     public IntakeState(double angle, boolean extended){

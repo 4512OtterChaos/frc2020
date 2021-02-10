@@ -109,7 +109,7 @@ public class Shooter extends SubsystemBase implements Testable{
      * @param target Target wrist degrees
      */
     private double calculateWristVolts(double target){
-        target = MathHelp.clamp(target, ShooterWristConstants.kLowerSafeDegrees, ShooterWristConstants.kHigherSafeDegrees);
+        target = MathHelp.clamp(target, ShooterWristConstants.kLowestSafeDegrees, ShooterWristConstants.kHighestSafeDegrees);
         SmartDashboard.putNumber("Wrist Goal", target);
         double volts = wristController.calculate(getWristDegrees(), target);
         volts += wristFF.calculate(wristController.getGoal().velocity);
@@ -153,8 +153,8 @@ public class Shooter extends SubsystemBase implements Testable{
         double minVolts = -12;
         double maxVolts = 12;
         final double deg = getWristDegrees();
-        final double low = ShooterWristConstants.kLowerSafeDegrees;
-        final double high = ShooterWristConstants.kHigherSafeDegrees;
+        final double low = ShooterWristConstants.kLowestSafeDegrees;
+        final double high = ShooterWristConstants.kHighestSafeDegrees;
         final double buffer = ShooterWristConstants.kBufferDegrees;
         if(deg<=low+buffer) minVolts = 0;
         if(deg>=high-buffer) maxVolts = 0;
@@ -175,7 +175,7 @@ public class Shooter extends SubsystemBase implements Testable{
         double rps = target / 60.0;
         double leftVolts = leftShootFF.calculate(rps);
         double rightVolts = rightShootFF.calculate(rps);
-        SmartDashboard.putNumber("Shooter FF", leftVolts);
+        SmartDashboard.putNumber("Shooter FF", (leftVolts+rightVolts)/2);
         if(target!=0){
             leftController.setReference(target, ControlType.kVelocity, 0, leftVolts, ArbFFUnits.kVoltage);
             rightController.setReference(target, ControlType.kVelocity, 0, rightVolts, ArbFFUnits.kVoltage);

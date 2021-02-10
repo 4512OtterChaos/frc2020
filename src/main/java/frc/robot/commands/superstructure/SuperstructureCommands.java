@@ -4,6 +4,8 @@
 
 package frc.robot.commands.superstructure;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,25 +52,38 @@ public class SuperstructureCommands {
     }
 
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, SAS analysis){
-        Command turnTo = TurnTo.createSimplerTurnToTarget(drivetrain, limelight);
-        return turnTo
+        return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
             .alongWith(
                 clearShooter(shooter, indexer)
                 .andThen(
                     new PrimeShooter(indexer, intake)
                     .alongWith(
-                        new SetShooterState(shooter, analysis.findShot(limelight.getTrigDistance())).withTimeout(1.25)
+                        new SetShooterState(shooter, analysis, limelight).withTimeout(1.25)
                     )
                 )
             )
             .andThen(
                 new IndexFeedShooter(indexer, ()->shooter.checkIfStable())
                 .alongWith(
-                    new PerpetualCommand(turnTo),
-                    new RunCommand(
-                        ()->shooter.setState(analysis.findShot(limelight.getTrigDistance())),
-                        shooter
+                    new PerpetualCommand(TurnTo.createSimplerTurnToTarget(drivetrain, limelight))
+                )
+            );
+    }
+    public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
+        return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+            .alongWith(
+                clearShooter(shooter, indexer)
+                .andThen(
+                    new PrimeShooter(indexer, intake)
+                    .alongWith(
+                        new SetShooterState(shooter).withTimeout(1.25)
                     )
+                )
+            )
+            .andThen(
+                new IndexFeedShooter(indexer, ()->shooter.checkIfStable())
+                .alongWith(
+                    new PerpetualCommand(TurnTo.createSimplerTurnToTarget(drivetrain, limelight))
                 )
             );
     }

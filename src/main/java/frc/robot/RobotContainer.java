@@ -154,16 +154,30 @@ public class RobotContainer {
                 new IntakeUpClear(intake)
             );
         
-        
-        new JoystickButton(driver, XboxController.Button.kX.value)
-            .whenPressed(
-                new SetShooterState(shooter, new ShooterState(shooter)).withTimeout(1.25)
-            );
         /*
         new JoystickButton(driver, XboxController.Button.kX.value)
             .whenPressed(
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, sas)  
+                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight)
+            )
+            .whenReleased(()->{
+                drivetrain.tankDrive(0, 0);
+                indexer.setVolts(0, 0);
+                shooter.setShooterVelocity(0);
+            },
+            drivetrain, shooter, indexer
             );*/
+        
+        new JoystickButton(driver, XboxController.Button.kX.value)
+            .whenPressed(
+                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, sas)  
+            )
+            .whenReleased(()->{
+                drivetrain.tankDrive(0, 0);
+                indexer.setVolts(0, 0);
+                shooter.setShooterVelocity(0);
+            },
+            drivetrain, shooter, indexer
+            );
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
@@ -172,8 +186,7 @@ public class RobotContainer {
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0, 0);
-                shooter.setWristVolts(0);
-                shooter.setShooterVelocity(0);
+                shooter.setState(ShooterState.kIdleState);
             },
             drivetrain, shooter, indexer
             );
@@ -185,8 +198,7 @@ public class RobotContainer {
             .whenInactive(()->{
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0, 0);
-                shooter.setWristVolts(0);
-                shooter.setShooterVelocity(0);
+                shooter.setState(ShooterState.kIdleState);
             },
             drivetrain, shooter, indexer
             );            
@@ -277,6 +289,7 @@ public class RobotContainer {
         }
         intake.init();
         lift.setRatchetEngaged(false);
+        shooter.setWristPosition(shooter.getWristDegrees());
 
         limelight.setConfiguration(Configuration.PNP);
     }

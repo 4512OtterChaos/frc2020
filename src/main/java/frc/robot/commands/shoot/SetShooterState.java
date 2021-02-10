@@ -11,12 +11,17 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.states.ShooterState;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
+import frc.robot.util.SAS;
 
 public class SetShooterState extends CommandBase {
 
   private final Shooter shooter;
-  private final ShooterState state;
+  private ShooterState state;
+  private SAS analysis;
+  private Limelight limelight;
+  private boolean current = false; //using current wrist position
   private boolean started = false;
 
   public SetShooterState(Shooter shooter, ShooterState state) {
@@ -25,16 +30,35 @@ public class SetShooterState extends CommandBase {
 
     addRequirements(shooter);
   }
+  public SetShooterState(Shooter shooter, SAS analysis, Limelight limelight) {
+    this.shooter = shooter;
+    this.analysis = analysis;
+    this.limelight = limelight;
+    this.state = analysis.findShot(limelight.getTrigDistance());
+
+    addRequirements(shooter);
+  }
+  public SetShooterState(Shooter shooter) {
+    this.shooter = shooter;
+    this.state = new ShooterState(shooter);
+    this.current = true;
+
+    addRequirements(shooter);
+  }
 
   @Override
   public void initialize() {
     started = true;
+    if(current) state = new ShooterState(shooter);
     shooter.getWristController().reset(shooter.getWristDegrees());
     shooter.setState(state);
   }
 
   @Override
   public void execute() {
+    if(limelight != null){
+      shooter.setState(analysis.findShot(limelight.getTrigDistance()));
+    }
   }
 
   @Override
