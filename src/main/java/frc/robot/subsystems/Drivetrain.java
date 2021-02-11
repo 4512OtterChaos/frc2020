@@ -60,6 +60,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private PIDController leftController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
     private PIDController rightController = new PIDController(kP, kI, kD, kRobotDelta);
 
+    private Rotation2d turnToTarget;
+
     private double driveSpeed = 0.3;
     
     public Drivetrain() {
@@ -188,6 +190,9 @@ public class Drivetrain extends SubsystemBase implements Testable{
     public void resetGyro(){
         pigeon.setYaw(0);
     }
+    public void setTurnToTarget(double heading){
+        turnToTarget = new Rotation2d(Units.degreesToRadians(heading));
+    }
 
 
     //----- Informational methods
@@ -286,6 +291,10 @@ public class Drivetrain extends SubsystemBase implements Testable{
             poseHistory.remove(oldestTime);
         }
         SmartDashboard.putNumber("1 Second old Yaw", getPoseFromHistory(1.0).getRotation().getDegrees());
+    }
+
+    public Rotation2d getTurnToTarget(){
+        return turnToTarget;
     }
 
     public void log(){

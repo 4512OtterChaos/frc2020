@@ -39,7 +39,7 @@ public class IndexIncoming extends CommandBase {
   @Override
   public void execute() {
     if(indexer.getFrontBeam()&&isSafe.getAsBoolean()){
-      indexer.setVolts(2, 2);
+      indexer.setVolts(2.5, 2.5);
     }
     else{
       indexer.setVolts(0,0);

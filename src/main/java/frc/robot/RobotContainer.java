@@ -167,11 +167,11 @@ public class RobotContainer {
             drivetrain, shooter, indexer
             );*/
         
-        new JoystickButton(driver, XboxController.Button.kX.value)
-            .whenPressed(
+        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
+            .whenActive(
                 SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, sas)  
             )
-            .whenReleased(()->{
+            .whenInactive(()->{
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0, 0);
                 shooter.setShooterVelocity(0);
@@ -191,11 +191,11 @@ public class RobotContainer {
             drivetrain, shooter, indexer
             );
 
-        new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
-            .whenActive(
+        new JoystickButton(driver, XboxController.Button.kX.value)
+            .whenPressed(
                 new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
             )
-            .whenInactive(()->{
+            .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0, 0);
                 shooter.setState(ShooterState.kIdleState);
@@ -225,9 +225,12 @@ public class RobotContainer {
         new JoystickButton(driver, XboxController.Button.kStickRight.value)
             .whenPressed(
                 ()->{
-                    intake.setArmVolts(0);
+                    intake.setRollerVolts(-6);
+                }, intake
+            )
+            .whenReleased(
+                ()->{
                     intake.setRollerVolts(0);
-                    intake.setFenceVolts(0);
                 }, intake
             );
 

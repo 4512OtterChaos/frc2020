@@ -35,10 +35,9 @@ public class TurnTo extends ProfiledPIDCommand {
 
     private static final double kVelocityToleranceDegrees = 5;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.015, 0, 0, 
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.016, 0, 0, 
     new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*5),
     Constants.kRobotDelta);
-    private boolean endless;
     private boolean started = false;
     
     public TurnTo(Drivetrain drivetrain, double target) {
@@ -51,7 +50,6 @@ public class TurnTo extends ProfiledPIDCommand {
             }
         );
         this.drivetrain = drivetrain;
-        this.endless = endless;
         addRequirements(drivetrain);
     }
     public TurnTo(Drivetrain drivetrain, DoubleSupplier target) {
@@ -64,7 +62,6 @@ public class TurnTo extends ProfiledPIDCommand {
             }
         );
         this.drivetrain = drivetrain;
-        this.endless = endless;
         addRequirements(drivetrain);
     }
     
@@ -87,6 +84,7 @@ public class TurnTo extends ProfiledPIDCommand {
     @Override
     public void execute(){
         super.execute();
+        drivetrain.setTurnToTarget(controller.getGoal().position);
         SmartDashboard.putNumber("TurnTo Target", controller.getGoal().position);
         SmartDashboard.putNumber("TurnTo State Target", controller.getSetpoint().position);
     }
@@ -109,7 +107,7 @@ public class TurnTo extends ProfiledPIDCommand {
     
     @Override
     public boolean isFinished() {
-        return atGoal() && started && !endless;
+        return atGoal() && started;
     }
     
     /**

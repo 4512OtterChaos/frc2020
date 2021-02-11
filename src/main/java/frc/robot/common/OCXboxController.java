@@ -19,7 +19,7 @@ public class OCXboxController extends XboxController{
     private static final double deadband = 0.12;
     
     private SlewRateLimiter forwardLimiter = new SlewRateLimiter(5);
-    private SlewRateLimiter turnLimiter = new SlewRateLimiter(5);
+    private SlewRateLimiter turnLimiter = new SlewRateLimiter(4);
 
     /**
      * Constructs XboxController on DS joystick port.

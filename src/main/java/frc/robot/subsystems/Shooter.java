@@ -98,6 +98,13 @@ public class Shooter extends SubsystemBase implements Testable{
         calculateShooterVolts(shooterTarget);
     }
 
+    public ShooterState getCurrentState(){
+        return new ShooterState(getWristDegrees(),getRPM());
+    }
+    public ShooterState getTargetState(){
+        return new ShooterState(wristTarget, shooterTarget);
+    }
+
     public ProfiledPIDController getWristController(){
         return wristController;
     }

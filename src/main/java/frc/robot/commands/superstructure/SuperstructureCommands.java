@@ -63,10 +63,15 @@ public class SuperstructureCommands {
                 )
             )
             .andThen(
-                new IndexFeedShooter(indexer, ()->shooter.checkIfStable())
+                new IndexFeedShooter(indexer, ()->analysis.getIsReady(shooter, limelight, drivetrain, false))
+                //new IndexFeedShooter(indexer, ()->)
                 .alongWith(
                     new PerpetualCommand(TurnTo.createSimplerTurnToTarget(drivetrain, limelight))
                 )
+            )
+            .alongWith(
+                new RunCommand(
+                    ()->analysis.getShotConfidence(shooter, limelight, drivetrain, false))  
             );
     }
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
