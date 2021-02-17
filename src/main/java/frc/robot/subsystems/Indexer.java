@@ -30,8 +30,8 @@ public class Indexer extends SubsystemBase implements Testable{
     private CANSparkMax bot = new CANSparkMax(13, MotorType.kBrushless);
     private CANSparkMax top = new CANSparkMax(14, MotorType.kBrushless);
 
-    private CANEncoder topEncoder = new CANEncoder(top);
-    private CANEncoder botEncoder = new CANEncoder(bot);
+    private CANEncoder topEncoder = top.getEncoder();
+    private CANEncoder botEncoder = bot.getEncoder();
 
     private PIDController topController = new PIDController(kP, kI, kD, Constants.kRobotDelta);
     private PIDController botController = new PIDController(kP, kI, kD, Constants.kRobotDelta);
