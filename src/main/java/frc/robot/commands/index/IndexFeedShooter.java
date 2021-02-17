@@ -11,8 +11,6 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.common.OCLedManager;
-import frc.robot.common.OCLedManager.Pattern;
 import frc.robot.subsystems.Indexer;
 
 public class IndexFeedShooter extends CommandBase {
@@ -33,7 +31,7 @@ public class IndexFeedShooter extends CommandBase {
     public void initialize() {
         unprimeTime = 0;
         lastTime = Timer.getFPGATimestamp();
-        OCLedManager.setPattern(Pattern.YellowDash);
+        //OCLedManager.setPattern(Pattern.YellowDash);
     }
     
     @Override
@@ -44,7 +42,7 @@ public class IndexFeedShooter extends CommandBase {
         double dt = now - lastTime;
         if(ready||notPrimed){
             indexer.setVolts(4.5, 4.5);
-            OCLedManager.setPattern(Pattern.Green);
+            //OCLedManager.setPattern(Pattern.Green);
             if(notPrimed) unprimeTime += dt;
             else{
                 unprimeTime = 0;
@@ -52,7 +50,7 @@ public class IndexFeedShooter extends CommandBase {
         }
         else{
             indexer.setVolts(0, 0);
-            OCLedManager.setPattern(Pattern.YellowDash);
+            //OCLedManager.setPattern(Pattern.YellowDash);
         }
         lastTime = now;
     }
@@ -61,7 +59,7 @@ public class IndexFeedShooter extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         indexer.setVolts(0, 0);
-        OCLedManager.setPattern(Pattern.AutomaticWave);
+        //OCLedManager.setPattern(Pattern.AutomaticWave);
     }
     
     // Returns true when the command should end.

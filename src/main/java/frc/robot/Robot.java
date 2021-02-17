@@ -19,9 +19,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import static frc.robot.common.Constants.*;
 
-import frc.robot.common.OCLedManager;
+import frc.robot.common.OCLEDManager;
 import frc.robot.common.Testable;
-import frc.robot.common.OCLedManager.Pattern;
 import frc.robot.common.Testable.Status;
 import frc.robot.common.Testable.TestableResult;
 
@@ -120,6 +119,7 @@ public class Robot extends TimedRobot {
             TestableResult result = system.test();
             results.add(result);
         }
+        /*
         for(TestableResult result:results){
             Status status = result.status;
             
@@ -144,6 +144,7 @@ public class Robot extends TimedRobot {
             Timer.delay(1);
             OCLedManager.setPattern(prevPattern);
         }
+        */
     }
     
     @Override

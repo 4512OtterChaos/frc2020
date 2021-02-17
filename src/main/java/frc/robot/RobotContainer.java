@@ -34,13 +34,11 @@ import frc.robot.commands.superstructure.PrimeShooter;
 import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.common.Constants;
-import frc.robot.common.OCLedManager;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.common.Constants.IntakeArmConstants;
 import frc.robot.common.Constants.ShooterWristConstants;
 import frc.robot.common.Constants.VisionConstants;
-import frc.robot.common.OCLedManager.Pattern;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Limelight.Configuration;
@@ -94,9 +92,9 @@ public class RobotContainer {
         led.setLength(120);
         led.start();
 
-        OCLedManager.setBuffer(ledBuffer);
-        OCLedManager.setEffectiveLength(ledBuffer.getLength()/2);
-        OCLedManager.setPattern(Pattern.AutomaticWave);
+        //OCLedManager.setBuffer(ledBuffer);
+        //OCLedManager.setEffectiveLength(ledBuffer.getLength()/2);
+        //OCLedManager.setPattern(Pattern.AutomaticWave);
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight);
         autoOptions.submit();
@@ -315,7 +313,7 @@ public class RobotContainer {
     }
     
     public void log(){
-        OCLedManager.periodic();
+        //OCLedManager.periodic();
         led.setData(ledBuffer);
         
         drivetrain.log();
