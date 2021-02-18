@@ -34,6 +34,7 @@ import frc.robot.commands.superstructure.PrimeShooter;
 import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.common.Constants;
+import frc.robot.common.OCLEDManager;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.common.Constants.IntakeArmConstants;
@@ -52,6 +53,7 @@ public class RobotContainer {
     private Shooter shooter;
     private Lift lift;
     private Limelight limelight;
+    private OCLEDManager manager;
     
     private Paths paths;
 
@@ -62,10 +64,7 @@ public class RobotContainer {
     private OCXboxController driver = new OCXboxController(0);
     private OCXboxController operator;
     private boolean operatorConfigured = false;
-    
-    private AddressableLED led;
-    private AddressableLEDBuffer ledBuffer;
-    
+        
     private AutoOptions autoOptions;
 
     private double testRPM = 0;
@@ -78,6 +77,8 @@ public class RobotContainer {
         shooter = new Shooter();
         lift = new Lift();
         limelight = new Limelight();
+
+        manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.SPLIT);
         
         shooter.setShooterBrakeOn(false);
         
@@ -86,15 +87,6 @@ public class RobotContainer {
         sas = new SAS();
         
         testableSystems = new Testable[]{drivetrain, limelight};
-
-        led = new AddressableLED(0);
-        ledBuffer = new AddressableLEDBuffer(120);
-        led.setLength(120);
-        led.start();
-
-        //OCLedManager.setBuffer(ledBuffer);
-        //OCLedManager.setEffectiveLength(ledBuffer.getLength()/2);
-        //OCLedManager.setPattern(Pattern.AutomaticWave);
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight);
         autoOptions.submit();
@@ -313,8 +305,7 @@ public class RobotContainer {
     }
     
     public void log(){
-        //OCLedManager.periodic();
-        led.setData(ledBuffer);
+        manager.periodic();
         
         drivetrain.log();
         intake.log();

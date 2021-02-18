@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
         
         container = new RobotContainer();
         
-        new NotifierCommand(container::log, 0.04).initialize();
+        addPeriodic(container::log, 0.04, 0.02);
     }
     
     /**

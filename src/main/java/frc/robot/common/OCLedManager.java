@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -23,7 +24,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 */
 public class OCLEDManager {
 
-    enum Configuration{
+    private static OCLEDManager instance;
+
+    public static OCLEDManager getInstance(){
+        return instance;
+    }
+
+    public enum Configuration{
         NONE, // normal
         SPLIT // start patterns from both ends and meet in the middle
     }
@@ -44,6 +51,7 @@ public class OCLEDManager {
      * @param length Pixel length of strip
      */
     public OCLEDManager(int ledPort, int length, Configuration config){
+        instance = this;
         this.config = config;
         led = new AddressableLED(ledPort);
         led.setLength(length);
@@ -54,13 +62,17 @@ public class OCLEDManager {
         addPattern(new PatternCard(()->false, -1), new LEDPattern(this).presetAutomaticRollingWaves(20)); // if no other patterns, we display this pattern by default
     }
 
+    
     /**
      * Set whether patterns are in a split-configuration(start patterns from both ends and meet in the middle).
      * Useful on strips visible from two sides of the robot(e.g. two sides of an elevator).
      */
+    /*
     public void configure(Configuration config){
         this.config = config;
     }
+    */
+
      /**
      * @return Whether the LED strip is in split-configuration(start patterns from both ends and meet in the middle).
      */
@@ -82,7 +94,13 @@ public class OCLEDManager {
     }
 
     public void addPattern(PatternCard card, LEDPattern pattern){
-        patternList.put(card, pattern); // doesnt refresh pattern duration on re-call
+        if(patternList.containsValue(pattern)){ // refresh current patterns
+            for(Entry<PatternCard, LEDPattern> entry : patternList.entrySet()){
+                if(entry.getValue().equals(pattern) && entry.getKey().getDuration() > 0)
+                    entry.getKey().extend(card.getDuration());
+            }
+        }
+        else patternList.put(card, pattern); // add new patterns
     }
 
     public void periodic(){
@@ -95,7 +113,6 @@ public class OCLEDManager {
         });
         buffer = patternList.lastEntry().getValue().draw();
         led.setData(buffer);
-        SmartDashboard.putNumber("Pattern List Size", patternList.size());
     }
 
     //-----
@@ -107,7 +124,7 @@ public class OCLEDManager {
      */
     public class PatternCard {
         private final double timeStart;
-        private final double duration;
+        private double duration;
         private final BooleanSupplier interrupt; // if interrupted, end pattern
         private final int priority;
         private boolean finished = false; // end pattern based on this boolean
@@ -153,12 +170,19 @@ public class OCLEDManager {
             return priority;
         }
 
+        public double getDuration(){
+            return duration;
+        }
+
+        public void extend(double time){
+            duration += time;
+        }
+
         /**
          * Manually end this pattern.
          */
         public void end(){
             finished = true;
-            SmartDashboard.putNumber("Last Clear", Timer.getFPGATimestamp());
         }
 
         /**

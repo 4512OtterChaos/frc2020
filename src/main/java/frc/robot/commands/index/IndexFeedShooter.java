@@ -11,6 +11,9 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.common.LEDPattern;
+import frc.robot.common.OCLEDManager;
+import frc.robot.common.OCLEDManager.PatternCard;
 import frc.robot.subsystems.Indexer;
 
 public class IndexFeedShooter extends CommandBase {
@@ -20,6 +23,12 @@ public class IndexFeedShooter extends CommandBase {
     private double unprimeTime = 0;
     private final double unprimeThreshold = 1; // seconds till thinks empty
     private double lastTime = 0;
+
+    private OCLEDManager manager;
+    private PatternCard primeCard;
+    private LEDPattern primePattern;
+    private PatternCard shootCard;
+    private LEDPattern shootPattern;
 
     public IndexFeedShooter(Indexer indexer, BooleanSupplier isReady) {
         this.indexer = indexer;
@@ -31,7 +40,11 @@ public class IndexFeedShooter extends CommandBase {
     public void initialize() {
         unprimeTime = 0;
         lastTime = Timer.getFPGATimestamp();
-        //OCLedManager.setPattern(Pattern.YellowDash);
+        manager = OCLEDManager.getInstance();
+        primeCard = manager.new PatternCard(isReady, 1);
+        primePattern = new LEDPattern(manager).presetFlashing(LEDPattern.kYellowHue, 255, 255, 20);
+        shootCard = manager.new PatternCard(()->!isReady.getAsBoolean(), 1);
+        shootPattern = new LEDPattern(manager).presetSolid(LEDPattern.kGreenHue, 255, 255);
     }
     
     @Override
@@ -43,6 +56,7 @@ public class IndexFeedShooter extends CommandBase {
         if(ready||notPrimed){
             indexer.setVolts(4.5, 4.5);
             //OCLedManager.setPattern(Pattern.Green);
+            if(ready) manager.addPattern(shootCard, shootPattern);
             if(notPrimed) unprimeTime += dt;
             else{
                 unprimeTime = 0;
@@ -50,7 +64,7 @@ public class IndexFeedShooter extends CommandBase {
         }
         else{
             indexer.setVolts(0, 0);
-            //OCLedManager.setPattern(Pattern.YellowDash);
+            if(!ready) manager.addPattern(primeCard, primePattern);
         }
         lastTime = now;
     }
@@ -59,7 +73,8 @@ public class IndexFeedShooter extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         indexer.setVolts(0, 0);
-        //OCLedManager.setPattern(Pattern.AutomaticWave);
+        primeCard.end();
+        shootCard.end();
     }
     
     // Returns true when the command should end.
