@@ -38,10 +38,10 @@ public class SAS {
 
     public SAS(){
         // populate lookup table (inches, angle, rpm)
-        shotTable.put(50.0, new ShooterState(64, 2100));
-        shotTable.put(80.0, new ShooterState(47, 2300));
-        shotTable.put(110.0, new ShooterState(42, 2400));
-        shotTable.put(140.0, new ShooterState(38, 2500));
+        shotTable.put(50.0, new ShooterState(64, 2000));
+        shotTable.put(80.0, new ShooterState(50, 2100));
+        shotTable.put(110.0, new ShooterState(45, 2200));
+        shotTable.put(140.0, new ShooterState(38, 2400));
         shotTable.put(175.0, new ShooterState(35, 2500));
         shotTable.put(200.0, new ShooterState(32, 2800));
         shotTable.put(235.0, new ShooterState(30, 2900));
