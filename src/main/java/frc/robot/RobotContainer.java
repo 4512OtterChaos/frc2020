@@ -165,6 +165,7 @@ public class RobotContainer {
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0, 0);
                 shooter.setShooterVelocity(0);
+                shooter.setState(ShooterState.kIdleState);
             },
             drivetrain, shooter, indexer
             );
