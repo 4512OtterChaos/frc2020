@@ -35,7 +35,7 @@ public class TurnTo extends ProfiledPIDCommand {
 
     private static final double kVelocityToleranceDegrees = 5;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.016, 0, 0, 
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.014, 0.001, 0, 
     new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*5),
     Constants.kRobotDelta);
     private boolean started = false;

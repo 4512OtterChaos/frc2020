@@ -88,7 +88,7 @@ public class SuperstructureCommands {
             .andThen(
                 new IndexFeedShooter(indexer, ()->shooter.checkIfStable())
                 .alongWith(
-                    new PerpetualCommand(TurnTo.createSimplerTurnToTarget(drivetrain, limelight))
+                    new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight))
                 )
             );
     }
