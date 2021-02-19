@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,9 +52,11 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
     private double[] xyz = new double[3]; // x, y, z degrees per second
 
-    private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kLinearStaticFF, kLinearVelocityFF, kLinearAccelerationFF);
+    private SimpleMotorFeedforward linearFF = new SimpleMotorFeedforward(kLinearStaticFF, kLinearVelocityFF, kLinearAccelerationFF);
+    private SimpleMotorFeedforward angularFF = new SimpleMotorFeedforward(kAngularStaticFF, kAngularVelocityFF, kAngularAccelerationFF);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
     private DifferentialDriveOdometry odometry;
+    private Field2d field = new Field2d();
     private TreeMap<Double, Pose2d> poseHistory = new TreeMap<>();
     private final double poseHistoryWindow = 0.75; // seconds
 
@@ -90,6 +93,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     @Override
     public void periodic() {
         updateOdometry();
+        field.setRobotPose(odometry.getPoseMeters());
     }
 
     //----- Drivetrain control
@@ -114,7 +118,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
         leftSlave.setVoltage(leftVolts);
         rightMaster.setVoltage(rightVolts);
         rightSlave.setVoltage(rightVolts);
-        //return tankDrive(leftVolts / 12.0, rightVolts / 12.0, 1.0);
     }
     /**
      * Sets both sides of the drivetrain to given percentages
@@ -173,8 +176,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
         double leftVolts = 0;
         double rightVolts = 0;
         
-        leftVolts += feedForward.calculate(leftMetersPerSecond);
-        rightVolts += feedForward.calculate(rightMetersPerSecond);
+        leftVolts += linearFF.calculate(leftMetersPerSecond);
+        rightVolts += linearFF.calculate(rightMetersPerSecond);
         leftVolts += leftController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
         rightVolts += rightController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
 
@@ -208,8 +211,17 @@ public class Drivetrain extends SubsystemBase implements Testable{
         return encoder.getPosition() / kGearRatio * (Math.PI * 2.0 * kWheelRadiusMeters);
     }
 
-    public SimpleMotorFeedforward getFeedForward(){
-        return feedForward;
+    /**
+     * The linear feed-forward values.
+     */
+    public SimpleMotorFeedforward getLinearFF(){
+        return linearFF;
+    }
+    /**
+     * The angular feed-forward values.
+     */
+    public SimpleMotorFeedforward getAngularFF(){
+        return angularFF;
     }
     
     public DifferentialDriveKinematics getKinematics(){

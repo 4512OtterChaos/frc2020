@@ -82,7 +82,7 @@ public class RobotContainer {
         
         shooter.setShooterBrakeOn(false);
         
-        paths = new Paths(drivetrain.getFeedForward(), drivetrain.getKinematics());
+        paths = new Paths(drivetrain.getLinearFF(), drivetrain.getKinematics());
 
         sas = new SAS();
         

@@ -37,7 +37,7 @@ public class StandardRamseteCommand extends RamseteCommand{
             trajectory,
             () -> drivetrain.getOdometry().getPoseMeters(),
             controller,
-            drivetrain.getFeedForward(),
+            drivetrain.getLinearFF(),
             drivetrain.getKinematics(),
             drivetrain::getWheelSpeeds,
             drivetrain.getLeftController(),

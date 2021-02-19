@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.util.Units;
@@ -31,12 +32,13 @@ public class TurnTo extends ProfiledPIDCommand {
     
     private final Drivetrain drivetrain;
     
-    private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians)*0.4;
+    private static final double kCruiseVelocityRadians = kMaxVelocityRadians*0.4;
 
-    private static final double kVelocityToleranceDegrees = 5;
+    private static final double kPositionToleranceRadians = 0.009;
+    private static final double kVelocityToleranceRadians = 0.06;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.014, 0.001, 0, 
-    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*5),
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.5, 0, 0, 
+    new TrapezoidProfile.Constraints(kCruiseVelocityRadians, kCruiseVelocityRadians*5),
     Constants.kRobotDelta);
     private boolean started = false;
     
@@ -46,7 +48,7 @@ public class TurnTo extends ProfiledPIDCommand {
             () -> drivetrain.getContinuousYawPosition(),
             () -> target,
             (output, setpoint) -> {
-                drivetrain.setChassisSpeed(0, output);
+                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,output));
             }
         );
         this.drivetrain = drivetrain;
@@ -58,7 +60,7 @@ public class TurnTo extends ProfiledPIDCommand {
             () -> drivetrain.getContinuousYawPosition(),
             target,
             (output, setpoint) -> {
-                drivetrain.setChassisSpeed(0, output);
+                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,output));
             }
         );
         this.drivetrain = drivetrain;
@@ -78,7 +80,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public void initialize(){
         super.initialize();
         controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(0.4, 6);
+        controller.setTolerance(kPositionToleranceRadians, kVelocityToleranceRadians);
     }
     
     @Override
@@ -100,9 +102,8 @@ public class TurnTo extends ProfiledPIDCommand {
         
         boolean atGoal = getController().atGoal();
         double velocity = drivetrain.getYawVelocity();
-        boolean stable = velocity <= kVelocityToleranceDegrees;
 
-        return atGoal && stable;
+        return atGoal;
     }
     
     @Override

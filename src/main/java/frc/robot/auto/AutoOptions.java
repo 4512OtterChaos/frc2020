@@ -65,7 +65,7 @@ public class AutoOptions {
      */
     public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
 
-        SimpleMotorFeedforward driveFF = drivetrain.getFeedForward();
+        SimpleMotorFeedforward driveFF = drivetrain.getLinearFF();
         DifferentialDriveKinematics driveKin = drivetrain.getKinematics();
         // add modular/preset commands
          
