@@ -66,7 +66,7 @@ public class SuperstructureCommands {
                 new IndexFeedShooter(indexer, ()->analysis.getIsReady(shooter, limelight, drivetrain, false))
                 //new IndexFeedShooter(indexer, ()->)
                 .alongWith(
-                    new PerpetualCommand(TurnTo.createSimplerTurnToTarget(drivetrain, limelight))
+                    new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight))
                 )
             )
             .alongWith(

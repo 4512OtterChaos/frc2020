@@ -32,13 +32,13 @@ public class TurnTo extends ProfiledPIDCommand {
     
     private final Drivetrain drivetrain;
     
-    private static final double kCruiseVelocityRadians = kMaxVelocityRadians*0.4;
+    private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians*0.4);
 
-    private static final double kPositionToleranceRadians = 0.009;
-    private static final double kVelocityToleranceRadians = 0.06;
+    private static final double kPositionToleranceDegrees = 1.75;
+    private static final double kVelocityToleranceDegrees = 5;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.5, 0, 0, 
-    new TrapezoidProfile.Constraints(kCruiseVelocityRadians, kCruiseVelocityRadians*5),
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.6, 0, 0, 
+    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*3),
     Constants.kRobotDelta);
     private boolean started = false;
     
@@ -48,7 +48,7 @@ public class TurnTo extends ProfiledPIDCommand {
             () -> drivetrain.getContinuousYawPosition(),
             () -> target,
             (output, setpoint) -> {
-                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,output));
+                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
             }
         );
         this.drivetrain = drivetrain;
@@ -60,7 +60,7 @@ public class TurnTo extends ProfiledPIDCommand {
             () -> drivetrain.getContinuousYawPosition(),
             target,
             (output, setpoint) -> {
-                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,output));
+                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
             }
         );
         this.drivetrain = drivetrain;
@@ -80,7 +80,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public void initialize(){
         super.initialize();
         controller.enableContinuousInput(-180, 180);
-        controller.setTolerance(kPositionToleranceRadians, kVelocityToleranceRadians);
+        controller.setTolerance(kPositionToleranceDegrees, kVelocityToleranceDegrees);
     }
     
     @Override

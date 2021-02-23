@@ -74,6 +74,7 @@ public class Intake extends SubsystemBase implements Testable{
         sliderExtended = ext;
         sliderWantsExtended = ext;
         lastSliderExtended = ext;
+        reset();
         if(getArmDegrees()<kLowerSafeDegrees) armTarget = IntakeState.kDownIdle.angle;
     }
     
@@ -195,6 +196,10 @@ public class Intake extends SubsystemBase implements Testable{
         else setArmBrakeOn(true);
         setArmPosition(state.angle);
         setSliderExtended(state.extended);
+    }
+
+    public void reset(){
+        controller.reset(getArmDegrees());
     }
     
     public void setRollerBrakeOn(boolean is){

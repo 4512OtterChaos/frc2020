@@ -202,6 +202,10 @@ public class Shooter extends SubsystemBase implements Testable{
         setShooterVelocity(state.rpm);
         setWristPosition(state.angle);
     }
+
+    public void reset(){
+        wristController.reset(getWristDegrees());
+    }
     
     public void setShooterBrakeOn(boolean is){
         OCConfig.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast, shootLeft, shootRight);

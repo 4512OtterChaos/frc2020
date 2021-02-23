@@ -283,7 +283,8 @@ public class RobotContainer {
         }
         intake.init();
         lift.setRatchetEngaged(false);
-        shooter.setWristPosition(shooter.getWristDegrees());
+        shooter.reset();
+        shooter.setState(ShooterState.kIdleState);
 
         limelight.setConfiguration(Configuration.PNP);
     }
