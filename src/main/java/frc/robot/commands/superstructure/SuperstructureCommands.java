@@ -52,7 +52,8 @@ public class SuperstructureCommands {
     }
 
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, SAS analysis){
-        return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+        //return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+        return TurnTo.createTensionedTurnToTarget(drivetrain, limelight)
             .alongWith(
                 clearShooter(shooter, indexer)
                 .andThen(

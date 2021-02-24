@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.common.Constants;
 import frc.robot.common.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
@@ -65,6 +66,7 @@ public class TurnTo extends ProfiledPIDCommand {
         this.drivetrain = drivetrain;
         addRequirements(drivetrain);
     }
+    
     
     /*
     @Override
@@ -152,5 +154,39 @@ public class TurnTo extends ProfiledPIDCommand {
             return heading;
         });
         return turnToLimelightTarget.withTimeout(1.4);
+    }
+
+    /**
+     * Turns by always moving one side forward. This keeps the chain in tension and avoids backlash.
+     */
+    public static Command createTensionedTurnToTarget(Drivetrain drivetrain, Limelight limelight){
+        ProfiledPIDCommand tensionedTurn = new ProfiledPIDCommand(
+            new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
+            () -> drivetrain.getContinuousYawPosition(),
+            () -> drivetrain.getContinuousYawPosition()-limelight.getTx(),
+            (output, setpoint) -> {
+                double tensionVolts = drivetrain.getLinearFF().ks * 0.75; // slight voltage for putting in tension
+                if(output > 0){
+                    drivetrain.tankDriveVolts(tensionVolts, output);
+                }
+                else{
+                    drivetrain.tankDriveVolts(-output, tensionVolts);
+                }
+            },
+            drivetrain
+        ){
+            @Override
+            public void execute() {
+                super.execute();
+                drivetrain.setTurnToTarget(controller.getGoal().position);
+                SmartDashboard.putNumber("TurnTo Target", controller.getGoal().position);
+                SmartDashboard.putNumber("TurnTo State Target", controller.getSetpoint().position);
+            }
+        };
+        ProfiledPIDController controller = tensionedTurn.getController();
+        controller.enableContinuousInput(-180, 180);
+        controller.setTolerance(kPositionToleranceDegrees, kVelocityToleranceDegrees);
+        return tensionedTurn
+        .withInterrupt(controller::atGoal).withTimeout(1.4);
     }
 }
