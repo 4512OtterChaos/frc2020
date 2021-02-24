@@ -46,7 +46,7 @@ public class Shooter extends SubsystemBase implements Testable{
 
     private double shooterTarget = 0;
     private double lastShooterVel = 0;
-    private double timeSinceShot = 0;
+    private double lastShotTime = Timer.getFPGATimestamp();
 
     private final double rpmTolerance = 80;
     
@@ -96,6 +96,7 @@ public class Shooter extends SubsystemBase implements Testable{
         setWristVolts(calculateWristVolts(wristTarget));
 
         calculateShooterVolts(shooterTarget);
+        if(shootLeft.getOutputCurrent() >= 40) lastShotTime = Timer.getFPGATimestamp();
     }
 
     public ShooterState getCurrentState(){
@@ -140,6 +141,9 @@ public class Shooter extends SubsystemBase implements Testable{
         double leftError = Math.abs(shooterTarget - getLeftRPM());
         double rightError = Math.abs(shooterTarget - getRightRPM());
         return Math.max(leftError, rightError);
+    }
+    public double getLastShotTime(){
+        return lastShotTime;
     }
     public boolean checkIfStable(){
         double rpm = getRPM();

@@ -121,37 +121,10 @@ public class SAS {
      */
     public boolean getIsReady(Shooter shooter, Limelight limelight, Drivetrain drivetrain, boolean innerShot){
         boolean isConfident = getShotConfidence(shooter, limelight, drivetrain, innerShot) >= confidenceThreshold;
-        boolean isReadyAndConfident = false; // I believe in you SAS
         double now = Timer.getFPGATimestamp();
-        double dt;
 
         // Require a short time to pass before the system returns confident
-        if(innerShot){
-            dt = now - lastInnerTime;
-            lastInnerTime = now;
-            if(dt>0.2) dt = 0.05; // Avoid time gaps between use of this method
-            if(isConfident){
-                innerConfidentTime += dt;
-            }
-            else{
-                double max = innerConfidentTime >= confidentTimeThreshold ? confidentTimeThreshold : innerConfidentTime;
-                innerConfidentTime = max - dt;
-            }
-            isReadyAndConfident = innerConfidentTime >= confidentTimeThreshold;
-        }
-        else{
-            dt = now - lastOuterTime;
-            lastOuterTime = now;
-            if(dt>0.2) dt = 0.05; // Avoid time gaps between use of this method
-            if(isConfident){
-                outerConfidentTime += dt;
-            }
-            else{
-                double max = outerConfidentTime >= confidentTimeThreshold ? confidentTimeThreshold : outerConfidentTime;
-                outerConfidentTime = max - dt;
-            }
-            isReadyAndConfident = outerConfidentTime >= confidentTimeThreshold;
-        }
+        boolean isReadyAndConfident = (now - shooter.getLastShotTime() > confidentTimeThreshold) && isConfident; // I believe in you SAS
 
         return isReadyAndConfident;
     }

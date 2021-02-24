@@ -38,9 +38,8 @@ public class TurnTo extends ProfiledPIDCommand {
     private static final double kVelocityToleranceDegrees = 5;
     
     private static ProfiledPIDController controller = new ProfiledPIDController(0.6, 0, 0, 
-    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*3),
+    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5),
     Constants.kRobotDelta);
-    private boolean started = false;
     
     public TurnTo(Drivetrain drivetrain, double target) {
         super(
@@ -94,7 +93,6 @@ public class TurnTo extends ProfiledPIDCommand {
     @Override
     public void end(boolean interrupted){
         super.end(interrupted);
-        started = false;
     }
 
     public boolean atGoal(){
@@ -108,7 +106,7 @@ public class TurnTo extends ProfiledPIDCommand {
     
     @Override
     public boolean isFinished() {
-        return atGoal() && started;
+        return atGoal();
     }
     
     /**
