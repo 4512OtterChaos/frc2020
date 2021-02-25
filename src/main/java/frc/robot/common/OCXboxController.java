@@ -47,7 +47,7 @@ public class OCXboxController extends XboxController{
         double scale = 1.0 / (1 - dead);
         double sign = Math.copySign(1.0, value);
         value = Math.abs(value);
-        double fixedValue = sign*(scale*((value-dead)*value));
+        double fixedValue = sign*(scale*((value-(sign*dead))*value));
         return MathHelp.clamp(fixedValue, -1, 1);
     }
 

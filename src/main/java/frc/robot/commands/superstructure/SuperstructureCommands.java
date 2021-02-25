@@ -51,6 +51,9 @@ public class SuperstructureCommands {
         );
     }
 
+    /**
+     * Turns to target while priming the indexer to feed and setting optimal shooter state, then fires when ready
+     */
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, SAS analysis){
         //return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
         return TurnTo.createTensionedTurnToTarget(drivetrain, limelight)
@@ -65,16 +68,15 @@ public class SuperstructureCommands {
             )
             .andThen(
                 new IndexFeedShooter(indexer, ()->analysis.getIsReady(shooter, limelight, drivetrain, false))
-                //new IndexFeedShooter(indexer, ()->)
                 .alongWith(
-                    new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight))
+                    //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
+                    new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
+                    new PerpetualCommand(new SetShooterState(shooter, analysis, limelight))
                 )
-            )
-            .alongWith(
-                new RunCommand(
-                    ()->analysis.getShotConfidence(shooter, limelight, drivetrain, false))  
             );
     }
+
+    // shoots with current shooter angle
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
         return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
             .alongWith(

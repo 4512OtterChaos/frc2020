@@ -161,26 +161,27 @@ public class TurnTo extends ProfiledPIDCommand {
      */
     public static Command createTensionedTurnToTarget(Drivetrain drivetrain, Limelight limelight){
         ProfiledPIDCommand tensionedTurn = new ProfiledPIDCommand(
-            new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
+            new ProfiledPIDController(0.2, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
             () -> drivetrain.getContinuousYawPosition(),
             () -> drivetrain.getContinuousYawPosition()-limelight.getTx(),
             (output, setpoint) -> {
-                double tensionVolts = drivetrain.getLinearFF().ks * 0.75; // slight voltage for putting in tension
-                if(output > 0){
-                    drivetrain.tankDriveVolts(tensionVolts, output);
-                }
-                else{
-                    drivetrain.tankDriveVolts(-output, tensionVolts);
-                }
+                double tensionVolts = drivetrain.getLinearFF().ks * 0.4; // slight voltage for putting in tension
+                double leftVolts = tensionVolts;
+                double rightVolts = tensionVolts;
+
+                if(output > 0) rightVolts += output;
+                else if(output < 0) leftVolts -= output;
+
+                drivetrain.tankDriveVolts(leftVolts, rightVolts);
             },
             drivetrain
         ){
             @Override
             public void execute() {
                 super.execute();
-                drivetrain.setTurnToTarget(controller.getGoal().position);
-                SmartDashboard.putNumber("TurnTo Target", controller.getGoal().position);
-                SmartDashboard.putNumber("TurnTo State Target", controller.getSetpoint().position);
+                drivetrain.setTurnToTarget(this.getController().getGoal().position);
+                SmartDashboard.putNumber("TurnTo Target", this.getController().getGoal().position);
+                SmartDashboard.putNumber("TurnTo State Target", this.getController().getSetpoint().position);
             }
         };
         ProfiledPIDController controller = tensionedTurn.getController();
