@@ -99,7 +99,7 @@ public class RobotContainer {
     }
     private void configureDriverBindings(){
         RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
-        drivetrain.setDefaultCommand(velocityControl);
+        drivetrain.setDefaultCommand(velocityControl.beforeStarting(driver::resetLimiters));
 
         new JoystickButton(driver, XboxController.Button.kBumperRight.value)
             .whenPressed(()->drivetrain.setDriveSpeed(0.5))

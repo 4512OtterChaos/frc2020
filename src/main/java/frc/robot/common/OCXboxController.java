@@ -99,4 +99,12 @@ public class OCXboxController extends XboxController{
     public double getRightArcade(double forward, double turn){
         return forward + turn;
     }
+
+    /**
+     * Reset the slew-rate limiters on the joysticks
+     */
+    public void resetLimiters(){
+        forwardLimiter.reset(0);
+        turnLimiter.reset(0);
+    }
 }
