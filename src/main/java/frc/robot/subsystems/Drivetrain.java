@@ -157,6 +157,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
             double adjustedDriveSpeed = driveSpeed;
             adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(adjustedDriveSpeed), 0.2)*0.4, adjustedDriveSpeed);
             angularPercent *= adjustedDriveSpeed*(1/driveSpeed);
+            SmartDashboard.putNumber("Adjusted Turn", angularPercent);
         }
         setChassisSpeed(linearPercent, angularPercent);
     }
