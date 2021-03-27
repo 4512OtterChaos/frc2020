@@ -37,7 +37,7 @@ public class IndexHomeShooter extends CommandBase {
   @Override
   public void execute() {
     double volts = 0;
-    findHome = indexer.getFlightBeam();
+    findHome = indexer.getShootBeam();
     // home to front sensor, then back up a bit
     if(!foundHome){
       if(!findHome) volts = kVolts;
@@ -53,12 +53,12 @@ public class IndexHomeShooter extends CommandBase {
       }
     }
 
-    indexer.setVolts(volts, volts);
+    indexer.setVolts(volts);
   }
 
   @Override
   public void end(boolean interrupted) {
-    indexer.setVolts(0, 0);
+    indexer.setVolts(0);
   }
 
   @Override

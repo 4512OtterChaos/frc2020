@@ -34,7 +34,7 @@ public class SimplerShootOuter extends SequentialCommandGroup {
                     ()->shooter.setShooterVelocity(0),
                     shooter
                 )
-                .withInterrupt(()->!indexer.getFlightBeam())
+                .withInterrupt(()->!indexer.getShootBeam())
                 .withTimeout(0.7)
             ),
             new SetShooterState(shooter, shooterState).withTimeout(1.25),

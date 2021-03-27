@@ -16,7 +16,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.index.IndexFeedShooter;
+import frc.robot.commands.index.IndexHomeIntake;
 import frc.robot.commands.index.IndexHomeShooter;
+import frc.robot.commands.index.IndexIncoming;
+import frc.robot.commands.intake.SetIntakeLowered;
 import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Drivetrain;
@@ -32,52 +35,75 @@ import frc.robot.util.SAS;
 public class SuperstructureCommands {
 
     /**
-     * Prime robot for shooting by moving indexed powercells to the ToF sensor.
-     * @param indexer
-     * @param intake
-     * @return
+     * Lowers intake, then starts intaking and indexing power cells.
+     */
+    public static Command intakeIndexBalls(Intake intake, Indexer indexer){
+        return new SetIntakeLowered(intake, true)
+            .deadlineWith(
+                new IndexHomeIntake(indexer)
+            )
+            .andThen(
+                new StartEndCommand(
+                    ()->{
+                        intake.setRollerVolts(7);
+                        intake.setFenceVolts(10);
+                    }, 
+                    ()->{
+                        intake.setRollerVolts(0);
+                        intake.setFenceVolts(0);
+                    }, 
+                    intake
+                )
+                .alongWith(
+                    new IndexIncoming(indexer)
+                )
+            );
+    }
+
+    /**
+     * Prime robot for shooting by moving indexed powercells to the shooting sensor.
      */
     public static Command primeShooter(Indexer indexer, Intake intake){
         return new IndexHomeShooter(indexer)
             .withTimeout(0.75)
             .alongWith(
-                new InstantCommand((()->intake.setSliderExtended(true)), intake)
+                new InstantCommand((()->intake.setSliderIsExtended(true)), intake)
             );
     }
 
     /**
-     * Prepare robot for shooting by backdriving shooter and indexer past ToF sensor.
+     * Prepare robot for shooting by backdriving shooter and indexer past shooting sensor.
      */
     public static Command clearShooter(Shooter shooter, Indexer indexer){
         return new ConditionalCommand(
             new StartEndCommand(
                 ()->{
                     shooter.setShooterVelocity(-1500);
-                    indexer.setVolts(-3, -3);
+                    indexer.setVolts(-4);
                 }, 
                 ()->{
                     shooter.setShooterVelocity(0);
-                    indexer.setVolts(0, 0);
+                    indexer.setVolts(0);
                 },
                 shooter, indexer
             )
-            .withInterrupt(()->!indexer.getFlightBeam())
+            .withInterrupt(()->!indexer.getShootBeam())
             .withTimeout(0.8),
             new InstantCommand(),
-            indexer::getFlightBeam
+            indexer::getShootBeam
         );
     }
 
     public static Command feedShooter(Indexer indexer, Intake intake, BooleanSupplier isReady){
         return new IndexFeedShooter(indexer, isReady)
         .deadlineWith(
-            new FunctionalCommand( // set roller while feeding as well
+            new FunctionalCommand( // set fence while feeding as well
                 ()->{
-                    intake.setSliderExtended(true);
-                    intake.setRollerVolts(0);
+                    intake.setSliderIsExtended(true);
+                    intake.setFenceVolts(0);
                 },
-                ()->intake.setRollerVolts(-5),
-                (interrupted)->intake.setRollerVolts(0),
+                ()->intake.setFenceVolts(-5),
+                (interrupted)->intake.setFenceVolts(0),
                 ()->false, // this is interrupted by IndexFeedShooter
                 intake
             )
@@ -112,6 +138,7 @@ public class SuperstructureCommands {
     /**
      * shoots with current shooter angle(needs initialization work)
      */
+    /*
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
         return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
             .alongWith(
@@ -130,4 +157,5 @@ public class SuperstructureCommands {
                 )
             );
     }
+    */
 }

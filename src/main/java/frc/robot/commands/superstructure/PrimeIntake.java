@@ -15,9 +15,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.index.IndexHomeIntake;
-import frc.robot.commands.intake.IntakeDown;
+import frc.robot.commands.intake.SetIntakeLowered;
 import frc.robot.commands.shoot.BackdriveShooterBalls;
-import frc.robot.common.Constants.IntakeArmConstants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -27,13 +26,13 @@ public class PrimeIntake extends SequentialCommandGroup {
     public PrimeIntake(Intake intake, Indexer indexer, Shooter shooter) {
         super(
             new ConditionalCommand(
-                new IntakeDown(intake)
-                .withTimeout(2.5), 
+                new SetIntakeLowered(intake, true),
                 new InstantCommand(), 
-                ()->intake.getArmDegrees()>IntakeArmConstants.kLowerSafeDegrees),
+                intake::getArmIsLowered
+            ),
             new IndexHomeIntake(indexer)
                 .alongWith(
-                    new BackdriveShooterBalls(shooter, indexer::getFlightBeam)
+                    new BackdriveShooterBalls(shooter, indexer::getShootBeam)
                 )
                 .withTimeout(2)
         );

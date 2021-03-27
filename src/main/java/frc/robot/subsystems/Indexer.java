@@ -27,33 +27,42 @@ import frc.robot.common.OCConfig.ConfigType;
 
 public class Indexer extends SubsystemBase implements Testable{
     
-    private CANSparkMax bot = new CANSparkMax(13, MotorType.kBrushless);
-    private CANSparkMax top = new CANSparkMax(14, MotorType.kBrushless);
+    private CANSparkMax left = new CANSparkMax(8, MotorType.kBrushless);
+    private CANSparkMax right = new CANSparkMax(9, MotorType.kBrushless);
 
-    private CANEncoder topEncoder = top.getEncoder();
-    private CANEncoder botEncoder = bot.getEncoder();
+    private CANEncoder leftEncoder = left.getEncoder();
+    //private CANEncoder rightEncoder = right.getEncoder();
 
-    private PIDController topController = new PIDController(kP, kI, kD, Constants.kRobotDelta);
-    private PIDController botController = new PIDController(kP, kI, kD, Constants.kRobotDelta);
+    //private PIDController topController = new PIDController(kP, kI, kD, Constants.kRobotDelta);
+    //private PIDController botController = new PIDController(kP, kI, kD, Constants.kRobotDelta);
     
-    private final DigitalInput frontBeam = new DigitalInput(2);
-    private final TimeOfFlight shooterFlight = new TimeOfFlight(0);
-    private final double flightDefaultDistanceMM = 140;
-    private final double flightDefaultErrorMM = 10;
+    // Proximity sensor for receiving powercells
+    private final DigitalInput receiveBeam = new DigitalInput(2);
+    private final DigitalInput shootBeam = new DigitalInput(3);
+    //private final TimeOfFlight shooterFlight = new TimeOfFlight(0);
+    //private final double flightDefaultDistanceMM = 140;
+    //private final double flightDefaultErrorMM = 10;
     
     public Indexer() {        
-        OCConfig.configMotors(ConfigType.INDEXER, bot, top);
+        OCConfig.configMotors(ConfigType.INDEXER, left, right);
 
-        shooterFlight.setRangingMode(RangingMode.Short, 24);
+        left.setInverted(false);
+        right.follow(left, true);
+
+        //shooterFlight.setRangingMode(RangingMode.Short, 24);
     }
     
     @Override
     public void periodic() {
     }
     
-    public boolean getFrontBeam(){
-        return !frontBeam.get();
+    public boolean getReceiveBeam(){
+        return receiveBeam.get();
     }
+    public boolean getShootBeam(){
+        return shootBeam.get();
+    }
+    /*
     public double getFlightRangeMM(){
         return shooterFlight.getRange();
     }
@@ -63,39 +72,28 @@ public class Indexer extends SubsystemBase implements Testable{
     public boolean getFlightBeam(){
         return getFlightRangeMM()<flightDefaultDistanceMM;
     }
+    */
     
-    public void setTopVolts(double volts){
-        top.setVoltage(-volts);
-    }
-    public void setBotVolts(double volts){
-        bot.setVoltage(volts);
-    }
-    public void setVolts(double topVolts, double botVolts){
-        setTopVolts(topVolts);
-        setBotVolts(botVolts);
-    }
-
-    public void setTopVelocity(double rpm){
-        
+    public void setVolts(double volts){
+        left.setVoltage(volts);
     }
     
     public void setBrakeOn(boolean is){
         IdleMode mode = is ? IdleMode.kBrake : IdleMode.kCoast;
-        OCConfig.setIdleMode(mode, bot, top);
+        OCConfig.setIdleMode(mode, left, right);
     }
     
     public void log(){
-        SmartDashboard.putBoolean("Front Beam", getFrontBeam());
-        SmartDashboard.putBoolean("Flight Beam", getFlightBeam());
-        SmartDashboard.putNumber("Flight Distance", getFlightRangeMM());
-        SmartDashboard.putNumber("Top RPM", topEncoder.getVelocity());
-        SmartDashboard.putNumber("Bot RPM", botEncoder.getVelocity());
+        SmartDashboard.putBoolean("Receive Beam", getReceiveBeam());
+        //SmartDashboard.putBoolean("Flight Beam", getFlightBeam());
+        //SmartDashboard.putNumber("Flight Distance", getFlightRangeMM());
+        SmartDashboard.putNumber("RPM", leftEncoder.getVelocity());
     }
 
     @Override
     public TestableResult test(){
-        boolean flightGood = getFlightRangeMMError()<flightDefaultErrorMM;
-        boolean sensorsGood = flightGood && !getFrontBeam();
+        //boolean flightGood = getFlightRangeMMError()<flightDefaultErrorMM;
+        //boolean sensorsGood = flightGood && !getFrontBeam();
         return new TestableResult("Indexer", Status.PASSED);
     }
 }

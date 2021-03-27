@@ -29,8 +29,8 @@ public final class OCConfig {
         DRIVE(DrivetrainConstants.kStallLimit, DrivetrainConstants.kFreeLimit, DrivetrainConstants.kRampRaw),
         SHOOTER(ShooterConstants.kStallLimit, ShooterConstants.kFreeLimit, ShooterConstants.kRampRaw),
         SHOOTERWRIST(ShooterWristConstants.kStallLimit, ShooterWristConstants.kFreeLimit, ShooterWristConstants.kRampRaw),
-        INTAKE(IntakeConstants.kStallLimit, IntakeConstants.kFreeLimit, IntakeConstants.kRampRaw),
-        INTAKEARM(IntakeArmConstants.kStallLimit, IntakeArmConstants.kFreeLimit, IntakeArmConstants.kRampRaw),
+        INTAKEROLLER(IntakeConstants.kStallLimit, IntakeConstants.kFreeLimit, IntakeConstants.kRampRaw),
+        INTAKESLIDE(IntakeSlideConstants.kStallLimit, IntakeSlideConstants.kFreeLimit, IntakeSlideConstants.kRampRaw),
         INDEXER(IndexerConstants.kStallLimit, IndexerConstants.kFreeLimit, IndexerConstants.kRampRaw),
         LIFT(LiftConstants.kStallLimit, LiftConstants.kFreeLimit, LiftConstants.kRampRaw);
 

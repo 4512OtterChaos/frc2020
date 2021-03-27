@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.commands.drive.TurnTo;
-import frc.robot.commands.intake.IntakeDown;
+import frc.robot.commands.intake.SetIntakeLowered;
 import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Limelight;
@@ -114,7 +114,7 @@ public class AutoOptions {
                     drivetrain
                     ).withTimeout(0.9)
                     .alongWith(
-                        new IntakeDown(intake)
+                        new SetIntakeLowered(intake, true)
                     )
                     .andThen(
                         new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
@@ -123,7 +123,7 @@ public class AutoOptions {
                         new InstantCommand(
                             ()->{
                                 drivetrain.tankDrive(0, 0);
-                                indexer.setVolts(0, 0);
+                                indexer.setVolts(0);
                                 shooter.setWristVolts(0);
                                 shooter.setShooterVelocity(0);
                             },
@@ -141,7 +141,7 @@ public class AutoOptions {
                     drivetrain
                     ).withTimeout(0.6)
                     .alongWith(
-                        new IntakeDown(intake).withTimeout(2)
+                        new SetIntakeLowered(intake, true)
                     )
                     .andThen(
                         new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine).withTimeout(7)
@@ -150,7 +150,7 @@ public class AutoOptions {
                         new InstantCommand(
                             ()->{
                                 drivetrain.tankDrive(0, 0);
-                                indexer.setVolts(0, 0);
+                                indexer.setVolts(0);
                                 shooter.setWristVolts(0);
                                 shooter.setShooterVelocity(0);
                             },
@@ -167,7 +167,7 @@ public class AutoOptions {
                     ), driveFF, driveKin).getReversed()
                 )
                 .alongWith(
-                    new IntakeDown(intake)
+                    new SetIntakeLowered(intake, true)
                 )
                 .andThen(
                     new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)

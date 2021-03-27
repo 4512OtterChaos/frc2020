@@ -24,136 +24,69 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.common.Constants.IntakeArmConstants.*;
+import static frc.robot.common.Constants.IntakeConstants.*;
 import static frc.robot.common.Constants.*;
 
 import frc.robot.common.Constants;
 import frc.robot.common.OCConfig;
 import frc.robot.common.Testable;
 import frc.robot.common.OCConfig.ConfigType;
-import frc.robot.states.IntakeState;
 import frc.robot.util.MathHelp;
 
 public class Intake extends SubsystemBase implements Testable{
     
+    /*
     private CANSparkMax arm = new CANSparkMax(10, MotorType.kBrushless);
     private WPI_TalonSRX roller = new WPI_TalonSRX(11);
     private WPI_TalonSRX fence = new WPI_TalonSRX(12);
+    */
+    private CANSparkMax roller = new CANSparkMax(10, MotorType.kBrushless);
+    private CANSparkMax leftFence = new CANSparkMax(11, MotorType.kBrushless);
+    private CANSparkMax rightFence = new CANSparkMax(12, MotorType.kBrushless);
 
-    private double armVolts = 0;
     private double rollerVolts = 0;
     private double fenceVolts = 0;
-
-    private double armTarget = IntakeState.kUpIdle.angle;
     
+    private DoubleSolenoid arm = new DoubleSolenoid(0, 1);
     private DoubleSolenoid slider = new DoubleSolenoid(0, 1);
-    private boolean sliderExtended = false;
+    private boolean armWantsExtended = false;
     private boolean sliderWantsExtended = false;
-    private boolean lastSliderExtended = false;
-    private Timer sliderDebounce = new Timer();
     
     private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
-    
-    private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(kStaticFF, kVelocityFF, kAccelerationFF);
-    
-    private ProfiledPIDController controller = new ProfiledPIDController(kP, kI, kD, new Constraints(kVelocityConstraint, kAccelerationConstraint), kRobotDelta); // Positional PID controller
-    //private PIDController controller = new PIDController(kP, kI, kD, Constants.kRobotDelta);
+        
     public Intake() {
-        OCConfig.configMotors(ConfigType.INTAKEARM, arm);
-        OCConfig.configMotors(ConfigType.INTAKE, roller, fence);
-
-        controller.setTolerance(3*kBufferDegrees, 6*kBufferDegrees);
+        OCConfig.configMotors(ConfigType.INTAKEROLLER, roller);
+        OCConfig.configMotors(ConfigType.INTAKESLIDE, leftFence, rightFence);
         
         roller.setInverted(false);
-        fence.setInverted(false);
-        arm.setInverted(false);
+        leftFence.setInverted(true);
+        rightFence.follow(leftFence, true);
     }
 
     public void init(){
-        boolean ext = getNowSliderExtended();
-        sliderExtended = ext;
-        sliderWantsExtended = ext;
-        lastSliderExtended = ext;
-        reset();
-        if(getArmDegrees()<kLowerSafeDegrees) armTarget = IntakeState.kDownIdle.angle;
+        sliderWantsExtended = getSliderIsExtended();
+        armWantsExtended = getArmIsExtended();
     }
     
     @Override
     public void periodic() {
-        boolean nowSliderExtended;
-        // Block the slider if it wants to extend while the arm is in the way
-        boolean conflicts = MathHelp.isBetweenBounds(getArmDegrees(), kLowerSafeDegrees, kHigherSafeDegrees-5*kBufferDegrees);
-        if(sliderWantsExtended && !conflicts) nowSliderExtended = true;
-        else nowSliderExtended = false;
-        
-        // Delay the result of the slider if its retracting for safety
-        if(nowSliderExtended){
-            if(!lastSliderExtended) sliderDebounce.reset();
-            sliderExtended=true;
-        }
-        else{
-            if(lastSliderExtended) sliderDebounce.start();
-            else if(sliderDebounce.get()>0.4){
-                sliderDebounce.stop();
-                sliderExtended=false;
-            }
-        }
-        lastSliderExtended=nowSliderExtended;
+        // arm is "down"
+        boolean armLowered = getArmIsLowered();
+        // arm is extended
+        boolean armExt = getArmIsExtended();
+        // slider is extended
+        boolean sliderExt = getSliderIsExtended();
 
-        boolean armLowered = getArmDegrees()<=kLowerSafeDegrees;
         // avoid rolling rollers when arm is up
         rollerVolts = armLowered ? rollerVolts : 0;
-        // avoid rolling fences when slider is in or arm is up
-        //fenceVolts = nowSliderExtended&&armLowered ? fenceVolts : 0;
 
-        // arm safety
-        double lowLimit = -6;
-        double highLimit = 6;
-        
-        // arm safety
-        double enc = getArmDegrees();
-        boolean ext = getSliderExtended();
-        if(ext&&MathHelp.isBetweenBounds(enc, kHigherSafeDegrees-kBufferDegrees, kHigherSafeDegrees)) lowLimit=0; // just in case, anti-collide on slider
-        if(ext&&MathHelp.isBetweenBounds(enc, kLowerSafeDegrees, kLowerSafeDegrees+kBufferDegrees)) highLimit=0;
-        if(enc<=-3*kBufferDegrees) lowLimit=-0.2;
-        if(enc>=kMaxUpwardDegrees) highLimit=0;
-
-        // adjust goal to avoid obliterating slider
-        if(ext){
-            boolean constrainUpper; // false: limit lower, true: limit higher
-            if(MathHelp.isBetweenBounds(enc, 0, kLowerSafeDegrees)) constrainUpper=false;
-            else if(MathHelp.isBetweenBounds(enc, kHigherSafeDegrees, kMaxUpwardDegrees)) constrainUpper=true;
-            else{
-                double mid = (kHigherSafeDegrees-kLowerSafeDegrees)/2.0;
-                constrainUpper = !(enc<=mid); // in case we extend slider while arm is conflicting
-            }
-            
-            if(constrainUpper) armTarget = MathHelp.clamp(armTarget, kHigherSafeDegrees+kBufferDegrees, kMaxUpwardDegrees-kBufferDegrees);
-            else armTarget = MathHelp.clamp(armTarget, 0, kLowerSafeDegrees-kBufferDegrees);
+        // do NOT move arm if slider isn't extended
+        if(sliderExt){
+            arm.set(armWantsExtended ? Value.kForward : Value.kReverse);
         }
-        
-        SmartDashboard.putNumber("Arm Target", armTarget);
-        double volts = controller.calculate(enc, armTarget);
-        
-        volts += feedForward.calculate(controller.getGoal().velocity);
-        
-        volts = MathHelp.clamp(volts, lowLimit, highLimit);
-        SmartDashboard.putNumber("Arm PID", volts);
-
-        // set mechanisms with safety
-        if(nowSliderExtended) slider.set(Value.kForward);
-        else slider.set(Value.kReverse);
-
-        double adjustedVolts = volts + kCounterGravityFF*Math.cos(Units.degreesToRadians(enc));
-        if(enc <= 3) adjustedVolts -= 1.5;
-        SmartDashboard.putNumber("Arm Volts", adjustedVolts);
-        arm.setVoltage(-adjustedVolts);
+                
         roller.setVoltage(rollerVolts);
-        fence.setVoltage(fenceVolts);
-    }
-
-    public ProfiledPIDController getController(){
-        return controller;
+        leftFence.setVoltage(fenceVolts);
     }
     
     public double getEncoder(){
@@ -163,63 +96,45 @@ public class Intake extends SubsystemBase implements Testable{
     public double getArmDegrees(){
         return getEncoder()*360;
     }
-    
-    private boolean getNowSliderExtended(){
+    public boolean getArmIsLowered(){
+        return getArmDegrees()<=kEngagedDegrees;
+    }
+    public boolean getArmIsExtended(){
+        return arm.get() == Value.kForward;
+    }
+    public boolean getSliderIsExtended(){
         return slider.get() == Value.kForward;
     }
-    public boolean getSliderExtended(){
-        return sliderExtended;
-    }
     
-    public void setSliderExtended(boolean is){
+    public void setArmIsExtended(boolean is){
+        armWantsExtended = is;
+    }
+    public void setSliderIsExtended(boolean is){
         sliderWantsExtended = is;
     }
     
-    public void setArmVolts(double volts){
-        armVolts = volts;
-    }
     public void setRollerVolts(double volts){
         rollerVolts = volts;
     }
     public void setFenceVolts(double volts){
         fenceVolts = volts;
     }
-    /**
-    * Sets the controller goal. Automatically adjusts goal to avoid conflicting with the slider.
-    * @param degrees Motor degrees setpoint
-    */
-    public void setArmPosition(double degrees){
-        armTarget = degrees;
-    }
-    public void setState(IntakeState state){
-        if(state.angle < kLowerSafeDegrees) setArmBrakeOn(false);
-        else setArmBrakeOn(true);
-        setArmPosition(state.angle);
-        setSliderExtended(state.extended);
-    }
-
-    public void reset(){
-        controller.reset(getArmDegrees());
-    }
     
     public void setRollerBrakeOn(boolean is){
-        roller.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
+        roller.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
     }
     public void setFenceBrakeOn(boolean is){
-        fence.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
-    }
-    public void setArmBrakeOn(boolean is){
-        arm.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+        leftFence.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
+        rightFence.setIdleMode(is ? IdleMode.kBrake : IdleMode.kCoast);
     }
 
     public void log(){
         SmartDashboard.putNumber("Arm Degrees", getArmDegrees());
         SmartDashboard.putNumber("Arm Encoder", getEncoder());
-        SmartDashboard.putNumber("Arm Power", arm.getAppliedOutput());
-        SmartDashboard.putNumber("Arm Setpoint", controller.getSetpoint().position);
-        SmartDashboard.putBoolean("Slider Extended", getSliderExtended());
+        SmartDashboard.putBoolean("Arm Extended", getArmIsExtended());
+        SmartDashboard.putBoolean("Arm Wants", armWantsExtended);
+        SmartDashboard.putBoolean("Slider Extended", getSliderIsExtended());
         SmartDashboard.putBoolean("Slider Wants", sliderWantsExtended);
-        SmartDashboard.putBoolean("Slider Extended Now", getNowSliderExtended());
     }
     
     @Override

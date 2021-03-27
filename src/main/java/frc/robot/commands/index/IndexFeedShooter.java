@@ -49,12 +49,12 @@ public class IndexFeedShooter extends CommandBase {
     
     @Override
     public void execute() {
-        boolean notPrimed = !indexer.getFlightBeam();
+        boolean notPrimed = !indexer.getShootBeam();
         boolean ready = isReady.getAsBoolean();
         double now = Timer.getFPGATimestamp();
         double dt = now - lastTime;
         if(ready||notPrimed){
-            indexer.setVolts(4.5, 4.5);
+            indexer.setVolts(4.5);
             //OCLedManager.setPattern(Pattern.Green);
             if(ready) manager.addPattern(shootCard, shootPattern);
             if(notPrimed) unprimeTime += dt;
@@ -63,7 +63,7 @@ public class IndexFeedShooter extends CommandBase {
             }
         }
         else{
-            indexer.setVolts(0, 0);
+            indexer.setVolts(0);
             if(!ready) manager.addPattern(primeCard, primePattern);
         }
         lastTime = now;
@@ -72,7 +72,7 @@ public class IndexFeedShooter extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        indexer.setVolts(0, 0);
+        indexer.setVolts(0);
         primeCard.end();
         shootCard.end();
     }

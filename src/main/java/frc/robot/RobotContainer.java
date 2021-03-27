@@ -24,11 +24,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
 import frc.robot.commands.drive.TurnTo;
-import frc.robot.commands.intake.IntakeDown;
-import frc.robot.commands.intake.IntakeUp;
-import frc.robot.commands.intake.IntakeUpClear;
+import frc.robot.commands.intake.SetIntakeLowered;
 import frc.robot.commands.shoot.SetShooterState;
-import frc.robot.commands.superstructure.IntakeIndexIncoming;
 import frc.robot.commands.superstructure.PrimeIntake;
 import frc.robot.commands.superstructure.PrimeShooter;
 import frc.robot.commands.superstructure.SimplerShootOuter;
@@ -37,7 +34,6 @@ import frc.robot.common.Constants;
 import frc.robot.common.OCLEDManager;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
-import frc.robot.common.Constants.IntakeArmConstants;
 import frc.robot.common.Constants.ShooterWristConstants;
 import frc.robot.common.Constants.VisionConstants;
 import frc.robot.states.ShooterState;
@@ -112,36 +108,32 @@ public class RobotContainer {
         ConditionalCommand conditionalIntake = new ConditionalCommand(
             new PrimeIntake(intake, indexer, shooter),
             new InstantCommand(
-                ()->intake.setSliderExtended(true),
+                ()->intake.setSliderIsExtended(true),
                 intake
             ).andThen(
-                new IntakeIndexIncoming(intake, indexer, shooter)
+                SuperstructureCommands.intakeIndexBalls(intake, indexer)
             ), 
-            ()->intake.getArmDegrees() > IntakeArmConstants.kLowerSafeDegrees
+            intake::getArmIsLowered
         );
 
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
-                conditionalIntake
+                SuperstructureCommands.intakeIndexBalls(intake, indexer)
             )
             .whenInactive(
-                new ConditionalCommand(
-                    new InstantCommand(
-                        ()->{
-                            intake.setRollerVolts(0);
-                            intake.setFenceVolts(0);
-                            indexer.setVolts(0, 0);
-                        },
-                        intake, indexer
-                    ),
-                    new InstantCommand(),
-                    ()->intake.getArmDegrees() < IntakeArmConstants.kLowerSafeDegrees
+                new InstantCommand(
+                    ()->{
+                        intake.setRollerVolts(0);
+                        intake.setFenceVolts(0);
+                        indexer.setVolts(0);
+                    },
+                    intake, indexer
                 )
             );
 
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(
-                new IntakeUpClear(intake)
+                new SetIntakeLowered(intake, false)
             );
         
         /*
@@ -163,7 +155,7 @@ public class RobotContainer {
             )
             .whenInactive(()->{
                 drivetrain.tankDrive(0, 0);
-                indexer.setVolts(0, 0);
+                indexer.setVolts(0);
                 shooter.setShooterVelocity(0);
                 shooter.setState(ShooterState.kIdleState);
             },
@@ -176,7 +168,7 @@ public class RobotContainer {
             )
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
-                indexer.setVolts(0, 0);
+                indexer.setVolts(0);
                 shooter.setState(ShooterState.kIdleState);
             },
             drivetrain, shooter, indexer
@@ -188,7 +180,7 @@ public class RobotContainer {
             )
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
-                indexer.setVolts(0, 0);
+                indexer.setVolts(0);
                 shooter.setState(ShooterState.kIdleState);
             },
             drivetrain, shooter, indexer
@@ -228,14 +220,14 @@ public class RobotContainer {
         new JoystickButton(driver, XboxController.Button.kStickLeft.value)
             .whenPressed(
                 ()->{
-                    intake.setSliderExtended(true);
-                    indexer.setVolts(-6, -6);
+                    intake.setSliderIsExtended(true);
+                    indexer.setVolts(-6);
                     intake.setFenceVolts(-12);
                 }, intake, indexer
             )
             .whenReleased(
                 ()->{
-                    indexer.setVolts(0,0);
+                    indexer.setVolts(0);
                     intake.setFenceVolts(0);
                 }, intake, indexer
             );
@@ -294,7 +286,6 @@ public class RobotContainer {
     
     public void setAllBrake(boolean is){
         drivetrain.setBrakeOn(is);
-        intake.setArmBrakeOn(is);
         intake.setFenceBrakeOn(is);
         intake.setRollerBrakeOn(is);
         indexer.setBrakeOn(is);

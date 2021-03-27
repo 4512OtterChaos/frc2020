@@ -12,52 +12,52 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Indexer;
 
 public class IndexHomeIntake extends CommandBase {
-  
-  final Indexer indexer;
-  final double kVolts = 3;
-
-  boolean foundHome = false;
-  double homeTime = 0;
-  
-  public IndexHomeIntake(Indexer indexer) {
-    this.indexer = indexer;
-
-    addRequirements(indexer);
-  }
-
-  @Override
-  public void initialize() {
-  }
-
-  @Override
-  public void execute() {
-    double volts = 0;
-    foundHome = indexer.getFrontBeam();
-    // home to front sensor, then back up a bit
-    if(homeTime==0){
-      if(!foundHome) volts = -kVolts;
-      else{
-        volts = 0;
-        homeTime = Timer.getFPGATimestamp();
-      }
+    
+    final Indexer indexer;
+    final double kVolts = 3;
+    
+    boolean foundHome = false;
+    double homeTime = 0;
+    
+    public IndexHomeIntake(Indexer indexer) {
+        this.indexer = indexer;
+        
+        addRequirements(indexer);
     }
-    else{
-      if(foundHome) volts = kVolts;
-      else{
-        end(false);
-      }
+    
+    @Override
+    public void initialize() {
     }
-
-    indexer.setVolts(volts, volts);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    indexer.setVolts(0, 0);
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    
+    @Override
+    public void execute() {
+        double volts = 0;
+        foundHome = indexer.getShootBeam();
+        // home to front sensor, then back up a bit
+        if(homeTime==0){
+            if(!foundHome) volts = -kVolts;
+            else{
+                volts = 0;
+                homeTime = Timer.getFPGATimestamp();
+            }
+        }
+        else{
+            if(foundHome) volts = kVolts;
+            else{
+                end(false);
+            }
+        }
+        
+        indexer.setVolts(volts);
+    }
+    
+    @Override
+    public void end(boolean interrupted) {
+        indexer.setVolts(0);
+    }
+    
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

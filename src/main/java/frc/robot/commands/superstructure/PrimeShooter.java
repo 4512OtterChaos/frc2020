@@ -26,7 +26,7 @@ public class PrimeShooter extends ParallelCommandGroup {
             new IndexHomeShooter(indexer)
             .withTimeout(0.75)
             .alongWith(
-                new InstantCommand((()->intake.setSliderExtended(true)), intake)
+                new InstantCommand((()->intake.setSliderIsExtended(true)), intake)
             )
         );
     }

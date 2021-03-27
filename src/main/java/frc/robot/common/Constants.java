@@ -94,42 +94,28 @@ public class Constants {
     }
 
     public static class IntakeConstants{
-        public static final int kFreeLimit = 22;
-        public static final int kStallLimit = 27;
-
-        public static final double kRampRaw = 0.35; // seconds to full output(on the motor)
-    }
-    public static class IntakeArmConstants{
         public static final int kFreeLimit = 25;
         public static final int kStallLimit = 32;
 
-        public static final double kRampRaw = 0.15; // seconds to full output(on the motor)
-
-        public static final double kStaticFF = 0.4; // volts (Given from the characterization tool)
-        public static final double kCounterGravityFF = 0.5;
-        public static final double kVelocityFF = 0; // per meters per second
-        public static final double kAccelerationFF = 0; // per meters per second squared
-
-        public static final double kP = 0.15; // PID Gains
-        public static final double kI = 0;
-        public static final double kD = 0;
+        public static final double kRampRaw = 0.12; // seconds to full output(on the motor)
 
         public static final double kEncoderOffset = 0.04; // Add this to encoder value to make "0" flat
 
         // Constraints
-        public static final double kLowerSafeDegrees = 20; // below is safe
-        public static final double kHigherSafeDegrees = 72; // above is safe
-        public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
-        public static final double kMaxUpwardDegrees = 78; // 90 degrees up
-        public static final int kVelocityConstraint = 70; // Angular velocity Degrees
-        public static final int kAccelerationConstraint = 110; // Angular acceleration
+        public static final double kEngagedDegrees = 20; // below is when arm is "down"
+    }
+    public static class IntakeSlideConstants{
+        public static final int kFreeLimit = 25;
+        public static final int kStallLimit = 32;
+
+        public static final double kRampRaw = 0.15; // seconds to full output(on the motor)
     }
 
     public static class IndexerConstants{
-        public static final int kFreeLimit = 22;
-        public static final int kStallLimit = 25;
+        public static final int kFreeLimit = 38;
+        public static final int kStallLimit = 45;
 
-        public static final double kRampRaw = 0.2; // seconds to full output(on the motor)
+        public static final double kRampRaw = 2; // seconds to full output(on the motor)
 
         public static final double kStaticFF = 0; // volts (Given from the characterization tool)
         public static final double kVelocityFF = 0; // per meters per second
