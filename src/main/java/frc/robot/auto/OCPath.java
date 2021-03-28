@@ -35,17 +35,30 @@ public class OCPath extends Trajectory{
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and quintic hermite splines.
      * Drivetrain is given to use a default config with its kinematics.
      */
-    public OCPath(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
-        this(TrajectoryGenerator.generateTrajectory(poses, getDefaultConfig(feedforward, kinematics)).getStates(), getDefaultConfig(feedforward, kinematics));
+    public OCPath(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, boolean reversed){
+        this(
+            TrajectoryGenerator.generateTrajectory(
+                poses,
+                getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+            ).getStates(),
+            getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+        );
     }
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and clamped cubic splines,
      * where the heading at the interior waypoints is automatically determined.
      * Drivetrain is given to use a default config with its kinematics.
      */
-    public OCPath(Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
-        this(TrajectoryGenerator.generateTrajectory(start, interiorWaypoints, end, getDefaultConfig(feedforward, kinematics)).getStates(), 
-            getDefaultConfig(feedforward, kinematics));
+    public OCPath(Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, boolean reversed){
+        this(
+            TrajectoryGenerator.generateTrajectory(
+                start,
+                interiorWaypoints,
+                end,
+                getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+            ).getStates(), 
+            getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+        );
     }
     /**
      * Constructs a new Trajectory with given states and configuration. This constructor should be
@@ -62,8 +75,8 @@ public class OCPath extends Trajectory{
      */
     public static TrajectoryConfig cloneConfig(TrajectoryConfig config){
         return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
-        .addConstraints(config.getConstraints())
-        .setReversed(config.isReversed());
+            .addConstraints(config.getConstraints())
+            .setReversed(config.isReversed());
     }
 
     /**
@@ -94,14 +107,16 @@ public class OCPath extends Trajectory{
     }
 
     /**
-     * Returns a clone of this OCPath, reversing the trajectory to
-     * be followed backward.
-     * Ex: Follow a trajectory, and then follow the same trajectory reversed
+     * Returns a clone of this OCPath, inverting the trajectory to
+     * be followed the opposite direction.
+     * Ex: Follow a trajectory, and then follow the same trajectory inverted
      * to return to the starting point.
      */
-    public OCPath getReversed(){
-        return new OCPath(getReversedStates(getStates()), 
-            getReversedConfig(getConfig()));
+    public OCPath getInverted(){
+        return new OCPath(
+            getInvertedStates(getStates()), 
+            getReversedConfig(getConfig())
+        );
     }
     /**
      * Returns a cloned, reversed list of the given poses.
@@ -116,21 +131,21 @@ public class OCPath extends Trajectory{
      * Each state is reconstructed with negative velocity and
      * the correct timepoint for following backwards.
      */
-    public static List<State> getReversedStates(List<State> states){
-        List<State> reversedStates = new ArrayList<State>(states);
-        Collections.reverse(reversedStates);
+    public static List<State> getInvertedStates(List<State> states){
+        List<State> invertedstates = new ArrayList<State>(states);
+        Collections.reverse(invertedstates);
         
-        for(int i=0;i<reversedStates.size();i++){
-            State currState =  reversedStates.get(i);
+        for(int i=0;i<invertedstates.size();i++){
+            State currState =  invertedstates.get(i);
             State newState = new State(
                 states.get(i).timeSeconds, 
                 currState.velocityMetersPerSecond *-1, 
                 currState.accelerationMetersPerSecondSq, 
                 currState.poseMeters, 
                 currState.curvatureRadPerMeter);
-            reversedStates.set(i, newState);
+            invertedstates.set(i, newState);
         }
-        return reversedStates;
+        return invertedstates;
     }
     /**
      * Returns a clone of the given {@link TrajectoryConfig} with the reverse flag set to true.

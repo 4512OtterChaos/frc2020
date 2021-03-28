@@ -25,12 +25,14 @@ import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.intake.SetIntakeLowered;
 import frc.robot.commands.superstructure.SimplerShootOuter;
+import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.util.SAS;
 
 /**
  * Class for holding commandGroups defining different auto options.
@@ -63,7 +65,7 @@ public class AutoOptions {
     /**
      * Constructs different auto options given subsystems.
      */
-    public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
+    public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, SAS analysis, Paths paths){
 
         SimpleMotorFeedforward driveFF = drivetrain.getLinearFF();
         DifferentialDriveKinematics driveKin = drivetrain.getKinematics();
@@ -80,7 +82,7 @@ public class AutoOptions {
                     List.of(
                         new Pose2d(0, 0, new Rotation2d()),
                         new Pose2d(1, 0, new Rotation2d())
-                    ), driveFF, driveKin).getReversed()
+                    ), driveFF, driveKin, false).getInverted()
                 )
             );
         
@@ -117,8 +119,9 @@ public class AutoOptions {
                         new SetIntakeLowered(intake, true)
                     )
                     .andThen(
-                        new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
-                    ).withTimeout(6)
+                        SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
+                            .withTimeout(8)
+                    )
                     .andThen(
                         new InstantCommand(
                             ()->{
@@ -144,7 +147,8 @@ public class AutoOptions {
                         new SetIntakeLowered(intake, true)
                     )
                     .andThen(
-                        new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kInitLine).withTimeout(7)
+                        SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
+                            .withTimeout(8)
                     )
                     .andThen(
                         new InstantCommand(
@@ -157,48 +161,6 @@ public class AutoOptions {
                             drivetrain, indexer, shooter
                         )
                     )
-            );
-
-            fullAutoOptions.addOption("Ramsete 6 ball l o l",
-                new StandardRamseteCommand(drivetrain, new OCPath(
-                    List.of(
-                        new Pose2d(),
-                        new Pose2d(6, 0, new Rotation2d())
-                    ), driveFF, driveKin).getReversed()
-                )
-                .alongWith(
-                    new SetIntakeLowered(intake, true)
-                )
-                .andThen(
-                    new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)
-                )
-                .andThen(
-                    new TurnTo(drivetrain, -45).withTimeout(0.75)
-                )
-                .andThen(
-                    new StandardRamseteCommand(drivetrain, new OCPath(
-                        List.of(
-                            new Pose2d(-6, 0, Rotation2d.fromDegrees(-45)),
-                            new Pose2d(-6, -3.75, Rotation2d.fromDegrees(-135)),
-                            new Pose2d(-9.5, -3.75, Rotation2d.fromDegrees(-180)),
-                            new Pose2d(-16, -3.75, Rotation2d.fromDegrees(-180))
-                        ), driveFF, driveKin)
-                    )
-                )
-                .andThen(
-                    new StandardRamseteCommand(drivetrain, new OCPath(
-                        List.of(
-                            new Pose2d(-6, 0, Rotation2d.fromDegrees(-90)),
-                            new Pose2d(-16, -3.75, Rotation2d.fromDegrees(-180))
-                        ), driveFF, driveKin).getReversed()
-                    )
-                )
-                .andThen(
-                    new TurnTo(drivetrain, 0).withTimeout(0.75)
-                )
-                .andThen(
-                    new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine).withTimeout(3)
-                )
             );
 
         // populate sendable choosers with constructed commands

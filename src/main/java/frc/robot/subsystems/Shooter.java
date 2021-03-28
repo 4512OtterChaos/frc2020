@@ -37,8 +37,8 @@ import frc.robot.util.MathHelp;
 
 public class Shooter extends SubsystemBase implements Testable{
 
-    private CANSparkMax shootLeft = new CANSparkMax(6, MotorType.kBrushless);
-    private CANSparkMax shootRight = new CANSparkMax(5, MotorType.kBrushless);
+    private CANSparkMax shootLeft = new CANSparkMax(5, MotorType.kBrushless);
+    private CANSparkMax shootRight = new CANSparkMax(6, MotorType.kBrushless);
     private CANSparkMax wrist = new CANSparkMax(7, MotorType.kBrushless);
 
     private double wristVolts = 0;

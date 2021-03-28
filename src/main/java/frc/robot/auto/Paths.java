@@ -39,8 +39,8 @@ public class Paths {
      * Generates autonomous paths given drivetrain specifications.
      */
     public Paths(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
-        forward = new OCPath(PathsList.forward, feedforward, kinematics);
-        example = new OCPath(PathsList.example, feedforward, kinematics);
+        forward = new OCPath(PathsList.forward, feedforward, kinematics, false);
+        example = new OCPath(PathsList.example, feedforward, kinematics, false);
     }
 
     /**

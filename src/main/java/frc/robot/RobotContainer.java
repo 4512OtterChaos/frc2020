@@ -53,7 +53,7 @@ public class RobotContainer {
     
     private Paths paths;
 
-    private SAS sas;
+    private SAS analysis;
     
     private Testable[] testableSystems;
     
@@ -80,11 +80,11 @@ public class RobotContainer {
         
         paths = new Paths(drivetrain.getLinearFF(), drivetrain.getKinematics());
 
-        sas = new SAS();
+        analysis = new SAS();
         
         testableSystems = new Testable[]{drivetrain, limelight};
         
-        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight);
+        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, analysis, paths);
         autoOptions.submit();
         
         configureButtonBindings();
@@ -151,7 +151,7 @@ public class RobotContainer {
         
         new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
             .whenActive(
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, sas)  
+                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)  
             )
             .whenInactive(()->{
                 drivetrain.tankDrive(0, 0);
