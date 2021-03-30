@@ -74,7 +74,7 @@ public class RobotContainer {
         lift = new Lift();
         limelight = new Limelight();
 
-        manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.SPLIT);
+        manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPY);
         
         shooter.setShooterBrakeOn(false);
         

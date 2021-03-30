@@ -35,7 +35,7 @@ public class Lift extends SubsystemBase implements Testable{
     
     private double volts = 0;
     
-    private DoubleSolenoid ratchet = new DoubleSolenoid(2, 3);
+    //private DoubleSolenoid ratchet = new DoubleSolenoid(2, 3);
         
     //private DigitalInput botSwitch;
     //private DigitalInput ratchetSwitch;
@@ -78,7 +78,8 @@ public class Lift extends SubsystemBase implements Testable{
     }
     */
     public boolean getRatchetEngaged(){
-        return ratchet.get()!=Value.kForward;
+        //return ratchet.get()!=Value.kForward;
+        return false;
     }
     
     public ProfiledPIDController getController(){
@@ -103,7 +104,7 @@ public class Lift extends SubsystemBase implements Testable{
     }
     
     public void setRatchetEngaged(boolean engaged){
-        ratchet.set(engaged ? Value.kReverse : Value.kForward);
+        //ratchet.set(engaged ? Value.kReverse : Value.kForward);
     }
     
     public void setBrakeOn(boolean is){

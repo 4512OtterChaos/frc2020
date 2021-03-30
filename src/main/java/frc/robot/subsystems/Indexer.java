@@ -85,7 +85,7 @@ public class Indexer extends SubsystemBase implements Testable{
     
     public void log(){
         SmartDashboard.putBoolean("Receive Beam", getReceiveBeam());
-        //SmartDashboard.putBoolean("Flight Beam", getFlightBeam());
+        SmartDashboard.putBoolean("Shoot Beam", getShootBeam());
         //SmartDashboard.putNumber("Flight Distance", getFlightRangeMM());
         SmartDashboard.putNumber("RPM", leftEncoder.getVelocity());
     }

@@ -55,7 +55,8 @@ public class LEDPattern {
      */
     protected void setHSV(int i, int hue, int sat, int val) {
         buffer.setHSV(i, hue, sat, val);
-        if(manager.getConfig() == Configuration.SPLIT) buffer.setHSV(length*2-1-i, hue, sat, val);
+        if(manager.getConfig() == Configuration.MIRROR) buffer.setHSV(length*2-1-i, hue, sat, val);
+        else if(manager.getConfig() == Configuration.COPY) buffer.setHSV(length+i, hue, sat, val);
         /*
         for(int j=length*2;j<buffer.getLength();j++){
             boolean isRed = DriverStation.getInstance().getAlliance()==Alliance.Red;
