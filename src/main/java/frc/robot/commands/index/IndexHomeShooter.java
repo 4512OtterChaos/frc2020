@@ -13,56 +13,56 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 
 public class IndexHomeShooter extends CommandBase {
-  
-  final Indexer indexer;
-  final double kVolts = 3;
-
-  boolean findHome;
-  boolean foundHome;
-  /**
-   * Creates a new IndexIncoming.
-   */
-  public IndexHomeShooter(Indexer indexer) {
-    this.indexer = indexer;
-
-    addRequirements(indexer);
-  }
-
-  @Override
-  public void initialize() {
-    findHome = false;
-    foundHome = false;
-  }
-
-  @Override
-  public void execute() {
-    double volts = 0;
-    findHome = indexer.getShootBeam();
-    // home to front sensor, then back up a bit
-    if(!foundHome){
-      if(!findHome) volts = kVolts;
-      else{
-        volts = 0;
-        foundHome = true;
-      }
+    
+    final Indexer indexer;
+    final double kVolts = 3;
+    
+    boolean findHome;
+    boolean foundHome;
+    /**
+    * Creates a new IndexIncoming.
+    */
+    public IndexHomeShooter(Indexer indexer) {
+        this.indexer = indexer;
+        
+        addRequirements(indexer);
     }
-    else{
-      if(findHome) volts = -kVolts;
-      else{
-        end(false);
-      }
+    
+    @Override
+    public void initialize() {
+        findHome = false;
+        foundHome = false;
     }
-
-    indexer.setVolts(volts);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    indexer.setVolts(0);
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    
+    @Override
+    public void execute() {
+        double volts = 0;
+        findHome = indexer.getShootBeam();
+        // home to front sensor, then back up a bit
+        if(!foundHome){
+            if(!findHome) volts = kVolts;
+            else{
+                volts = 0;
+                foundHome = true;
+            }
+        }
+        else{
+            if(findHome) volts = -kVolts;
+            else{
+                end(false);
+            }
+        }
+        
+        indexer.setVolts(volts);
+    }
+    
+    @Override
+    public void end(boolean interrupted) {
+        indexer.setVolts(0);
+    }
+    
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

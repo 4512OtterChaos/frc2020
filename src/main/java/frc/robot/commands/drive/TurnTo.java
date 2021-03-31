@@ -34,7 +34,7 @@ public class TurnTo extends ProfiledPIDCommand {
     private final Drivetrain drivetrain;
     
     private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians*0.4);
-
+    
     private static final double kPositionToleranceDegrees = 1.75;
     private static final double kVelocityToleranceDegrees = 5;
     
@@ -44,24 +44,24 @@ public class TurnTo extends ProfiledPIDCommand {
     
     public TurnTo(Drivetrain drivetrain, double target) {
         super(
-            controller,
-            () -> drivetrain.getContinuousYawPosition(),
-            () -> target,
-            (output, setpoint) -> {
-                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
-            }
+        controller,
+        () -> drivetrain.getContinuousYawPosition(),
+        () -> target,
+        (output, setpoint) -> {
+            drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
+        }
         );
         this.drivetrain = drivetrain;
         addRequirements(drivetrain);
     }
     public TurnTo(Drivetrain drivetrain, DoubleSupplier target) {
         super(
-            controller,
-            () -> drivetrain.getContinuousYawPosition(),
-            target,
-            (output, setpoint) -> {
-                drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
-            }
+        controller,
+        () -> drivetrain.getContinuousYawPosition(),
+        target,
+        (output, setpoint) -> {
+            drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
+        }
         );
         this.drivetrain = drivetrain;
         addRequirements(drivetrain);
@@ -96,13 +96,13 @@ public class TurnTo extends ProfiledPIDCommand {
     public void end(boolean interrupted){
         super.end(interrupted);
     }
-
+    
     public boolean atGoal(){
         SmartDashboard.putNumber("TurnTo Error", controller.getPositionError());
         
         boolean atGoal = getController().atGoal();
         double velocity = drivetrain.getYawVelocity();
-
+        
         return atGoal;
     }
     
@@ -155,26 +155,26 @@ public class TurnTo extends ProfiledPIDCommand {
         });
         return turnToLimelightTarget.withTimeout(1.4);
     }
-
+    
     /**
-     * Turns by always moving one side forward. This keeps the chain in tension and avoids backlash.
-     */
+    * Turns by always moving one side forward. This keeps the chain in tension and avoids backlash.
+    */
     public static Command createTensionedTurnToTarget(Drivetrain drivetrain, Limelight limelight){
         ProfiledPIDCommand tensionedTurn = new ProfiledPIDCommand(
-            new ProfiledPIDController(0.2, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
-            () -> drivetrain.getContinuousYawPosition(),
-            () -> drivetrain.getContinuousYawPosition()-limelight.getTx(),
-            (output, setpoint) -> {
-                double tensionVolts = drivetrain.getLinearFF().ks * 0.4; // slight voltage for putting in tension
-                double leftVolts = tensionVolts;
-                double rightVolts = tensionVolts;
-
-                if(output > 0) rightVolts += output;
-                else if(output < 0) leftVolts -= output;
-
-                drivetrain.tankDriveVolts(leftVolts, rightVolts);
-            },
-            drivetrain
+        new ProfiledPIDController(0.2, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
+        () -> drivetrain.getContinuousYawPosition(),
+        () -> drivetrain.getContinuousYawPosition()-limelight.getTx(),
+        (output, setpoint) -> {
+            double tensionVolts = drivetrain.getLinearFF().ks * 0.4; // slight voltage for putting in tension
+            double leftVolts = tensionVolts;
+            double rightVolts = tensionVolts;
+            
+            if(output > 0) rightVolts += output;
+            else if(output < 0) leftVolts -= output;
+            
+            drivetrain.tankDriveVolts(leftVolts, rightVolts);
+        },
+        drivetrain
         ){
             @Override
             public void execute() {
