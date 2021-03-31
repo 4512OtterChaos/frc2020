@@ -45,7 +45,7 @@ public class SuperstructureCommands {
             .andThen(
                 new StartEndCommand(
                     ()->{
-                        intake.setRollerVolts(7);
+                        intake.setRollerVolts(10);
                         intake.setFenceVolts(10);
                     }, 
                     ()->{

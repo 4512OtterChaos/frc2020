@@ -89,7 +89,12 @@ public class RobotContainer {
         
         configureButtonBindings();
     }
-    
+    /**
+     * Runs every loop, regardless
+     */
+    public void periodic(){
+        manager.periodic();
+    }
     private void configureButtonBindings(){
         configureDriverBindings();
     }
@@ -104,17 +109,6 @@ public class RobotContainer {
         new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
             .whenPressed(()->drivetrain.setDriveSpeed(0.8))
             .whenReleased(()->drivetrain.setDriveSpeed(0.3));
-        
-        ConditionalCommand conditionalIntake = new ConditionalCommand(
-            new PrimeIntake(intake, indexer, shooter),
-            new InstantCommand(
-                ()->intake.setSliderIsExtended(true),
-                intake
-            ).andThen(
-                SuperstructureCommands.intakeIndexBalls(intake, indexer)
-            ), 
-            intake::getArmIsLowered
-        );
 
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
@@ -298,8 +292,6 @@ public class RobotContainer {
     }
     
     public void log(){
-        manager.periodic();
-        
         drivetrain.log();
         intake.log();
         indexer.log();

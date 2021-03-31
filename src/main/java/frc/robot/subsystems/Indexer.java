@@ -47,7 +47,7 @@ public class Indexer extends SubsystemBase implements Testable{
         OCConfig.configMotors(ConfigType.INDEXER, left, right);
 
         left.setInverted(false);
-        right.follow(left, true);
+        right.setInverted(true);
 
         //shooterFlight.setRangingMode(RangingMode.Short, 24);
     }
@@ -57,10 +57,10 @@ public class Indexer extends SubsystemBase implements Testable{
     }
     
     public boolean getReceiveBeam(){
-        return receiveBeam.get();
+        return !receiveBeam.get();
     }
     public boolean getShootBeam(){
-        return shootBeam.get();
+        return !shootBeam.get();
     }
     /*
     public double getFlightRangeMM(){
@@ -76,6 +76,7 @@ public class Indexer extends SubsystemBase implements Testable{
     
     public void setVolts(double volts){
         left.setVoltage(volts);
+        right.setVoltage(volts);
     }
     
     public void setBrakeOn(boolean is){

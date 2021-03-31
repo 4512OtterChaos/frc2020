@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase implements Testable{
     private DoubleSolenoid arm = new DoubleSolenoid(0, 1);
     private DoubleSolenoid slider = new DoubleSolenoid(2, 3);
     private boolean armWantsExtended = false;
-    private boolean sliderWantsExtended = false;
+    private boolean sliderWantsExtended = true;
     
     private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
         
@@ -60,11 +60,10 @@ public class Intake extends SubsystemBase implements Testable{
         
         roller.setInverted(false);
         leftFence.setInverted(true);
-        rightFence.follow(leftFence, true);
+        rightFence.setInverted(false);
     }
 
     public void init(){
-        sliderWantsExtended = getSliderIsExtended();
         armWantsExtended = getArmIsExtended();
     }
     
@@ -82,11 +81,14 @@ public class Intake extends SubsystemBase implements Testable{
 
         // do NOT move arm if slider isn't extended
         if(sliderExt){
-            arm.set(armWantsExtended ? Value.kForward : Value.kReverse);
+            arm.set(armWantsExtended ? Value.kReverse : Value.kForward);
         }
+
+        slider.set(sliderWantsExtended ? Value.kReverse : Value.kForward);
                 
-        roller.setVoltage(rollerVolts);
+        roller.setVoltage(-rollerVolts);
         leftFence.setVoltage(fenceVolts);
+        rightFence.setVoltage(fenceVolts);
     }
     
     public double getEncoder(){
@@ -100,10 +102,10 @@ public class Intake extends SubsystemBase implements Testable{
         return getArmDegrees()<=kEngagedDegrees;
     }
     public boolean getArmIsExtended(){
-        return arm.get() == Value.kForward;
+        return arm.get() == Value.kReverse;
     }
     public boolean getSliderIsExtended(){
-        return slider.get() == Value.kForward;
+        return slider.get() == Value.kReverse;
     }
     
     public void setArmIsExtended(boolean is){
@@ -135,6 +137,7 @@ public class Intake extends SubsystemBase implements Testable{
         SmartDashboard.putBoolean("Arm Wants", armWantsExtended);
         SmartDashboard.putBoolean("Slider Extended", getSliderIsExtended());
         SmartDashboard.putBoolean("Slider Wants", sliderWantsExtended);
+        SmartDashboard.putNumber("Fence Volts", fenceVolts);
     }
     
     @Override

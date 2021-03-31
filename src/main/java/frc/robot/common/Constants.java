@@ -84,7 +84,7 @@ public class Constants {
         public static final int kVelocityConstraint = 120; // Cruise Velocity Degrees
         public static final int kAccelerationConstraint = 160;
 
-        public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -0.37; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kLowestSafeDegrees = 10; // above is safe
@@ -99,7 +99,7 @@ public class Constants {
 
         public static final double kRampRaw = 0.12; // seconds to full output(on the motor)
 
-        public static final double kEncoderOffset = 0.04; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -0.17; // Add this to encoder value to make "0" flat
 
         // Constraints
         public static final double kEngagedDegrees = 20; // below is when arm is "down"
