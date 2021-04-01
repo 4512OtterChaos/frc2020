@@ -158,7 +158,8 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
-                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kClose)
+                new SetShooterState(shooter, ShooterState.kInitLine)
+                    .andThen(SuperstructureCommands.feedShooter(indexer, intake, ()->true))
             )
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
@@ -215,7 +216,7 @@ public class RobotContainer {
             .whenPressed(
                 ()->{
                     intake.setSliderIsExtended(true);
-                    indexer.setVolts(-6);
+                    indexer.setVolts(-5);
                     intake.setFenceVolts(-12);
                 }, intake, indexer
             )

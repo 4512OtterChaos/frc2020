@@ -42,18 +42,22 @@ public class Indexer extends SubsystemBase implements Testable{
     //private final TimeOfFlight shooterFlight = new TimeOfFlight(0);
     //private final double flightDefaultDistanceMM = 140;
     //private final double flightDefaultErrorMM = 10;
+
+    private double volts = 0;
     
     public Indexer() {        
         OCConfig.configMotors(ConfigType.INDEXER, left, right);
 
         left.setInverted(false);
-        right.setInverted(true);
+        right.setInverted(false);
 
         //shooterFlight.setRangingMode(RangingMode.Short, 24);
     }
     
     @Override
     public void periodic() {
+        left.setVoltage(volts);
+        right.setVoltage(-volts);
     }
     
     public boolean getReceiveBeam(){
@@ -75,8 +79,7 @@ public class Indexer extends SubsystemBase implements Testable{
     */
     
     public void setVolts(double volts){
-        left.setVoltage(volts);
-        right.setVoltage(volts);
+        this.volts = volts;
     }
     
     public void setBrakeOn(boolean is){
@@ -88,7 +91,8 @@ public class Indexer extends SubsystemBase implements Testable{
         SmartDashboard.putBoolean("Receive Beam", getReceiveBeam());
         SmartDashboard.putBoolean("Shoot Beam", getShootBeam());
         //SmartDashboard.putNumber("Flight Distance", getFlightRangeMM());
-        SmartDashboard.putNumber("RPM", leftEncoder.getVelocity());
+        SmartDashboard.putNumber("Indexer Volts", volts);
+        SmartDashboard.putNumber("Indexer RPM", leftEncoder.getVelocity());
     }
 
     @Override

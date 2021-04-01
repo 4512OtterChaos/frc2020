@@ -49,7 +49,7 @@ public class Intake extends SubsystemBase implements Testable{
     
     private DoubleSolenoid arm = new DoubleSolenoid(0, 1);
     private DoubleSolenoid slider = new DoubleSolenoid(2, 3);
-    private boolean armWantsExtended = false;
+    private boolean armWantsExtended = true;
     private boolean sliderWantsExtended = true;
     
     private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
@@ -59,12 +59,10 @@ public class Intake extends SubsystemBase implements Testable{
         OCConfig.configMotors(ConfigType.INTAKESLIDE, leftFence, rightFence);
         
         roller.setInverted(false);
-        leftFence.setInverted(true);
-        rightFence.setInverted(false);
     }
 
     public void init(){
-        armWantsExtended = getArmIsExtended();
+        armWantsExtended = getArmIsLowered() ? true : false;
     }
     
     @Override
@@ -88,7 +86,7 @@ public class Intake extends SubsystemBase implements Testable{
                 
         roller.setVoltage(-rollerVolts);
         leftFence.setVoltage(fenceVolts);
-        rightFence.setVoltage(fenceVolts);
+        rightFence.setVoltage(-fenceVolts);
     }
     
     public double getEncoder(){

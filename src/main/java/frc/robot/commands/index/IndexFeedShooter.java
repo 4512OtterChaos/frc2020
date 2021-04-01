@@ -54,7 +54,7 @@ public class IndexFeedShooter extends CommandBase {
         double now = Timer.getFPGATimestamp();
         double dt = now - lastTime;
         if(ready||notPrimed){
-            indexer.setVolts(4.5);
+            indexer.setVolts(3);
             //OCLedManager.setPattern(Pattern.Green);
             if(ready) manager.addPattern(shootCard, shootPattern);
             if(notPrimed) unprimeTime += dt;

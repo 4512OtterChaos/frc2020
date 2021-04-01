@@ -89,7 +89,7 @@ public class Shooter extends SubsystemBase implements Testable{
         shootRight.setInverted(true);
         wrist.setInverted(false);
 
-        wristController.setTolerance(0.25, 1);
+        wristController.setTolerance(0.4, 1);
     }
     
     public void periodic() {

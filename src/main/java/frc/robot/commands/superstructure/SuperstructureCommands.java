@@ -39,14 +39,15 @@ public class SuperstructureCommands {
      */
     public static Command intakeIndexBalls(Intake intake, Indexer indexer){
         return new SetIntakeLowered(intake, true)
-            .deadlineWith(
+            .alongWith(
                 new IndexHomeIntake(indexer)
+                    .withTimeout(0.3)
             )
             .andThen(
                 new StartEndCommand(
                     ()->{
                         intake.setRollerVolts(10);
-                        intake.setFenceVolts(10);
+                        intake.setFenceVolts(4);
                     }, 
                     ()->{
                         intake.setRollerVolts(0);

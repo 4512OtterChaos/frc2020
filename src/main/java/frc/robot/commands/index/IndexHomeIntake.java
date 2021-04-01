@@ -14,7 +14,7 @@ import frc.robot.subsystems.Indexer;
 public class IndexHomeIntake extends CommandBase {
     
     final Indexer indexer;
-    final double kVolts = 3;
+    final double kVolts = 2.5;
     
     boolean foundHome = false;
     double homeTime = 0;
@@ -32,7 +32,7 @@ public class IndexHomeIntake extends CommandBase {
     @Override
     public void execute() {
         double volts = 0;
-        foundHome = indexer.getShootBeam();
+        foundHome = indexer.getReceiveBeam();
         // home to front sensor, then back up a bit
         if(homeTime==0){
             if(!foundHome) volts = -kVolts;
