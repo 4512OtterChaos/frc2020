@@ -127,7 +127,7 @@ public class SuperstructureCommands {
                 )
             )
             .andThen(
-                feedShooter(indexer, intake, ()->analysis.getIsReady(shooter, limelight, drivetrain, false))
+                feedShooter(indexer, intake, ()->analysis.getIsReady(limelight.getTrigDistance(), shooter, drivetrain))
                 .alongWith(
                     //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
                     new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),

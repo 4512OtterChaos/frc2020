@@ -18,24 +18,21 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 
 /**
- * Shot Analysis System
- */
+* Shot Analysis System
+*/
 public class SAS {
-
+    
     TreeMap<Double, ShooterState> shotTable = new TreeMap<Double, ShooterState>();
-
+    
     private double outerConfidentTime = 0;
     private double lastOuterTime = Timer.getFPGATimestamp();
     private double innerConfidentTime = 0;
     private double lastInnerTime = Timer.getFPGATimestamp();
     private final double confidentTimeThreshold = 0.3;
-
-    private final double angleConfidenceThreshold = 0.8;
-    private final double rpmConfidenceThreshold = 0.8;
-    private final double headingConfidenceThreshold = 0.8;
-    private final double confidenceThreshold = 0.5;
     
-
+    private final double confidenceThreshold = 0.8;
+    
+    
     public SAS(){
         // populate lookup table (inches, angle, rpm)
         shotTable.put(50.0, new ShooterState(64, 2000));
@@ -46,10 +43,10 @@ public class SAS {
         shotTable.put(200.0, new ShooterState(32, 2800));
         shotTable.put(235.0, new ShooterState(30, 2900));
     }
-
+    
     /**
-     * Returns a {@link ShooterState} at inchesDist from the outer port.
-     */
+    * Returns a {@link ShooterState} at inchesDist from the outer port.
+    */
     public ShooterState findShot(double inchesDist){
         double minDist = shotTable.firstKey();
         double maxDist = shotTable.lastKey();
@@ -67,68 +64,73 @@ public class SAS {
         }
         return ShooterState.lerp(percent, shotTable.get(close), shotTable.get(far));
     }
-
+    
     /**
-     * Returns a percentage representing how confident the system is that it can make a given shot.
-     * @param targetState Desired shooter state
-     * @param currState Actual shooter state
-     * @param inchesDist Distance from outer port in inches
-     * @param targetHeading Desired robot heading
-     * @param currHeading Actual robot heading
-     * @param isInnerShot Whether to check for an inner or outer port shot
-     * @return Percentage(0-1) confidence
+     * Percentage confidence in current shooter angle based on target angle based on distance
+     * @param distance Inches dist from powerport
      */
-    public double getShotConfidence(Shooter shooter, Limelight limelight, Drivetrain drivetrain, boolean isInnerShot){
+    public double getAngleConfidence(double distance, Shooter shooter){
+        double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
+        double angleTolerance = MathHelp.lerp(distPercent, 2, 1.5);
+        
         ShooterState error = shooter.getTargetState().minus(shooter.getCurrentState());
         double angleError = Math.abs(error.angle);
+
+        double angleConfidence = angleError > angleTolerance ? 0 : MathHelp.findPercentage(angleError, angleTolerance, 0);
+        SmartDashboard.putNumber("Confidence Angle", angleConfidence);
+        return angleConfidence;
+    }
+    /**
+     * Percentage confidence in current RPM versus target RPM based on distance
+     * @param distance Inches dist from powerport
+     */
+    public double getRPMConfidence(double distance, Shooter shooter){
+        double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
+        double rpmTolerance = MathHelp.lerp(distPercent, 300, 100);
+        
+        ShooterState error = shooter.getTargetState().minus(shooter.getCurrentState());
         double rpmError = Math.abs(error.rpm);
+
+        double rpmConfidence = rpmError > rpmTolerance ? 0 : MathHelp.findPercentage(rpmError, rpmTolerance, 0);
+        SmartDashboard.putNumber("Confidence RPM", rpmConfidence);
+        return rpmConfidence;
+    }
+    /**
+     * Percentage confidence in current heading versus target heading(uses TurnTo if available)
+     * @param distance Inches dist from powerport
+     */
+    public double getHeadingConfidence(double distance, Drivetrain drivetrain){
+        double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
+        double headingTolerance = MathHelp.lerp(distPercent, 3, 1.5);
+
         Rotation2d currHeading = drivetrain.getHeading();
         Rotation2d targetHeading = drivetrain.getTurnToTarget() != null ? drivetrain.getTurnToTarget() : currHeading;
         double headingError = Math.abs(MathHelp.getContinuousError(targetHeading.getDegrees() - currHeading.getDegrees(), 360));
-
-        double distPercent = MathHelp.findPercentage(limelight.getTrigDistance(), shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        final double angleTolerance = MathHelp.lerp(distPercent, 2, 1.5);
-        final double rpmTolerance = MathHelp.lerp(distPercent, 300, 100);
-        final double headingTolerance = MathHelp.lerp(distPercent, 3, 1.5);
-        double angleConfidence = angleError > angleTolerance ? 0 : MathHelp.findPercentage(angleError, angleTolerance, 0);
-        double rpmConfidence = rpmError > rpmTolerance ? 0 : MathHelp.findPercentage(rpmError, rpmTolerance, 0);
+        
         double headingConfidence = headingError > headingTolerance ? 0 : MathHelp.findPercentage(headingError, headingTolerance, 0);
-
-        SmartDashboard.putNumber("Confidence Angle", angleConfidence);
-        SmartDashboard.putNumber("Confidence RPM", rpmConfidence);
         SmartDashboard.putNumber("Confidence Heading", headingConfidence);
-        double outerConfidence = Math.pow(angleConfidence*rpmConfidence*headingConfidence, 0.5);
-
-        // yaw = angle to inner port
-        final double yawTolerance = MathHelp.lerp(distPercent, 12, 8);
-        double yawMagnitude = Math.abs(currHeading.getDegrees());
-        double yawConfidence = yawMagnitude > yawTolerance ? 0 : MathHelp.findPercentage(yawMagnitude, yawTolerance, 0);
-
-        double innerConfidence = Math.pow(outerConfidence, 2)*yawConfidence;
-
-        SmartDashboard.putNumber("Confidence", outerConfidence);
-
-        return isInnerShot ? innerConfidence : outerConfidence;
+        return headingConfidence;
     }
-    /**
-     * Returns whether or not the system calculates the given shot to be confident and ready.
-     * @param targetState Desired shooter state
-     * @param currState Actual shooter state
-     * @param inchesDist Distance from outer port in inches
-     * @param targetHeading Desired robot heading
-     * @param currHeading Actual robot heading
-     * @param isInnerShot Whether to check for an inner or outer port shot
-     */
-    public boolean getIsReady(Shooter shooter, Limelight limelight, Drivetrain drivetrain, boolean innerShot){
-        boolean isConfident = getShotConfidence(shooter, limelight, drivetrain, innerShot) >= confidenceThreshold;
-        double now = Timer.getFPGATimestamp();
 
+    /**
+     * Returns if confident in all variables and ready to shoot
+     * @param distance
+     */
+    public boolean getIsReady(double distance, Shooter shooter, Drivetrain drivetrain){
+        boolean isConfident = MathHelp.min(
+            getAngleConfidence(distance, shooter),
+            getRPMConfidence(distance, shooter),
+            getHeadingConfidence(distance, drivetrain)
+        ) > confidenceThreshold;
+        
+        double now = Timer.getFPGATimestamp();
+        
         // Require a short time to pass before the system returns confident
         boolean isReadyAndConfident = (now - shooter.getLastShotTime() > confidentTimeThreshold) && isConfident; // I believe in you SAS
-
+        
         return isReadyAndConfident;
     }
-
+    
     public void log(){
     }
 }
