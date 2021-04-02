@@ -88,6 +88,7 @@ public class TurnTo extends ProfiledPIDCommand {
     public void execute(){
         super.execute();
         drivetrain.setTurnToTarget(controller.getGoal().position);
+        drivetrain.setTurnToError(this.getController().getPositionError());
         SmartDashboard.putNumber("TurnTo Target", controller.getGoal().position);
         SmartDashboard.putNumber("TurnTo State Target", controller.getSetpoint().position);
     }
@@ -180,6 +181,7 @@ public class TurnTo extends ProfiledPIDCommand {
             public void execute() {
                 super.execute();
                 drivetrain.setTurnToTarget(this.getController().getGoal().position);
+                drivetrain.setTurnToError(this.getController().getPositionError());
                 SmartDashboard.putNumber("TurnTo Target", this.getController().getGoal().position);
                 SmartDashboard.putNumber("TurnTo State Target", this.getController().getSetpoint().position);
             }

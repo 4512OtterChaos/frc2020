@@ -103,9 +103,7 @@ public class SAS {
         double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
         double headingTolerance = MathHelp.lerp(distPercent, 3, 1.75);
 
-        Rotation2d currHeading = drivetrain.getHeading();
-        Rotation2d targetHeading = drivetrain.getTurnToTarget() != null ? drivetrain.getTurnToTarget() : currHeading;
-        double headingError = Math.abs(MathHelp.getContinuousError(targetHeading.getDegrees() - currHeading.getDegrees(), 360));
+        double headingError = drivetrain.getTurnToError().getDegrees();
         
         double headingConfidence = headingError > headingTolerance ? 0 : MathHelp.findPercentage(headingError, headingTolerance, 0);
         SmartDashboard.putNumber("Confidence Heading", headingConfidence);

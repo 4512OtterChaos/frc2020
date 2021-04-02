@@ -64,6 +64,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private PIDController rightController = new PIDController(kP, kI, kD, kRobotDelta);
 
     private Rotation2d turnToTarget;
+    private Rotation2d turnToError;
 
     private double driveSpeed = 0.3;
     
@@ -197,6 +198,9 @@ public class Drivetrain extends SubsystemBase implements Testable{
     public void setTurnToTarget(double heading){
         turnToTarget = new Rotation2d(Units.degreesToRadians(heading));
     }
+    public void setTurnToError(double error){
+        turnToError = new Rotation2d(Units.degreesToRadians(error));
+    }
 
 
     //----- Informational methods
@@ -308,6 +312,9 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
     public Rotation2d getTurnToTarget(){
         return turnToTarget;
+    }
+    public Rotation2d getTurnToError(){
+        return turnToError;
     }
 
     public void log(){
