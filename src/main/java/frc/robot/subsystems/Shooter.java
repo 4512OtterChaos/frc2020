@@ -48,7 +48,10 @@ public class Shooter extends SubsystemBase implements Testable{
     private double lastShooterVel = 0;
     private double lastShotTime = Timer.getFPGATimestamp();
 
-    private final double rpmTolerance = 80;
+    private final double kRPMTolerance = 80;
+    private final double kRPMAccelTolerance = 100;
+    private LinearFilter rpmAccelFilter;
+    private double rpmAccel = 0;
     
     private CANEncoder leftEncoder = shootLeft.getEncoder();
     private CANEncoder rightEncoder = shootRight.getEncoder();
@@ -90,6 +93,8 @@ public class Shooter extends SubsystemBase implements Testable{
         wrist.setInverted(false);
 
         wristController.setTolerance(0.4, 1);
+
+        rpmAccelFilter = LinearFilter.highPass(0.08, kRobotDelta);
     }
     
     public void periodic() {
@@ -97,6 +102,8 @@ public class Shooter extends SubsystemBase implements Testable{
 
         calculateShooterVolts(shooterTarget);
         if(shootLeft.getOutputCurrent() >= 40) lastShotTime = Timer.getFPGATimestamp();
+
+        rpmAccel = rpmAccelFilter.calculate(getRPM());
     }
 
     public ShooterState getCurrentState(){
@@ -146,12 +153,7 @@ public class Shooter extends SubsystemBase implements Testable{
         return lastShotTime;
     }
     public boolean checkIfStable(){
-        double rpm = getRPM();
-        boolean stable = (getShooterError() < rpmTolerance) && (Math.abs(getRPM()-lastShooterVel) < 100);
-        SmartDashboard.putNumber("Shooter Error", getShooterError());
-        SmartDashboard.putNumber("Shooter Accel", getRPM()-lastShooterVel);
-        SmartDashboard.putBoolean("shooter Accel Stable", Math.abs(getRPM()-lastShooterVel) < 100);
-        lastShooterVel = rpm;
+        boolean stable = (getShooterError() < kRPMTolerance) && Math.abs(rpmAccel) < kRPMAccelTolerance;
         SmartDashboard.putBoolean("Shooter Stable", stable);
         return stable;
     }
@@ -224,6 +226,8 @@ public class Shooter extends SubsystemBase implements Testable{
         
         SmartDashboard.putNumber("Shooter RPM", getRPM());
         SmartDashboard.putNumber("Shooter Target RPM", getTargetRPM());
+        SmartDashboard.putNumber("Shooter Accel", rpmAccel);
+        SmartDashboard.putNumber("Shooter Error", getShooterError());
         SmartDashboard.putNumber("Shooter Diff", leftEncoder.getVelocity()-rightEncoder.getVelocity());
         SmartDashboard.putNumber("Shooter Left Amps", shootLeft.getOutputCurrent());
         SmartDashboard.putNumberArray("Shooter Reference", new double[]{getRPM(), getTargetRPM()});

@@ -158,8 +158,8 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
-                new SetShooterState(shooter, ShooterState.kInitLine)
-                    .andThen(SuperstructureCommands.feedShooter(indexer, intake, ()->true))
+                new SetShooterState(shooter, new ShooterState(30, 1000))
+                    .alongWith(SuperstructureCommands.feedShooter(indexer, intake, ()->true))
             )
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);

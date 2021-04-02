@@ -165,7 +165,7 @@ public class TurnTo extends ProfiledPIDCommand {
         () -> drivetrain.getContinuousYawPosition(),
         () -> drivetrain.getContinuousYawPosition()-limelight.getTx(),
         (output, setpoint) -> {
-            double tensionVolts = drivetrain.getLinearFF().ks * 0.4; // slight voltage for putting in tension
+            double tensionVolts = drivetrain.getLinearFF().ks * 0.33; // slight voltage for putting in tension
             double leftVolts = tensionVolts;
             double rightVolts = tensionVolts;
             

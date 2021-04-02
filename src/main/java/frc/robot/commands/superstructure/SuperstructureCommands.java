@@ -46,8 +46,8 @@ public class SuperstructureCommands {
             .andThen(
                 new StartEndCommand(
                     ()->{
-                        intake.setRollerVolts(10);
-                        intake.setFenceVolts(4);
+                        intake.setRollerVolts(5);
+                        intake.setFenceVolts(8);
                     }, 
                     ()->{
                         intake.setRollerVolts(0);
@@ -103,7 +103,7 @@ public class SuperstructureCommands {
                     intake.setSliderIsExtended(true);
                     intake.setFenceVolts(0);
                 },
-                ()->intake.setFenceVolts(-5),
+                ()->intake.setFenceVolts(5),
                 (interrupted)->intake.setFenceVolts(0),
                 ()->false, // this is interrupted by IndexFeedShooter
                 intake
@@ -115,14 +115,14 @@ public class SuperstructureCommands {
      * Turns to target while priming the indexer to feed and setting optimal shooter state, then fires when ready
      */
     public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, SAS analysis){
-        //return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
-        return TurnTo.createTensionedTurnToTarget(drivetrain, limelight)
+        return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+        //return TurnTo.createTensionedTurnToTarget(drivetrain, limelight)
             .alongWith(
                 clearShooter(shooter, indexer)
                 .andThen(
                     primeShooter(indexer, intake)
                     .alongWith(
-                        new SetShooterState(shooter, analysis, limelight).withTimeout(1.25)
+                        new SetShooterState(shooter, analysis, limelight).withTimeout(0.75)
                     )
                 )
             )

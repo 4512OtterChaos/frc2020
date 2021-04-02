@@ -101,7 +101,7 @@ public class SAS {
      */
     public double getHeadingConfidence(double distance, Drivetrain drivetrain){
         double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        double headingTolerance = MathHelp.lerp(distPercent, 3, 1.5);
+        double headingTolerance = MathHelp.lerp(distPercent, 3, 1.75);
 
         Rotation2d currHeading = drivetrain.getHeading();
         Rotation2d targetHeading = drivetrain.getTurnToTarget() != null ? drivetrain.getTurnToTarget() : currHeading;
