@@ -32,8 +32,8 @@ public class OCLEDManager {
     
     public enum Configuration{
         NONE, // normal
-        COPY, // normal, but copy first half onto second 
-        MIRROR // start patterns from both ends and meet in the middle
+        COPYSPLIT, // normal, but copy first half onto second 
+        MIRRORSPLIT // start patterns from both ends and meet in the middle
     }
     
     private TreeMap<PatternCard, LEDPattern> patternList = new TreeMap<PatternCard, LEDPattern>(new Comparator<PatternCard>(){
@@ -93,8 +93,8 @@ public class OCLEDManager {
     public int getConfiguredStripLength(){
         // halve the strip depending on config
         return 
-        (config == Configuration.MIRROR ||
-        config == Configuration.COPY) ? buffer.getLength()/2 : buffer.getLength();
+        (config == Configuration.MIRRORSPLIT ||
+        config == Configuration.COPYSPLIT) ? buffer.getLength()/2 : buffer.getLength();
     }
     
     public void addPattern(PatternCard card, LEDPattern pattern){

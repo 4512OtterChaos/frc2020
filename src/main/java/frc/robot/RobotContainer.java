@@ -73,8 +73,9 @@ public class RobotContainer {
         shooter = new Shooter();
         lift = new Lift();
         limelight = new Limelight();
+        photonIntake = new PhotonCamera("cameraName");
 
-        manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPY);
+        manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPYSPLIT);
         
         shooter.setShooterBrakeOn(false);
         
