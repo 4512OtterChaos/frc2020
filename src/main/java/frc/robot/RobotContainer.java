@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -49,6 +51,7 @@ public class RobotContainer {
     private Shooter shooter;
     private Lift lift;
     private Limelight limelight;
+    private PhotonCamera photonIntake;
     private OCLEDManager manager;
     
     private Paths paths;
