@@ -20,9 +20,6 @@ public class IndexFeedShooter extends CommandBase {
     
     private final Indexer indexer;
     private final BooleanSupplier isReady;
-    private double unprimeTime = 0;
-    private final double unprimeThreshold = 1; // seconds till thinks empty
-    private double lastTime = 0;
 
     private OCLEDManager manager;
     private PatternCard primeCard;
@@ -38,8 +35,6 @@ public class IndexFeedShooter extends CommandBase {
     
     @Override
     public void initialize() {
-        unprimeTime = 0;
-        lastTime = Timer.getFPGATimestamp();
         manager = OCLEDManager.getInstance();
         primeCard = manager.new PatternCard(isReady, 1);
         primePattern = new LEDPattern(manager).presetFlashing(LEDPattern.kYellowHue, 255, 255, 20);
