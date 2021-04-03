@@ -110,40 +110,4 @@ public class StandardRamseteCommand extends RamseteCommand{
     public OCPath getPath(){
         return trajectory;
     }
-
-    public static Command photonWaypointRamsete(Drivetrain drivetrain, PhotonCamera camera){
-        if(!camera.hasTargets()) return new InstantCommand();
-        List<PhotonTrackedTarget> targets = camera.getLatestResult().getTargets();
-        final double camHeight = Units.inchesToMeters(VisionConstants.kIntakeHeight);
-        final double camPitch = Units.degreesToRadians(VisionConstants.kIntakePitch);
-        final double targHeight = Units.inchesToMeters(3.5);
-        List<Pose2d> waypoints = new ArrayList<>();
-
-        for(int i=0;i<targets.size();i++){
-            PhotonTrackedTarget target = targets.get(i);
-            double distance = PhotonUtils.calculateDistanceToTargetMeters(
-                camHeight, targHeight, camPitch, target.getPitch());
-            Translation2d translation = PhotonUtils.estimateCameraToTargetTranslation(
-                distance, Rotation2d.fromDegrees(-target.getYaw()));
-            Rotation2d heading = new Rotation2d();
-            /*
-            if(i+1>=targets.size()){
-                double x = targets.get(i+1).getX() - target.getX();
-                double y = targets.get(i+1).getY() - target.getY();
-                heading = new Rotation2d(Math.atan2(y, x));
-            }
-            else{
-                heading = new Rotation2d();
-            }*/
-            waypoints.add(
-                new Pose2d(translation, heading)
-            );
-        }
-
-        return new StandardRamseteCommand(drivetrain,
-            new OCPath(
-                waypoints, drivetrain.getLinearFF(), drivetrain.getKinematics(), false
-            )
-        );
-    }
 }

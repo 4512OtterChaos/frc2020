@@ -18,8 +18,8 @@ public final class FieldUtil {
 
     /**
      * Returns pose with (x,y) based off of heading and distance.
-     * @param heading Robot heading on field
-     * @param distMeters Distance in meters from target robot is relating to
+     * @param heading Object heading on field
+     * @param distMeters Distance in meters the object is from the target
      */
     public static Pose2d getRelativePose(Rotation2d heading, double distMeters){
         double radians = heading.getRadians()+Math.PI*0.5;
@@ -29,21 +29,21 @@ public final class FieldUtil {
     }
 
     /**
-     * Returns the rotation that points the robot at the target if robot heading = 9
+     * Returns the angle between the object and the target.
+     * Keep in mind angles are counter-clockwise positive and 0 degrees is the x-axis.
+     * E.g. the absolute angle an object would turn to to face the target
      */
-    public static Rotation2d getRelativeHeading(Translation2d robotTran, Translation2d targetTran){
-        double x = targetTran.getX() - robotTran.getX();
-        double y = targetTran.getY() - robotTran.getY();
-        return new Rotation2d(Math.atan2(y, x));
+    public static Rotation2d getRelativeAngle(Translation2d objectTran, Translation2d targetTran){
+        double x = targetTran.getX() - objectTran.getX();
+        double y = targetTran.getY() - objectTran.getY();
+        return new Rotation2d(Math.atan2(y, x)); // this works because x is (relatively) forward in FRC
     }
     /**
-     * Returns the rotation that points the robot at the target
+     * Returns the difference between the current object rotation to the angle between the object and target.
+     * E.g. adding this rotation to an object would cause it to face the target
      */
-    public static Rotation2d getRelativeHeading(Pose2d robotPose, Translation2d targetTran){
-        Rotation2d theta = getRelativeHeading(robotPose.getTranslation(), targetTran);
-        return theta.minus(robotPose.getRotation());
-    }
-    public static Rotation2d getTargetedHeading(Pose2d robotPose, Translation2d targetTran){
-        return robotPose.getRotation().plus(getRelativeHeading(robotPose, targetTran));
+    public static Rotation2d getRelativeHeading(Pose2d objectPose, Translation2d targetTran){
+        Rotation2d theta = getRelativeAngle(objectPose.getTranslation(), targetTran);
+        return theta.minus(objectPose.getRotation());
     }
 }

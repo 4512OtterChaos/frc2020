@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import org.photonvision.PhotonCamera;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,6 +32,7 @@ import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.common.Constants;
 import frc.robot.common.OCLEDManager;
+import frc.robot.common.OCPhotonCam;
 import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.common.Constants.ShooterWristConstants;
@@ -51,8 +50,8 @@ public class RobotContainer {
     private Shooter shooter;
     private Lift lift;
     private Limelight limelight;
-    private PhotonCamera photonShoot;
-    private PhotonCamera photonIntake;
+    private OCPhotonCam photonShoot;
+    private OCPhotonCam photonIntake;
     private OCLEDManager manager;
     
     private Paths paths;
@@ -84,8 +83,16 @@ public class RobotContainer {
             VisionConstants.kTargetHeight, 
             VisionConstants.kLatencyMsLime
         );
-        photonShoot = new PhotonCamera("photon-shoot");
-        photonIntake = new PhotonCamera("photon-intake");
+        photonShoot = new OCPhotonCam("photon-shoot", 
+            VisionConstants.kShootHeight, 
+            VisionConstants.kShootPitch, 
+            VisionConstants.kTargetHeight
+        );
+        photonIntake = new OCPhotonCam("photon-intake", 
+            VisionConstants.kIntakeHeight, 
+            VisionConstants.kIntakePitch, 
+            3.75
+        );
 
         manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPYSPLIT);
         

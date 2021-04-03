@@ -163,10 +163,11 @@ public class Constants {
     }
     
     public static class AutoConstants{
+        public static final double kMaxAutoVoltage = 10; // Avoid voltage sag and maintain accuracy
         public static final double kMaxVelocityMeters = Units.feetToMeters(10);
         public static final double kMaxAccelerationMeters = Units.feetToMeters(6);
         public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(3.4); // Turning acceleration given radius
-        public static final Pose2d kAcceptablePoseError = new Pose2d(0.8, 0.8, new Rotation2d(Units.degreesToRadians(60))); // this is for crash handling on trajectories
+        public static final Pose2d kAcceptablePoseError = new Pose2d(1, 1, new Rotation2d(Units.degreesToRadians(60))); // this is for crash handling on trajectories
         public static final double kReferenceFailureWindow = 1.75; // seconds till trajectory abandons when off tolerence
     }
 }

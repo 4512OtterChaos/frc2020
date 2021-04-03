@@ -117,7 +117,7 @@ public class TurnTo extends ProfiledPIDCommand {
     * It 'homes' as there is one constant heading that points to the target, which is not updated.
     */
     public static TurnTo createHomeToTarget(Drivetrain drivetrain, Translation2d targetTranslation){
-        return new TurnTo(drivetrain, FieldUtil.getTargetedHeading(drivetrain.getOdometry().getPoseMeters(), targetTranslation).getDegrees());
+        return new TurnTo(drivetrain, FieldUtil.getRelativeAngle(drivetrain.getOdometry().getPoseMeters().getTranslation(), targetTranslation).getDegrees());
     }
     
     public static Command createTurnToTarget(Drivetrain drivetrain, Limelight limelight){

@@ -26,28 +26,26 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
 /**
  * Extension of the {@link Trajectory} class that simplifies the construction and use of Trajectories.
  * Trajectories are constructed by default with a preset configuration.
- * To retrieve a trajectory in reverse, simply use .getReversed()
  */
 public class OCPath extends Trajectory{
+
     private TrajectoryConfig config; // Store config for reversing
 
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and quintic hermite splines.
-     * Drivetrain is given to use a default config with its kinematics.
      */
     public OCPath(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, boolean reversed){
         this(
             TrajectoryGenerator.generateTrajectory(
                 poses,
                 getDefaultConfig(feedforward, kinematics).setReversed(reversed)
-            ).getStates(),
+            ),
             getDefaultConfig(feedforward, kinematics).setReversed(reversed)
         );
     }
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and clamped cubic splines,
      * where the heading at the interior waypoints is automatically determined.
-     * Drivetrain is given to use a default config with its kinematics.
      */
     public OCPath(Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, boolean reversed){
         this(
@@ -56,12 +54,20 @@ public class OCPath extends Trajectory{
                 interiorWaypoints,
                 end,
                 getDefaultConfig(feedforward, kinematics).setReversed(reversed)
-            ).getStates(), 
+            ), 
             getDefaultConfig(feedforward, kinematics).setReversed(reversed)
         );
     }
     /**
-     * Constructs a new Trajectory with given states and configuration. This constructor should be
+     * Constructs a new OCPath with given trajectory and configuration. This constructor should be
+     * used when more specific control is required, either with a specific trajectory implementation or
+     * with a manually defined configuration.
+     */
+    public OCPath(Trajectory trajectory, TrajectoryConfig config){
+        this(trajectory.getStates(), config);
+    }
+    /**
+     * Constructs a new OCPath with given states and configuration. This constructor should be
      * used when more specific control is required, either with a specific trajectory implementation or
      * with a manually defined configuration.
      */
@@ -87,7 +93,7 @@ public class OCPath extends Trajectory{
         return new TrajectoryConfig(kMaxVelocityMeters, kMaxAccelerationMeters)
             .setKinematics(kinematics)
             .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
-            .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 10)); // Account for voltage sag
+            .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, kMaxAutoVoltage)); // Account for voltage sag
     }
     /**
      * Returns a cloned list of Trajectory states.
@@ -119,9 +125,9 @@ public class OCPath extends Trajectory{
         );
     }
     /**
-     * Returns a cloned, reversed list of the given poses.
+     * Returns a cloned, reversed list of the given poses(backwards).
      */
-    public static List<Pose2d> getReversedPoses(List<Pose2d> poses){
+    public static List<Pose2d> getInvertedPoses(List<Pose2d> poses){
         List<Pose2d> reversedPoses = new ArrayList<Pose2d>(poses);
         Collections.reverse(reversedPoses);
         return reversedPoses;
