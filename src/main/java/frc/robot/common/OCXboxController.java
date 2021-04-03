@@ -17,9 +17,15 @@ import frc.robot.util.MathHelp;
 public class OCXboxController extends XboxController{
 
     private static final double deadband = 0.12;
+
+    private double drivespeed = 1;
+    public static final double kSpeedDefault = 0.35;
+    public static final double kSpeedFast = 0.55;
+    public static final double kSpeedMax = 0.8;
     
-    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(5);
+    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(3.75);
     private SlewRateLimiter turnLimiter = new SlewRateLimiter(4);
+    private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(4);
 
     /**
      * Constructs XboxController on DS joystick port.
@@ -51,6 +57,13 @@ public class OCXboxController extends XboxController{
         return MathHelp.clamp(fixedValue, -1, 1);
     }
 
+    public void setDriveSpeed(double drivespeed){
+        this.drivespeed = drivespeed;
+    }
+    public double getDriveSpeed(){
+        return drivespeed;
+    }
+
     public double getY(Hand hand){
         int y = hand == Hand.kRight ? 5 : 1;
         return -scaledDeadband(getRawAxis(y));
@@ -62,17 +75,19 @@ public class OCXboxController extends XboxController{
 
     /**
      * Applies deadband math and rate limiting to left Y to give 'forward' power.
+     * Affected by controller drivespeed.
      * @return Percentage(-1 to 1)
      */
     public double getForward(){
-        return forwardLimiter.calculate(getY(Hand.kLeft));
+        return forwardLimiter.calculate(getY(Hand.kLeft))*drivespeedLimiter.calculate(drivespeed);
     }
     /**
      * Applies deadband math and rate limiting to right X to give 'turn' power.
+     * Affected by controller drivespeed.
      * @return Percentage(-1 to 1)
      */
     public double getTurn(){
-        return turnLimiter.calculate(getX(Hand.kRight));
+        return turnLimiter.calculate(getX(Hand.kRight))*drivespeedLimiter.calculate(drivespeed);
     }
 
     /**
@@ -82,7 +97,8 @@ public class OCXboxController extends XboxController{
         return getLeftArcade(getForward(), getTurn());
     }
     /**
-     * Gives left DT percentage using arcade mode.
+     * Gives simple left DT percentage using arcade mode.
+     * WARNING: Does not use rate limiters
      */
     public double getLeftArcade(double forward, double turn){
         return forward - turn;
@@ -94,7 +110,8 @@ public class OCXboxController extends XboxController{
         return getRightArcade(getForward(), getTurn());
     }
     /**
-     * Gives right DT percentage using arcade mode.
+     * Gives simple right DT percentage using arcade mode.
+     * WARNING: Does not use rate limiters
      */
     public double getRightArcade(double forward, double turn){
         return forward + turn;
@@ -106,5 +123,6 @@ public class OCXboxController extends XboxController{
     public void resetLimiters(){
         forwardLimiter.reset(0);
         turnLimiter.reset(0);
+        drivespeedLimiter.reset(0);
     }
 }

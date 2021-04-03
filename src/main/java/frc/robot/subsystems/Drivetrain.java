@@ -65,8 +65,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
     private Rotation2d turnToTarget;
     private Rotation2d turnToError;
-
-    private double driveSpeed = 0.3;
     
     public Drivetrain() {
         OCConfig.configMotors(ConfigType.DRIVE, leftMaster, leftSlave);
@@ -99,10 +97,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
     //----- Drivetrain control
 
-    public void setDriveSpeed(double speed){
-        driveSpeed = speed;
-    }
-
     public void setBrakeOn(boolean is){
         IdleMode mode = is ? IdleMode.kBrake : IdleMode.kCoast;
         OCConfig.setIdleMode(mode, leftMaster, leftSlave, rightMaster, rightSlave);
@@ -122,44 +116,35 @@ public class Drivetrain extends SubsystemBase implements Testable{
     }
     /**
      * Sets both sides of the drivetrain to given percentages
-     * @return double[] outputs (0 left, 1 right)
+     * (Uses setVoltage())
      */
     public void tankDrive(double left, double right){
-        tankDrive(left, right, driveSpeed);
-    }
-    /**
-     * Sets both sides of the drivetrain to given percentages
-     * @param driveSpeed Overloads current drivetrain speed
-     */
-    public void tankDrive(double left, double right, double driveSpeed){
-        left *= driveSpeed;
-        right *= driveSpeed;
         tankDriveVolts(left*12, right*12);
     }
     /**
      * Feeds percentages into chassis speeds for velocity PID.
-     * Positive: linear forward, angular left
+     * Positive: linear forward, angular counter-clockwise
      */
     public void setChassisSpeed(double linearPercent, double angularPercent){
-        linearPercent = MathHelp.clamp(linearPercent * driveSpeed, -1, 1);
+        linearPercent = MathHelp.clamp(linearPercent, -1, 1);
         //if(angularPercent!=0) angularPercent+=Math.copySign(0.0075, angularPercent);
-        angularPercent = MathHelp.clamp(angularPercent * driveSpeed, -1, 1);
+        angularPercent = MathHelp.clamp(angularPercent, -1, 1);
         double linear = linearPercent*kMaxVelocityMeters;
         double angular = (angularPercent*(kMaxVelocityRadians));
         setChassisSpeed(new ChassisSpeeds(linear, 0, angular));
     }
     /**
      * Feeds percentages into chassis speeds for velocity PID.
-     * Positive: linear forward, angular left
-     * @param scaleTurning Whether to adjust turning power for driver control
+     * When given the reference drivespeed used on the values before this method,
+     * attempts to scale turning so that higher drivespeeds do not overturn.
+     * Positive: linear forward, angular counter-clockwise
+     * @param referenceDrivespeed The coefficient applied to forward/turn percentages beforehand
      */
-    public void setChassisSpeed(double linearPercent, double angularPercent, boolean scaleTurning){
-        if(scaleTurning){
-            double adjustedDriveSpeed = driveSpeed;
-            adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(adjustedDriveSpeed), 0.2)*0.4, adjustedDriveSpeed);
-            angularPercent *= adjustedDriveSpeed*(1/driveSpeed);
-            SmartDashboard.putNumber("Adjusted Turn", angularPercent);
-        }
+    public void setChassisSpeed(double linearPercent, double angularPercent, double referenceDrivespeed){
+        double adjustedDriveSpeed = referenceDrivespeed;
+        adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(adjustedDriveSpeed), 0.2)*0.4, adjustedDriveSpeed);
+        angularPercent *= adjustedDriveSpeed*(1/referenceDrivespeed); // divide by reference to override original speed
+        SmartDashboard.putNumber("Adjusted Turn", angularPercent);
         setChassisSpeed(linearPercent, angularPercent);
     }
     /**

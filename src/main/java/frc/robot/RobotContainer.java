@@ -90,7 +90,8 @@ public class RobotContainer {
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, analysis, paths);
         autoOptions.submit();
-        
+
+        driver.setDriveSpeed(OCXboxController.kSpeedDefault);
         configureButtonBindings();
     }
     /**
@@ -103,16 +104,16 @@ public class RobotContainer {
         configureDriverBindings();
     }
     private void configureDriverBindings(){
-        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), true), drivetrain);
+        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), driver.getDriveSpeed()), drivetrain);
         drivetrain.setDefaultCommand(velocityControl.beforeStarting(driver::resetLimiters));
 
         new JoystickButton(driver, XboxController.Button.kBumperRight.value)
-            .whenPressed(()->drivetrain.setDriveSpeed(0.5))
-            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
+            .whenPressed(()->driver.setDriveSpeed(OCXboxController.kSpeedFast))
+            .whenReleased(()->driver.setDriveSpeed(OCXboxController.kSpeedDefault));
 
         new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
-            .whenPressed(()->drivetrain.setDriveSpeed(0.8))
-            .whenReleased(()->drivetrain.setDriveSpeed(0.3));
+            .whenPressed(()->driver.setDriveSpeed(OCXboxController.kSpeedMax))
+            .whenReleased(()->driver.setDriveSpeed(OCXboxController.kSpeedDefault));
 
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
