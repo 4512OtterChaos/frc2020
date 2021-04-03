@@ -45,7 +45,7 @@ public class IndexFeedShooter extends CommandBase {
     @Override
     public void execute() {
         if(isReady.getAsBoolean()){
-            indexer.setVolts(3);
+            indexer.setVolts(4);
             manager.addPattern(shootCard, shootPattern);
         }
         else{

@@ -39,15 +39,16 @@ public class SuperstructureCommands {
      */
     public static Command intakeIndexBalls(Intake intake, Indexer indexer){
         return new SetIntakeLowered(intake, true)
+            /*
             .alongWith(
                 new IndexHomeIntake(indexer)
                     .withTimeout(0.3)
-            )
+            )*/
             .andThen(
                 new StartEndCommand(
                     ()->{
-                        intake.setRollerVolts(5);
-                        intake.setFenceVolts(8);
+                        intake.setRollerVolts(6);
+                        intake.setFenceVolts(10);
                     }, 
                     ()->{
                         intake.setRollerVolts(0);
@@ -103,7 +104,7 @@ public class SuperstructureCommands {
                     intake.setSliderIsExtended(true);
                     intake.setFenceVolts(0);
                 },
-                ()->intake.setFenceVolts(5),
+                ()->intake.setFenceVolts(8),
                 (interrupted)->intake.setFenceVolts(0),
                 ()->false, // this is interrupted by IndexFeedShooter
                 intake
