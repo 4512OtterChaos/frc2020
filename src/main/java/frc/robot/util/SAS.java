@@ -101,9 +101,9 @@ public class SAS {
      */
     public double getHeadingConfidence(double distance, Drivetrain drivetrain){
         double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        double headingTolerance = MathHelp.lerp(distPercent, 3, 1.75);
+        double headingTolerance = MathHelp.lerp(distPercent, 3, 2);
 
-        double headingError = drivetrain.getTurnToError().getDegrees();
+        double headingError = Math.abs(drivetrain.getTurnToError().getDegrees());
         
         double headingConfidence = headingError > headingTolerance ? 0 : MathHelp.findPercentage(headingError, headingTolerance, 0);
         SmartDashboard.putNumber("Confidence Heading", headingConfidence);

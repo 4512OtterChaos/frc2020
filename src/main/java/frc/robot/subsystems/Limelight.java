@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.common.Testable;
-import static frc.robot.common.Constants.VisionConstants.*;
 
 /**
  * Class for interfacing with a Limelight.
@@ -59,11 +58,22 @@ public class Limelight implements Testable{
 
     private Timer changeTimer = new Timer(); // block data values for a period after changing pipelines
 
-    public Limelight(){
-        this(Configuration.PNP);
-    }
-    public Limelight(Configuration state){
+    private final Translation2d kCameraTranslation;
+    private final double kCameraHeight;
+    private final double kCameraPitch;
+    private final Translation2d kTargetTranslation;
+    private final double kTargetHeight;
+    private final double kLatencyMs;
+
+    public Limelight(Configuration state, Translation2d camTranslation, double cameraHeight, double cameraPitch, Translation2d targTranslation, double targHeight, double latency){
         visionTable = NetworkTableInstance.getDefault().getTable("limelight");
+
+        kCameraTranslation = camTranslation;
+        kCameraHeight = cameraHeight;
+        kCameraPitch = cameraPitch;
+        kTargetTranslation = targTranslation;
+        kTargetHeight = targHeight;
+        kLatencyMs = latency;
         
         setConfiguration(state);
     }
@@ -225,7 +235,7 @@ public class Limelight implements Testable{
      */
     public double getTrigDistance(){
         double difference = kTargetHeight-kCameraHeight;
-        double angle = Units.degreesToRadians(kCameraAngle+getTy());
+        double angle = Units.degreesToRadians(kCameraPitch+getTy());
         if(!getHasTarget()) return 0;
         return (difference/Math.tan(angle));
     }

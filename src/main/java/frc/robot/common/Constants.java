@@ -152,11 +152,13 @@ public class Constants {
     }
     
     public static class VisionConstants{
-        public static final double kCameraAngle = 30; // Angle of camera offset from horizontal
-        public static final double kCameraHeight = 26.75; // inches
+        public static final double kShootPitch = 30; // Vertical angle of camera offset from 
+        public static final double kIntakePitch = -20;
+        public static final double kShootHeight = 26.75; // inches
+        public static final double kIntakeHeight = 29.75;
         public static final double kTargetHeight = 98.25;
-        public static final double kLatencyMs = 11; // Image capture latency
-        public static final Translation2d kCameraTranslation = new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0));
+        public static final double kLatencyMsLime = 11; // Image capture latency
+        public static final Translation2d kTranslation = new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0));
         public static final Translation2d kTargetTranslation = new Translation2d(kFieldDepth, Units.inchesToMeters(94.66));
     }
     

@@ -51,6 +51,7 @@ public class RobotContainer {
     private Shooter shooter;
     private Lift lift;
     private Limelight limelight;
+    private PhotonCamera photonShoot;
     private PhotonCamera photonIntake;
     private OCLEDManager manager;
     
@@ -75,8 +76,16 @@ public class RobotContainer {
         indexer = new Indexer();
         shooter = new Shooter();
         lift = new Lift();
-        limelight = new Limelight();
-        photonIntake = new PhotonCamera("cameraName");
+        limelight = new Limelight(Configuration.PNP, 
+            VisionConstants.kTranslation,
+            VisionConstants.kShootHeight, 
+            VisionConstants.kShootPitch, 
+            VisionConstants.kTargetTranslation, 
+            VisionConstants.kTargetHeight, 
+            VisionConstants.kLatencyMsLime
+        );
+        photonShoot = new PhotonCamera("photon-shoot");
+        photonIntake = new PhotonCamera("photon-intake");
 
         manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPYSPLIT);
         
@@ -86,9 +95,9 @@ public class RobotContainer {
 
         analysis = new SAS();
         
-        testableSystems = new Testable[]{drivetrain, limelight};
+        testableSystems = new Testable[]{drivetrain};
         
-        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, analysis, paths);
+        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, photonIntake, analysis, paths);
         autoOptions.submit();
 
         driver.setDriveSpeed(OCXboxController.kSpeedDefault);
