@@ -24,6 +24,6 @@ public class Pair<A, B> {
     public B getSecondary(){return b;}
 
     public static <A,B> Pair<A,B> of(A a, B b) {
-        return new Pair(a, b);
+        return new Pair<A,B>(a, b);
     }
 }
