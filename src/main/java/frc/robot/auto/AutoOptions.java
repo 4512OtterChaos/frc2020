@@ -26,6 +26,7 @@ import frc.robot.commands.auto.PhotonWaypointRamsete;
 import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.intake.SetIntakeLowered;
+import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.common.OCPhotonCam;
@@ -84,7 +85,7 @@ public class AutoOptions {
                     List.of(
                         new Pose2d(0, 0, new Rotation2d()),
                         new Pose2d(1, 0, new Rotation2d())
-                    ), driveFF, driveKin, false).getInverted()
+                    ), driveFF, driveKin).getReversed()
                 )
             );
             
@@ -161,22 +162,26 @@ public class AutoOptions {
                 )
             )
         );
+
+        fullAutoOptions.addOption("Example", 
+            new StandardRamseteCommand(drivetrain, paths.example)
+        );
+
+        fullAutoOptions.addOption("Example Inverted",
+            new StandardRamseteCommand(drivetrain, paths.example.getInverted())
+        );
         
         fullAutoOptions.addOption("Galactic Search",
-            new StartEndCommand(
-                ()->{
-                    intake.setArmIsExtended(true);
-                    intake.setRollerVolts(7);
-                    intake.setFenceVolts(8);
-                },
-                ()->{
-                    intake.setRollerVolts(0);
-                    intake.setFenceVolts(0);
-                },
-                intake
-            )
+            SuperstructureCommands.intakeIndexBalls(intake, indexer, 9, 8)
             .alongWith(
-                new PhotonWaypointRamsete(photonIntake, drivetrain)
+                new WaitCommand(0.2).andThen(
+                    new SetShooterState(shooter, ShooterState.kLimp).withTimeout(0.25).alongWith(
+                        new PhotonWaypointRamsete(photonIntake, drivetrain)
+                    )
+                )
+            ).withTimeout(8)
+            .andThen(
+                new InstantCommand(()->drivetrain.setBrakeOn(false))
             )
         );
         

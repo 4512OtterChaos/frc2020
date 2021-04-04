@@ -20,10 +20,9 @@ public class IndexFeedShooter extends CommandBase {
     
     private final Indexer indexer;
     private final BooleanSupplier isReady;
+    private double indexVolts = 3.5;
 
     private OCLEDManager manager;
-    private PatternCard primeCard;
-    private LEDPattern primePattern;
     private PatternCard shootCard;
     private LEDPattern shootPattern;
 
@@ -32,25 +31,30 @@ public class IndexFeedShooter extends CommandBase {
         this.isReady = isReady;
         addRequirements(indexer);
     }
+    public IndexFeedShooter(Indexer indexer, BooleanSupplier isReady, double indexVolts) {
+        this.indexer = indexer;
+        this.isReady = isReady;
+        this.indexVolts = indexVolts;
+        addRequirements(indexer);
+    }
     
     @Override
     public void initialize() {
         manager = OCLEDManager.getInstance();
-        primeCard = manager.new PatternCard(isReady, 1);
-        primePattern = new LEDPattern(manager).presetFlashing(LEDPattern.kYellowHue, 255, 255, 20);
-        shootCard = manager.new PatternCard(()->!isReady.getAsBoolean(), 1);
-        shootPattern = new LEDPattern(manager).presetSolid(LEDPattern.kGreenHue, 255, 255);
+        LEDPattern primePattern = new LEDPattern(manager).presetFlashing(LEDPattern.kYellowHue, 255, 255, 12);
+        shootCard = manager.new PatternCard(1);
+        LEDPattern readyPattern = new LEDPattern(manager).presetSolid(LEDPattern.kGreenHue, 255, 255);
+        shootPattern = LEDPattern.conditionalWith(primePattern, readyPattern, isReady);
+        manager.addPattern(shootCard, shootPattern);
     }
     
     @Override
     public void execute() {
         if(isReady.getAsBoolean()){
-            indexer.setVolts(4);
-            manager.addPattern(shootCard, shootPattern);
+            indexer.setVolts(indexVolts);
         }
         else{
             indexer.setVolts(0);
-            manager.addPattern(primeCard, primePattern);
         }
     }
     
@@ -58,7 +62,6 @@ public class IndexFeedShooter extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         indexer.setVolts(0);
-        primeCard.end();
         shootCard.end();
     }
     

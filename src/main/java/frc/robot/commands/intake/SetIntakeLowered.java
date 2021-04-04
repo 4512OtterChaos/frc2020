@@ -17,15 +17,15 @@ public class SetIntakeLowered extends SequentialCommandGroup{
     public SetIntakeLowered(Intake intake, boolean down) {
         super(
             new ConditionalCommand(
-                new WaitCommand(0.05),
+                new WaitCommand(0),
                 new InstantCommand(()->intake.setSliderIsExtended(true), intake)
-                    .andThen(new WaitCommand(0.5)),
+                    .andThen(new WaitCommand(0.05)),
                 intake::getSliderIsExtended
             ),
             new ConditionalCommand(
-                new WaitCommand(0.05),
+                new WaitCommand(0),
                 new InstantCommand(()->intake.setArmIsExtended(down), intake)
-                    .andThen(new WaitCommand(0.5)),
+                    .andThen(new WaitCommand(0.3)),
                 ()->down==intake.getArmIsExtended()
             )
         );

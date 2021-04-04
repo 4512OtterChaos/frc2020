@@ -18,8 +18,9 @@ import frc.robot.util.MathHelp;
 public class ShooterState {
     public final double angle;
     public final double rpm;
+    public static final ShooterState kLimp = new ShooterState(-15, 0);
     public static final ShooterState kLowest = new ShooterState(kLowestSafeDegrees, 0);
-    public static final ShooterState kIdleState = new ShooterState(35, 0);
+    public static final ShooterState kIdleState = new ShooterState(28, 0);
     public static final ShooterState kClose = new ShooterState(50, 2500);
     public static final ShooterState kInitLine = new ShooterState(35, 3000);
     public static final ShooterState kTrenchLine = new ShooterState(30, 3000);

@@ -14,12 +14,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PerpetualCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.index.IndexFeedShooter;
 import frc.robot.commands.index.IndexHomeIntake;
 import frc.robot.commands.index.IndexHomeShooter;
 import frc.robot.commands.index.IndexIncoming;
 import frc.robot.commands.intake.SetIntakeLowered;
+import frc.robot.commands.intake.SetSliderExtended;
 import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Drivetrain;
@@ -37,7 +39,7 @@ public class SuperstructureCommands {
     /**
      * Lowers intake, then starts intaking and indexing power cells.
      */
-    public static Command intakeIndexBalls(Intake intake, Indexer indexer){
+    public static Command intakeIndexBalls(Intake intake, Indexer indexer, double rollerVolts, double fenceVolts){
         return new SetIntakeLowered(intake, true)
             /*
             .alongWith(
@@ -47,8 +49,8 @@ public class SuperstructureCommands {
             .andThen(
                 new StartEndCommand(
                     ()->{
-                        intake.setRollerVolts(6);
-                        intake.setFenceVolts(10);
+                        intake.setRollerVolts(rollerVolts);
+                        intake.setFenceVolts(fenceVolts);
                     }, 
                     ()->{
                         intake.setRollerVolts(0);
@@ -59,6 +61,14 @@ public class SuperstructureCommands {
                 .alongWith(
                     new IndexIncoming(indexer)
                 )
+            );
+    }
+
+    public static Command safeIntake(Intake intake){
+        return new SetIntakeLowered(intake, false)
+            .andThen(
+                new WaitUntilCommand(()->!intake.getArmIsLowered())
+                .andThen(new SetSliderExtended(intake, false))
             );
     }
 
@@ -96,8 +106,8 @@ public class SuperstructureCommands {
         );
     }
 
-    public static Command feedShooter(Indexer indexer, Intake intake, BooleanSupplier isReady){
-        return new IndexFeedShooter(indexer, isReady)
+    public static Command feedShooter(Indexer indexer, Intake intake, BooleanSupplier isReady, double indexVolts){
+        return new IndexFeedShooter(indexer, isReady, indexVolts)
         .deadlineWith(
             new FunctionalCommand( // set fence while feeding as well
                 ()->{
@@ -128,7 +138,7 @@ public class SuperstructureCommands {
                 )
             )
             .andThen(
-                feedShooter(indexer, intake, ()->analysis.getIsReady(limelight.getTrigDistance(), shooter, drivetrain))
+                feedShooter(indexer, intake, ()->analysis.getIsReady(limelight.getTrigDistance(), shooter, drivetrain), 3.5)
                 .alongWith(
                     //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
                     new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),

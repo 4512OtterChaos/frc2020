@@ -7,17 +7,25 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PerpetualCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -106,6 +114,7 @@ public class RobotContainer {
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, photonIntake, analysis, paths);
         autoOptions.submit();
+        CommandScheduler.getInstance().schedule(new WaitCommand(10).andThen(new InstantCommand(()->autoOptions.submit())));
 
         driver.setDriveSpeed(OCXboxController.kSpeedDefault);
         configureButtonBindings();
@@ -133,7 +142,7 @@ public class RobotContainer {
 
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
-                SuperstructureCommands.intakeIndexBalls(intake, indexer)
+                SuperstructureCommands.intakeIndexBalls(intake, indexer, 6, 8)
             )
             .whenInactive(
                 new InstantCommand(
@@ -179,8 +188,8 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
-                new SetShooterState(shooter, new ShooterState(30, 1000))
-                    .alongWith(SuperstructureCommands.feedShooter(indexer, intake, ()->true))
+                new SetShooterState(shooter, new ShooterState(30, 600))
+                    .alongWith(SuperstructureCommands.feedShooter(indexer, intake, ()->true, 3))
             )
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
@@ -192,15 +201,29 @@ public class RobotContainer {
 
         new JoystickButton(driver, XboxController.Button.kX.value)
             .whenPressed(
-                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, ShooterState.kTrenchLine)
+                SuperstructureCommands.safeIntake(intake)
+            );
+            
+        new JoystickButton(driver, XboxController.Button.kY.value)
+            .whenPressed(
+                TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+                    .alongWith(new SetShooterState(shooter, analysis, limelight).withTimeout(0.75))
+                    .andThen(
+                        SuperstructureCommands.feedShooter(indexer, intake, ()->true, 3)
+                        .alongWith(
+                            //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
+                            new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
+                            new PerpetualCommand(new SetShooterState(shooter, analysis, limelight))
+                        )
+                    )
             )
             .whenReleased(()->{
                 drivetrain.tankDrive(0, 0);
                 indexer.setVolts(0);
                 shooter.setState(ShooterState.kIdleState);
-            },
-            drivetrain, shooter, indexer
-            );            
+                },
+                drivetrain, shooter, indexer
+            );
 
         new POVButton(driver, 0)
             .whenPressed(
@@ -283,7 +306,7 @@ public class RobotContainer {
         return autoOptions.getSelected();
     }
 
-    public void init(){
+    public void init(boolean auto){
         if(DriverStation.getInstance().getJoystickIsXbox(1) && !operatorConfigured){
             operator = new OCXboxController(1);
             configureOperatorBindings();
@@ -294,7 +317,9 @@ public class RobotContainer {
         shooter.reset();
         shooter.setState(ShooterState.kIdleState);
 
-        limelight.setConfiguration(Configuration.PNP);
+        limelight.setConfiguration(Configuration.BASIC);
+
+        if(auto) drivetrain.resetOdometry(new Pose2d(Units.feetToMeters(2.5), Units.feetToMeters(9.125), new Rotation2d()), new Rotation2d());
     }
     public void disable(){
         limelight.setConfiguration(Configuration.DRIVE);
@@ -315,11 +340,24 @@ public class RobotContainer {
     
     public void log(){
         drivetrain.log();
+
+        NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
+        
+        Pose2d pose = drivetrain.getOdometry().getPoseMeters();
+        liveTable.getEntry("robotX").setDouble(Units.metersToFeet(pose.getX()));
+        liveTable.getEntry("robotY").setDouble(Units.metersToFeet(pose.getY()));
+        liveTable.getEntry("robotHeading").setDouble(pose.getRotation().getRadians());
+
         intake.log();
         indexer.log();
         shooter.log();
         lift.log();
         limelight.log();
+        /*
+        if(photonIntake.hasTargets()){
+            SmartDashboard.putNumber("PhotonIn Pitch", photonIntake.getLatestResult().getBestTarget().getPitch());
+            SmartDashboard.putNumber("PhotonIn Dist", photonIntake.getBestDistance());
+        }*/
     }
     
     public Testable[] getTestableSystems(){return testableSystems;};

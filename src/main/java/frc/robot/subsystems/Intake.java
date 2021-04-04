@@ -74,9 +74,6 @@ public class Intake extends SubsystemBase implements Testable{
         // slider is extended
         boolean sliderExt = getSliderIsExtended();
 
-        // avoid rolling rollers when arm is up
-        rollerVolts = armLowered ? rollerVolts : 0;
-
         // do NOT move arm if slider isn't extended
         if(sliderExt){
             arm.set(armWantsExtended ? Value.kReverse : Value.kForward);
@@ -84,7 +81,7 @@ public class Intake extends SubsystemBase implements Testable{
 
         slider.set(sliderWantsExtended ? Value.kReverse : Value.kForward);
                 
-        roller.setVoltage(-rollerVolts);
+        roller.setVoltage(armLowered ? -rollerVolts : 0);
         leftFence.setVoltage(fenceVolts);
         rightFence.setVoltage(-fenceVolts);
     }

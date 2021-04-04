@@ -23,9 +23,9 @@ public class OCXboxController extends XboxController{
     public static final double kSpeedFast = 0.55;
     public static final double kSpeedMax = 0.8;
     
-    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(3.75);
-    private SlewRateLimiter turnLimiter = new SlewRateLimiter(4);
-    private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(4);
+    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(3.5);
+    private SlewRateLimiter turnLimiter = new SlewRateLimiter(6);
+    private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(2);
 
     /**
      * Constructs XboxController on DS joystick port.

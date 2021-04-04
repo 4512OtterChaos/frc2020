@@ -23,10 +23,6 @@ import static frc.robot.common.Constants.AutoConstants.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonTrackedTarget;
-import org.photonvision.PhotonUtils;
-
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.auto.OCPath;
 import frc.robot.auto.Paths;

@@ -68,6 +68,13 @@ public class OCPhotonCam extends PhotonCamera{
         kTargetHeight = Units.inchesToMeters(heightInches);
     }
 
+    public double getBestDistance(){
+        if(!hasTargets()) return 0;
+        PhotonTrackedTarget target = getLatestResult().getBestTarget();
+        return PhotonUtils.calculateDistanceToTargetMeters(
+            kCamHeight, kTargetHeight, kCamPitch, Units.degreesToRadians(target.getPitch()));
+    }
+
     /**
      * Attempts to find a list of translations based on the visible targets.
      * This can be used to create a trajectory based sequentially on the camera's target ordering.
@@ -80,7 +87,7 @@ public class OCPhotonCam extends PhotonCamera{
 
         for(PhotonTrackedTarget target : targets){
             double distance = PhotonUtils.calculateDistanceToTargetMeters(
-                kCamHeight, kTargetHeight, kCamPitch, target.getPitch());
+                kCamHeight, kTargetHeight, kCamPitch, Units.degreesToRadians(target.getPitch()));
             Translation2d translation = PhotonUtils.estimateCameraToTargetTranslation(
                 distance, Rotation2d.fromDegrees(-target.getYaw()));
 

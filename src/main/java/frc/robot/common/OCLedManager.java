@@ -60,7 +60,7 @@ public class OCLEDManager {
         led.setData(buffer);
         led.start();
         
-        addPattern(new PatternCard(()->false, -1), new LEDPattern(this).presetAutomaticRollingWaves(20)); // if no other patterns, we display this pattern by default
+        addPattern(new PatternCard(-1), new LEDPattern(this).presetAutomaticRollingWaves(20)); // if no other patterns, we display this pattern by default
     }
     
     
@@ -133,6 +133,19 @@ public class OCLEDManager {
         private final int priority;
         private boolean finished = false; // end pattern based on this boolean
         
+        /**
+        * Create a new PatternCard for an associated {@link LEDPattern} that lasts forever and
+        * has a display <b>priority</b> over other, lower priorities(create an indefinite PatternCard with priority -1 for the base/default LEDPattern).
+        * This pattern must be manually ended.
+        * @param duration
+        * @param priority
+        */
+        public PatternCard(int priority){
+            timeStart = Timer.getFPGATimestamp();
+            this.duration = -1;
+            this.interrupt = ()->false;
+            this.priority = priority;
+        }
         /**
         * Create a new PatternCard for an associated {@link LEDPattern} that lasts <b>duration</b> seconds and
         * has a display <b>priority</b> over other, lower priorities(create an indefinite PatternCard with priority -1 for the base/default LEDPattern).

@@ -43,6 +43,7 @@ public class Shooter extends SubsystemBase implements Testable{
 
     private double wristVolts = 0;
     private double wristTarget = ShooterWristConstants.kClearIntakeDegrees;
+    private boolean wristLimp = false;
 
     private double shooterTarget = 0;
     private double lastShooterVel = 0;
@@ -98,7 +99,18 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     
     public void periodic() {
-        setWristVolts(calculateWristVolts(wristTarget));
+        if(wristTarget > -10){
+            if(wristLimp){
+                wristLimp = false;
+                setWristBrakeOn(true);
+            }
+            setWristVolts(calculateWristVolts(wristTarget));
+        }
+        else{
+            wristLimp = true;
+            setWristBrakeOn(false);
+            setWristVolts(0);
+        }
 
         calculateShooterVolts(shooterTarget);
         if(shootLeft.getOutputCurrent() >= 40) lastShotTime = Timer.getFPGATimestamp();

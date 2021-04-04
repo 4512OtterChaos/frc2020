@@ -15,6 +15,7 @@ import static frc.robot.common.Constants.AutoConstants.*;
 
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
@@ -34,28 +35,28 @@ public class OCPath extends Trajectory{
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and quintic hermite splines.
      */
-    public OCPath(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, boolean reversed){
+    public OCPath(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
         this(
             TrajectoryGenerator.generateTrajectory(
                 poses,
-                getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+                getDefaultConfig(feedforward, kinematics)
             ),
-            getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+            getDefaultConfig(feedforward, kinematics)
         );
     }
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and clamped cubic splines,
      * where the heading at the interior waypoints is automatically determined.
      */
-    public OCPath(Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, boolean reversed){
+    public OCPath(Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
         this(
             TrajectoryGenerator.generateTrajectory(
                 start,
                 interiorWaypoints,
                 end,
-                getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+                getDefaultConfig(feedforward, kinematics)
             ), 
-            getDefaultConfig(feedforward, kinematics).setReversed(reversed)
+            getDefaultConfig(feedforward, kinematics)
         );
     }
     /**
@@ -83,6 +84,9 @@ public class OCPath extends Trajectory{
         return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
             .addConstraints(config.getConstraints())
             .setReversed(config.isReversed());
+    }
+    public OCPath modifyConfig(TrajectoryConfig config){
+        return new OCPath(this, config);
     }
 
     /**
@@ -113,8 +117,18 @@ public class OCPath extends Trajectory{
     }
 
     /**
+     * Returns a clone of this OCPath, reversing the trajectory's states automatically.
+     * Ex: Follow a trajectory with the robot facing backwards.
+     */
+    public OCPath getReversed(){
+        return new OCPath(
+            getReversedStates(getStates()),
+            getReversedConfig(getConfig())
+        );
+    }
+    /**
      * Returns a clone of this OCPath, inverting the trajectory to
-     * be followed the opposite direction.
+     * be followed the end to start(backwards).
      * Ex: Follow a trajectory, and then follow the same trajectory inverted
      * to return to the starting point.
      */
@@ -131,6 +145,21 @@ public class OCPath extends Trajectory{
         List<Pose2d> reversedPoses = new ArrayList<Pose2d>(poses);
         Collections.reverse(reversedPoses);
         return reversedPoses;
+    }
+    public static List<State> getReversedStates(List<State> states){
+        List<State> reversedstates = new ArrayList<State>(states);
+        
+        for(int i=0;i<reversedstates.size();i++){
+            State currState =  reversedstates.get(i);
+            State newState = new State(
+                currState.timeSeconds, 
+                currState.velocityMetersPerSecond *-1, 
+                currState.accelerationMetersPerSecondSq *-1, 
+                new Pose2d(currState.poseMeters.getTranslation(), currState.poseMeters.getRotation().plus(new Rotation2d(Math.PI))), 
+                currState.curvatureRadPerMeter *-1);
+            reversedstates.set(i, newState);
+        }
+        return reversedstates;
     }
     /**
      * Returns a cloned, reversed list of the given states.

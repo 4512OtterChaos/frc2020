@@ -71,7 +71,7 @@ public class SAS {
      */
     public double getAngleConfidence(double distance, Shooter shooter){
         double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        double angleTolerance = MathHelp.lerp(distPercent, 2, 1.5);
+        double angleTolerance = MathHelp.lerp(distPercent, 3, 2);
         
         ShooterState error = shooter.getTargetState().minus(shooter.getCurrentState());
         double angleError = Math.abs(error.angle);
@@ -101,7 +101,7 @@ public class SAS {
      */
     public double getHeadingConfidence(double distance, Drivetrain drivetrain){
         double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        double headingTolerance = MathHelp.lerp(distPercent, 3, 2);
+        double headingTolerance = MathHelp.lerp(distPercent, 7, 5);
 
         double headingError = Math.abs(drivetrain.getTurnToError().getDegrees());
         

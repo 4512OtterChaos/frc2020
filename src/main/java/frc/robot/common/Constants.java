@@ -84,7 +84,7 @@ public class Constants {
         public static final int kVelocityConstraint = 120; // Cruise Velocity Degrees
         public static final int kAccelerationConstraint = 160;
         
-        public static final double kEncoderOffset = -0.37; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
         
         // Constraints
         public static final double kLowestSafeDegrees = 10; // above is safe
@@ -163,10 +163,10 @@ public class Constants {
     }
     
     public static class AutoConstants{
-        public static final double kMaxAutoVoltage = 10; // Avoid voltage sag and maintain accuracy
-        public static final double kMaxVelocityMeters = Units.feetToMeters(10);
-        public static final double kMaxAccelerationMeters = Units.feetToMeters(6);
-        public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(3.4); // Turning acceleration given radius
+        public static final double kMaxAutoVoltage = 10.5; // Avoid voltage sag and maintain accuracy
+        public static final double kMaxVelocityMeters = Units.feetToMeters(12);
+        public static final double kMaxAccelerationMeters = Units.feetToMeters(7);
+        public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(3.7); // Turning acceleration given radius
         public static final Pose2d kAcceptablePoseError = new Pose2d(1, 1, new Rotation2d(Units.degreesToRadians(60))); // this is for crash handling on trajectories
         public static final double kReferenceFailureWindow = 1.75; // seconds till trajectory abandons when off tolerence
     }

@@ -4,6 +4,7 @@
 
 package frc.robot.common;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -35,6 +36,20 @@ public class LEDPattern {
     }
     protected LEDPattern(LEDPattern other){
         this(other.manager, other.workingVal);
+    }
+
+    /**
+     * A conditional pattern. If condition is true, draw the other pattern, otherwise draw this pattern.
+     */
+    public static LEDPattern conditionalWith(LEDPattern main, LEDPattern other, BooleanSupplier condition){
+        return new LEDPattern(main){
+            @Override
+            public AddressableLEDBuffer draw(){
+                boolean isOther = condition.getAsBoolean();
+                if(isOther) return other.draw();
+                else return main.draw();
+            }
+        };
     }
 
     /**
@@ -100,7 +115,7 @@ public class LEDPattern {
     public static final int kGreenHue = 60;
     public static final int kRedHue = 0;
     public static final int kBlueHue = 108;
-    public static final int kYellowHue = 30;
+    public static final int kYellowHue = 27;
     
     public static final int kWaveLength = 16; // size of waves
     public static final int kWaveThreshold = 100; // minimum wave brightness(value)

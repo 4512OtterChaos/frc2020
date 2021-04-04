@@ -31,7 +31,7 @@ public class IndexIncoming extends CommandBase {
     @Override
     public void execute() {
         if(indexer.getReceiveBeam() && !indexer.getShootBeam()){
-            indexer.setVolts(4);
+            indexer.setVolts(3.8);
         }
         else{
             indexer.setVolts(0);

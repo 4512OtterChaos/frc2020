@@ -35,12 +35,13 @@ public class TurnTo extends ProfiledPIDCommand {
     
     private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians*0.4);
     
-    private static final double kPositionToleranceDegrees = 1.75;
+    private static final double kPositionToleranceDegrees = 2;
     private static final double kVelocityToleranceDegrees = 5;
     
     private static ProfiledPIDController controller = new ProfiledPIDController(0.6, 0, 0, 
-    new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5),
-    Constants.kRobotDelta);
+        new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5),
+        Constants.kRobotDelta
+    );
     
     public TurnTo(Drivetrain drivetrain, double target) {
         super(
@@ -162,11 +163,11 @@ public class TurnTo extends ProfiledPIDCommand {
     */
     public static Command createTensionedTurnToTarget(Drivetrain drivetrain, Limelight limelight){
         ProfiledPIDCommand tensionedTurn = new ProfiledPIDCommand(
-        new ProfiledPIDController(0.2, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
+        new ProfiledPIDController(0.25, 0, 0, new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5), Constants.kRobotDelta),
         () -> drivetrain.getContinuousYawPosition(),
-        () -> drivetrain.getContinuousYawPosition()-limelight.getTx(),
+        () -> drivetrain.getContinuousYawPosition()-limelight.getFilteredTx(),
         (output, setpoint) -> {
-            double tensionVolts = drivetrain.getLinearFF().ks * 0.33; // slight voltage for putting in tension
+            double tensionVolts = drivetrain.getLinearFF().ks * 0.4; // slight voltage for putting in tension
             double leftVolts = tensionVolts;
             double rightVolts = tensionVolts;
             
@@ -180,16 +181,23 @@ public class TurnTo extends ProfiledPIDCommand {
             @Override
             public void execute() {
                 super.execute();
-                drivetrain.setTurnToTarget(this.getController().getGoal().position);
-                drivetrain.setTurnToError(this.getController().getPositionError());
-                SmartDashboard.putNumber("TurnTo Target", this.getController().getGoal().position);
+                double goalPos = this.getController().getGoal().position;
+                double errorPos = this.getController().getPositionError();
+                drivetrain.setTurnToTarget(goalPos);
+                drivetrain.setTurnToError(errorPos);
+                SmartDashboard.putNumber("TurnTo Target", goalPos);
                 SmartDashboard.putNumber("TurnTo State Target", this.getController().getSetpoint().position);
+                SmartDashboard.putNumber("TurnTo Error", errorPos);
+            }
+
+            @Override
+            public boolean isFinished(){
+                return getController().atGoal();
             }
         };
         ProfiledPIDController controller = tensionedTurn.getController();
         controller.enableContinuousInput(-180, 180);
         controller.setTolerance(kPositionToleranceDegrees, kVelocityToleranceDegrees);
-        return tensionedTurn
-        .withInterrupt(controller::atGoal).withTimeout(1.4);
+        return tensionedTurn;
     }
 }
