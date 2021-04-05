@@ -62,7 +62,7 @@ public class PhotonWaypointRamsete extends CommandBase {
         List<Pose2d> ballPoses = relativeWaypoints.stream().map(
             translation -> new Pose2d(translation, new Rotation2d())
         ).collect(Collectors.toList());
-        //liveTable.getEntry("visionTargets").setValue(ballPoses);
+        liveTable.getEntry("visionTargets").setValue(ballPoses.toArray());
 
         Translation2d lastTran = relativeWaypoints.get(relativeWaypoints.size()-1);
         Pose2d endPose = new Pose2d(new Translation2d(Units.feetToMeters(29), lastTran.getY()), new Rotation2d());
