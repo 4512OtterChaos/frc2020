@@ -134,20 +134,6 @@ public class Drivetrain extends SubsystemBase implements Testable{
         setChassisSpeed(new ChassisSpeeds(linear, 0, angular));
     }
     /**
-     * Feeds percentages into chassis speeds for velocity PID.
-     * When given the reference drivespeed used on the values before this method,
-     * attempts to scale turning so that higher drivespeeds do not overturn.
-     * Positive: linear forward, angular counter-clockwise
-     * @param referenceDrivespeed The coefficient applied to forward/turn percentages beforehand
-     */
-    public void setChassisSpeed(double linearPercent, double angularPercent, double referenceDrivespeed){
-        double adjustedDriveSpeed = referenceDrivespeed;
-        adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(adjustedDriveSpeed), 0.2)*0.4, adjustedDriveSpeed);
-        angularPercent *= adjustedDriveSpeed*(1/referenceDrivespeed); // divide by reference to override original speed
-        SmartDashboard.putNumber("Adjusted Turn", angularPercent);
-        setChassisSpeed(linearPercent, angularPercent);
-    }
-    /**
      * Feeds chassis speeds into differential drive wheel speeds for velocity PID.
      */
     public void setChassisSpeed(ChassisSpeeds chassisSpeeds){
@@ -170,7 +156,14 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
         tankDriveVolts(
             leftVolts,
-            rightVolts);
+            rightVolts
+        );
+    }
+    /**
+     * Uses percentage of the maximum robot velocity. See {@link Drivetrain#setVelocityMeters(double, double)}
+     */
+    public void setVelocityPercentage(double leftPercent, double rightPercent){
+        setVelocityMeters(leftPercent*kMaxVelocityMeters, rightPercent*kMaxVelocityMeters);
     }
     
     public void resetEncoders(){

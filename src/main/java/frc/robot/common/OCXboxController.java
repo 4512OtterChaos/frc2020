@@ -16,12 +16,21 @@ import frc.robot.util.MathHelp;
  */
 public class OCXboxController extends XboxController{
 
-    private static final double deadband = 0.12;
+    public enum DriveMode{
+        ARCADE,
+        ARCADEVOLTS,
+        CURVATURE
+    }
+    private DriveMode mode;
 
-    private double drivespeed = 1;
-    public static final double kSpeedDefault = 0.35;
-    public static final double kSpeedFast = 0.55;
+    private static final double kDeadband = 0.12;
+    private static final double kArcadeThreshold = 0.2;
+
+    
+    public static final double kSpeedDefault = 0.4;
+    public static final double kSpeedFast = 0.6;
     public static final double kSpeedMax = 0.8;
+    private double drivespeed = kSpeedDefault;
     
     private SlewRateLimiter forwardLimiter = new SlewRateLimiter(3.5);
     private SlewRateLimiter turnLimiter = new SlewRateLimiter(6);
@@ -34,13 +43,24 @@ public class OCXboxController extends XboxController{
         super(port);
     }
 
+    public DriveMode getMode(){
+        return mode;
+    }
+    public void setDriveMode(DriveMode mode){
+        this.mode = mode;
+    }
+
+    public static double deadband(double value){
+        return Math.abs(value) > kDeadband ? value : 0;
+    }
+
     /**
      * Deadbands a value and re-scales it.
      * @param value Value to adjust
      * @return -1 to 1
      */
     public static double scaledDeadband(double value){
-        return scaledDeadband(value, deadband);
+        return scaledDeadband(value, kDeadband);
     }
     /**
      * Deadbands a value and re-scales it.
@@ -89,32 +109,76 @@ public class OCXboxController extends XboxController{
     public double getTurn(){
         return turnLimiter.calculate(getX(Hand.kRight))*drivespeedLimiter.calculate(drivespeed);
     }
+    /**
+     * Applies deadband math and rate limiting to right X to give 'turn' power.
+     * Affected by controller drivespeed-- specifically, this is different from
+     * {@link #getTurn()} by increasing turning at low drivespeed and capping it at higher speeds,
+     * making it more consistent.
+     * @return Percentage(-1 to 1)
+     */
+    public double getScaledTurn(){
+        double drivespeed = drivespeedLimiter.calculate(this.drivespeed);
+        double adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(drivespeed), 0.2)*0.4, drivespeed);
+        return turnLimiter.calculate(getX(Hand.kRight))*adjustedDriveSpeed;
+    }
+
+    public double[] getArcadeDrive(){
+        double forward = getForward();
+        double turn = getScaledTurn();
+
+        return new double[]{forward-turn,forward+turn};
+    }
 
     /**
-     * Gives left DT percentage using arcade mode.
+     * Automatic left DT percentage of {@link #getArcadeDrive()}
      */
     public double getLeftArcade(){
-        return getLeftArcade(getForward(), getTurn());
+        return getArcadeDrive()[0];
     }
     /**
-     * Gives simple left DT percentage using arcade mode.
-     * WARNING: Does not use rate limiters
-     */
-    public double getLeftArcade(double forward, double turn){
-        return forward - turn;
-    }
-    /**
-     * Gives right DT percentage using arcade mode.
+     * Automatic left DT percentage of {@link #getArcadeDrive()}
      */
     public double getRightArcade(){
-        return getRightArcade(getForward(), getTurn());
+        return getArcadeDrive()[1];
     }
     /**
-     * Gives simple right DT percentage using arcade mode.
-     * WARNING: Does not use rate limiters
+     * Simulates car steering. The ratio between left and right wheel speeds will always be the same for a given turn value,
+     * regardless of the forward value-- which creates constant curvature. This also means the robot does not turn
+     * when not moving forward, so {@link #kArcadeThreshold} is used to utilize arcade drive at low values.
      */
-    public double getRightArcade(double forward, double turn){
-        return forward + turn;
+    public double[] getCurvatureDrive(){
+        double forward = getForward();
+        double turn = getTurn();
+        double left = 0;
+        double right = 0;
+        double forwardMagnitude = Math.abs(forward);
+
+        if(forwardMagnitude<kArcadeThreshold){
+            return new double[]{getLeftArcade(),getRightArcade()};
+        }
+        else{
+            left = forward - forwardMagnitude*turn;
+            right = forward + forwardMagnitude*turn;// positive turn increases right side
+        }
+        double highestSide = Math.max(left, right);
+        if(highestSide>1){
+            left /= highestSide;
+            right /= highestSide;
+        }
+
+        return new double[]{left,right};
+    }
+    /**
+     * Automatic left DT percentage of {@link #getCurvatureDrive(double, double, double)}
+     */
+    public double getLeftCurvatureDrive(){
+        return getCurvatureDrive()[0];
+    }
+    /**
+     * Automatic right DT percentage of {@link #getCurvatureDrive(double, double, double)}
+     */
+    public double getRightCurvatureDrive(){
+        return getCurvatureDrive()[1];
     }
 
     /**

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -45,6 +46,7 @@ import frc.robot.common.OCXboxController;
 import frc.robot.common.Testable;
 import frc.robot.common.Constants.ShooterWristConstants;
 import frc.robot.common.Constants.VisionConstants;
+import frc.robot.common.OCXboxController.DriveMode;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Limelight.Configuration;
@@ -73,9 +75,8 @@ public class RobotContainer {
     private boolean operatorConfigured = false;
         
     private AutoOptions autoOptions;
-
-    private double testRPM = 0;
-    private double testWristAngle = ShooterWristConstants.kClearIntakeDegrees;
+    private SendableChooser<DriveMode> driveModeChooser = new SendableChooser<>();
+    private boolean noDriverStation = true;
     
     public RobotContainer() {
         drivetrain = new Drivetrain();
@@ -113,24 +114,40 @@ public class RobotContainer {
         testableSystems = new Testable[]{drivetrain};
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, photonIntake, analysis, paths);
-        autoOptions.submit();
-        CommandScheduler.getInstance().schedule(new WaitCommand(10).andThen(new InstantCommand(()->autoOptions.submit())));
 
-        driver.setDriveSpeed(OCXboxController.kSpeedDefault);
         configureButtonBindings();
     }
     /**
      * Runs every loop, regardless
      */
     public void periodic(){
+        if(noDriverStation && DriverStation.getInstance().isDSAttached()){
+            noDriverStation = false;
+            autoOptions.submit();
+            SmartDashboard.putData("Driving Mode", driveModeChooser);
+        }
+
         manager.periodic();
     }
     private void configureButtonBindings(){
         configureDriverBindings();
     }
     private void configureDriverBindings(){
-        RunCommand velocityControl = new RunCommand(()->drivetrain.setChassisSpeed(driver.getForward(), driver.getTurn(), driver.getDriveSpeed()), drivetrain);
-        drivetrain.setDefaultCommand(velocityControl.beforeStarting(driver::resetLimiters));
+        RunCommand teleopDrive = new RunCommand(()->{
+            
+            switch(getDriveMode()){
+                case ARCADE:
+                    drivetrain.setVelocityPercentage(driver.getLeftArcade(), driver.getRightArcade());
+                break;
+                case CURVATURE:
+                    drivetrain.setVelocityPercentage(driver.getLeftCurvatureDrive(), driver.getRightCurvatureDrive());
+                break;
+                default:
+                    drivetrain.tankDrive(driver.getLeftArcade(), driver.getRightArcade());
+                break;
+            }
+        }, drivetrain);
+        drivetrain.setDefaultCommand(teleopDrive.beforeStarting(driver::resetLimiters));
 
         new JoystickButton(driver, XboxController.Button.kBumperRight.value)
             .whenPressed(()->driver.setDriveSpeed(OCXboxController.kSpeedFast))
@@ -301,9 +318,14 @@ public class RobotContainer {
                 intake
             );
     }
+
+    // ---------------------------------------------------------------------------------
     
     public Command getAutonomousCommand() {
         return autoOptions.getSelected();
+    }
+    public DriveMode getDriveMode(){
+        return driveModeChooser.getSelected();
     }
 
     public void init(boolean auto){
