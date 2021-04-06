@@ -240,8 +240,8 @@ public class LEDPattern {
     }
 
     public LEDPattern presetAutomaticRollingWaves(int speed){
-        boolean blueTeam = DriverStation.getInstance().getAlliance() == Alliance.Blue;
-        int hue = blueTeam ? kBlueHue : kRedHue;
+        boolean redTeam = DriverStation.getInstance().getAlliance() == Alliance.Red;
+        int hue = redTeam ? kRedHue : kBlueHue;
         return presetRollingWaves(hue, 255, speed);
     }
 
