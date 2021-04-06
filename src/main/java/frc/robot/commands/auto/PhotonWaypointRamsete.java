@@ -43,12 +43,15 @@ public class PhotonWaypointRamsete extends CommandBase {
             return;
         }
 
-        Pose2d startPose = drivetrain.getOdometry().getPoseMeters();
+        Pose2d startPose = new Pose2d(
+            Units.feetToMeters(2.5), Units.feetToMeters(9.125), new Rotation2d()
+        );
+        drivetrain.resetOdometry(startPose);
         List<Translation2d> relativeWaypoints = new ArrayList<>();
         for(Translation2d waypoint : waypoints){
             relativeWaypoints.add(
                 waypoint.rotateBy(startPose.getRotation()).plus(startPose.getTranslation())
-                    .minus(new Translation2d(-0.25,0))//quick fix turning
+                    .minus(new Translation2d(0.25,0)) // quick fix turning
             );
         }
 
@@ -65,7 +68,7 @@ public class PhotonWaypointRamsete extends CommandBase {
         liveTable.getEntry("visionTargets").setValue(ballPoses.toArray());
 
         Translation2d lastTran = relativeWaypoints.get(relativeWaypoints.size()-1);
-        Pose2d endPose = new Pose2d(new Translation2d(Units.feetToMeters(29), lastTran.getY()), new Rotation2d());
+        Pose2d endPose = new Pose2d(new Translation2d(Units.feetToMeters(32), lastTran.getY()), new Rotation2d());
 
         OCPath path = new OCPath(
             startPose, 
@@ -74,9 +77,7 @@ public class PhotonWaypointRamsete extends CommandBase {
             drivetrain.getLinearFF(), drivetrain.getKinematics()
         );
 
-        ramseteCommand = new StandardRamseteCommand(drivetrain,
-            path.modifyConfig(path.getConfig().setEndVelocity(AutoConstants.kMaxVelocityMeters))
-        );
+        ramseteCommand = new StandardRamseteCommand(drivetrain, path);
         ramseteCommand.initialize();
     }
     

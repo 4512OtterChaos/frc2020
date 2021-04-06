@@ -250,25 +250,21 @@ public class Drivetrain extends SubsystemBase implements Testable{
         return xyz[0];
     }
     public Rotation2d getHeading(){
-        return Rotation2d.fromDegrees(getYawPosition());
+        return odometry.getPoseMeters().getRotation();
     }
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
     }
     public void updateOdometry(){
-        odometry.update(getHeading(), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
+        odometry.update(Rotation2d.fromDegrees(getYawPosition()), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
         updatePoseHistory(odometry.getPoseMeters());
     }
     public void resetOdometry(){
-        resetOdometry(getHeading());
-    }
-    public void resetOdometry(Rotation2d gyroAngle){
-        //resetOdometry(new Pose2d(), gyroAngle);
+        resetOdometry(new Pose2d());
     }
     public void resetOdometry(Pose2d poseMeters){
         resetEncoders();
-        resetGyro();
-        odometry.resetPosition(poseMeters, getHeading());
+        odometry.resetPosition(poseMeters, Rotation2d.fromDegrees(getYawPosition()));
     }
     /**
      * Returns a previous recorded pose.

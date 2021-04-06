@@ -30,7 +30,16 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
  */
 public class OCPath extends Trajectory{
 
+    public enum Preset{
+        DEFAULT,
+        SLALOM,
+        BOUNCE,
+        BARREL
+    }
+
     private TrajectoryConfig config; // Store config for reversing
+
+    private List<Pose2d> poses = new ArrayList<>();
 
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and quintic hermite splines.
@@ -39,10 +48,24 @@ public class OCPath extends Trajectory{
         this(
             TrajectoryGenerator.generateTrajectory(
                 poses,
-                getDefaultConfig(feedforward, kinematics)
+                getPresetConfig(feedforward, kinematics)
             ),
-            getDefaultConfig(feedforward, kinematics)
+            getPresetConfig(feedforward, kinematics)
         );
+        this.poses = new ArrayList<>(poses);
+    }
+    /**
+     * Constructs a new Trajectory using {@link TrajectoryGenerator} and quintic hermite splines.
+     */
+    public OCPath(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, Preset preset){
+        this(
+            TrajectoryGenerator.generateTrajectory(
+                poses,
+                getPresetConfig(preset, feedforward, kinematics)
+            ),
+            getPresetConfig(preset, feedforward, kinematics)
+        );
+        this.poses = new ArrayList<>(poses);
     }
     /**
      * Constructs a new Trajectory using {@link TrajectoryGenerator} and clamped cubic splines,
@@ -54,10 +77,39 @@ public class OCPath extends Trajectory{
                 start,
                 interiorWaypoints,
                 end,
-                getDefaultConfig(feedforward, kinematics)
+                getPresetConfig(feedforward, kinematics)
             ), 
-            getDefaultConfig(feedforward, kinematics)
+            getPresetConfig(feedforward, kinematics)
         );
+        poses.add(start);
+        for(Translation2d tran : interiorWaypoints){
+            poses.add(
+                new Pose2d(tran, new Rotation2d()) // poses without rotation  
+            );
+        }
+        poses.add(end);
+    }
+    /**
+     * Constructs a new Trajectory using {@link TrajectoryGenerator} and clamped cubic splines,
+     * where the heading at the interior waypoints is automatically determined.
+     */
+    public OCPath(Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, Preset preset){
+        this(
+            TrajectoryGenerator.generateTrajectory(
+                start,
+                interiorWaypoints,
+                end,
+                getPresetConfig(preset, feedforward, kinematics)
+            ), 
+            getPresetConfig(preset, feedforward, kinematics)
+        );
+        poses.add(start);
+        for(Translation2d tran : interiorWaypoints){
+            poses.add(
+                new Pose2d(tran, new Rotation2d()) // poses without rotation  
+            );
+        }
+        poses.add(end);
     }
     /**
      * Constructs a new OCPath with given trajectory and configuration. This constructor should be
@@ -78,6 +130,31 @@ public class OCPath extends Trajectory{
     }
 
     /**
+     * Gets one of the preset TrajectoryConfigs and constructs it with feedforward and kinematics.
+     */
+    public static TrajectoryConfig getPresetConfig(Preset preset, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
+        switch(preset){
+            default: return new TrajectoryConfig(kMaxVelocityMeters, kMaxAccelerationMeters)
+                .setKinematics(kinematics)
+                .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
+                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, kMaxAutoVoltage)); // Account for voltage sag
+            case SLALOM: return new TrajectoryConfig(12.25, 16)
+                .setKinematics(kinematics)
+                .addConstraint(new CentripetalAccelerationConstraint(10.5))
+                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
+            case BOUNCE: return new TrajectoryConfig(11, 14)
+                .setKinematics(kinematics)
+                .addConstraint(new CentripetalAccelerationConstraint(9))
+                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
+        }
+    }
+    /**
+     * Gets the default TrajectoryConfigs and constructs it with feedforward and kinematics.
+     */
+    public static TrajectoryConfig getPresetConfig(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
+        return getPresetConfig(Preset.DEFAULT, feedforward, kinematics);
+    }
+    /**
      * Returns a clone of the given {@link TrajectoryConfig}.
      */
     public static TrajectoryConfig cloneConfig(TrajectoryConfig config){
@@ -85,20 +162,7 @@ public class OCPath extends Trajectory{
             .addConstraints(config.getConstraints())
             .setReversed(config.isReversed());
     }
-    public OCPath modifyConfig(TrajectoryConfig config){
-        return new OCPath(this, config);
-    }
 
-    /**
-     * Returns the default configuration to be used for generating trajectories.
-     * @param drive Drivetrain to specify kinematics
-     */
-    public static TrajectoryConfig getDefaultConfig(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
-        return new TrajectoryConfig(kMaxVelocityMeters, kMaxAccelerationMeters)
-            .setKinematics(kinematics)
-            .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
-            .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, kMaxAutoVoltage)); // Account for voltage sag
-    }
     /**
      * Returns a cloned list of Trajectory states.
      */
@@ -114,6 +178,9 @@ public class OCPath extends Trajectory{
 
     public Pose2d getInitialPose(){
         return getStates().get(0).poseMeters;
+    }
+    public List<Pose2d> getPoseList(){
+        return new ArrayList<>(poses);
     }
 
     /**
