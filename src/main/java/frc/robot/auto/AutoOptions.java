@@ -26,6 +26,7 @@ import frc.robot.commands.auto.PhotonWaypointRamsete;
 import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.intake.SetIntakeLowered;
+import frc.robot.commands.intake.SetSliderExtended;
 import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.commands.superstructure.SuperstructureCommands;
@@ -167,8 +168,11 @@ public class AutoOptions {
             new StandardRamseteCommand(drivetrain, paths.example)
         );
 
-        fullAutoOptions.addOption("Example Inverted",
-            new StandardRamseteCommand(drivetrain, paths.example.getInverted())
+        fullAutoOptions.addOption("Example, then inverted",
+            new StandardRamseteCommand(drivetrain, paths.example)
+            .andThen(
+                new StandardRamseteCommand(drivetrain, paths.example.getInverted())
+            )
         );
         
         fullAutoOptions.addOption("Galactic Search",
@@ -183,6 +187,36 @@ public class AutoOptions {
             .andThen(
                 new InstantCommand(()->drivetrain.setBrakeOn(false))
             )
+        );
+
+        fullAutoOptions.addOption("Slalom",
+            new StandardRamseteCommand(drivetrain, paths.slalom)
+            .beforeStarting(()->
+                drivetrain.resetOdometry(
+                    paths.slalom.getInitialPose()
+                ), drivetrain
+            )
+        );
+
+        fullAutoOptions.addOption("Bounce", 
+            new StandardRamseteCommand(drivetrain, paths.bounce1)
+            .beforeStarting(()->
+                drivetrain.resetOdometry(
+                    paths.bounce1.getInitialPose()
+                ), drivetrain
+            )
+            .andThen(
+                new StandardRamseteCommand(drivetrain, paths.bounce2)
+                .alongWith(new SetIntakeLowered(intake, true))
+            )
+            .andThen(
+                new StandardRamseteCommand(drivetrain, paths.bounce3)
+                .alongWith(
+                    new SetIntakeLowered(intake, false)
+                    .andThen(new SetSliderExtended(intake, false))
+                )
+            )
+            .andThen(new StandardRamseteCommand(drivetrain, paths.bounce4))
         );
         
         // populate sendable choosers with constructed commands

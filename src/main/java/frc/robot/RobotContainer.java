@@ -75,7 +75,7 @@ public class RobotContainer {
     private boolean operatorConfigured = false;
         
     private AutoOptions autoOptions;
-    private SendableChooser<DriveMode> driveModeChooser = new SendableChooser<>();
+    private SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
     private boolean noDriverStation = true;
     
     public RobotContainer() {
@@ -114,6 +114,9 @@ public class RobotContainer {
         testableSystems = new Testable[]{drivetrain};
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, photonIntake, analysis, paths);
+        driveModeChooser.setDefaultOption("Curvature Drive", OCXboxController.DriveMode.CURVATURE);
+        driveModeChooser.addOption("Arcade Drive", OCXboxController.DriveMode.ARCADE);
+        driveModeChooser.addOption("Yeet Drive", OCXboxController.DriveMode.ARCADEVOLTS);
 
         configureButtonBindings();
     }
@@ -341,7 +344,10 @@ public class RobotContainer {
 
         limelight.setConfiguration(Configuration.BASIC);
 
-        if(auto) drivetrain.resetOdometry(new Pose2d(Units.feetToMeters(2.5), Units.feetToMeters(9.125), new Rotation2d()), new Rotation2d());
+        if(auto){
+            intake.setSliderIsExtended(false);
+            //drivetrain.resetOdometry(new Pose2d(Units.feetToMeters(2.5), Units.feetToMeters(9.125), new Rotation2d()), new Rotation2d());
+        }
     }
     public void disable(){
         limelight.setConfiguration(Configuration.DRIVE);

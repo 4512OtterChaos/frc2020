@@ -22,7 +22,7 @@ public class Constants {
     // All distance measurements should be in meters when being used
     
     public static class DrivetrainConstants{
-        public static final double kTrackWidthMeters = Units.inchesToMeters(23); // Distance between center of drivetrain sides
+        public static final double kTrackWidthMeters = Units.inchesToMeters(26); // Distance between center of drivetrain sides
         public static final double kWheelRadiusMeters = Units.inchesToMeters(3);
         
         public static final double kMaxVelocityMeters = Units.feetToMeters(14);
@@ -35,15 +35,15 @@ public class Constants {
         
         public static final double kRampRaw = 0.04; // seconds to full output(on the motor)
         
-        public static final double kLinearStaticFF = 0.241; // volts (Given from the characterization tool)
-        public static final double kLinearVelocityFF = 2.32; // per meters per second
-        public static final double kLinearAccelerationFF = 0.376; // per meters per second squared
+        public static final double kLinearStaticFF = 0.22; // volts (Given from the characterization tool)
+        public static final double kLinearVelocityFF = 2.3; // per meters per second
+        public static final double kLinearAccelerationFF = 0.32; // per meters per second squared
         
         public static final double kAngularStaticFF = 0.261; // volts (Given from the characterization tool)
         public static final double kAngularVelocityFF = 2.4; // per meters per second (per side when turning)
         public static final double kAngularAccelerationFF = 0.49; // per meters per second squared
         
-        public static final double kP = 0.8; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 1.4; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
     }
@@ -163,10 +163,10 @@ public class Constants {
     }
     
     public static class AutoConstants{
-        public static final double kMaxAutoVoltage = 10.5; // Avoid voltage sag and maintain accuracy
-        public static final double kMaxVelocityMeters = Units.feetToMeters(12);
-        public static final double kMaxAccelerationMeters = Units.feetToMeters(7);
-        public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(3.7); // Turning acceleration given radius
+        public static final double kMaxAutoVoltage = 12; // Avoid voltage sag and maintain accuracy
+        public static final double kMaxVelocityMeters = Units.feetToMeters(11);
+        public static final double kMaxAccelerationMeters = Units.feetToMeters(14);
+        public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(9); // Turning acceleration given radius
         public static final Pose2d kAcceptablePoseError = new Pose2d(1, 1, new Rotation2d(Units.degreesToRadians(60))); // this is for crash handling on trajectories
         public static final double kReferenceFailureWindow = 1.75; // seconds till trajectory abandons when off tolerence
     }

@@ -33,7 +33,8 @@ public class OCXboxController extends XboxController{
     private double drivespeed = kSpeedDefault;
     
     private SlewRateLimiter forwardLimiter = new SlewRateLimiter(3.5);
-    private SlewRateLimiter turnLimiter = new SlewRateLimiter(6);
+    private SlewRateLimiter turnLimiter = new SlewRateLimiter(5);
+    private SlewRateLimiter curveLimiter = new SlewRateLimiter(5);
     private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(2);
 
     /**
@@ -99,7 +100,7 @@ public class OCXboxController extends XboxController{
      * @return Percentage(-1 to 1)
      */
     public double getForward(){
-        return forwardLimiter.calculate(getY(Hand.kLeft))*drivespeedLimiter.calculate(drivespeed);
+        return forwardLimiter.calculate(getY(Hand.kLeft)*drivespeedLimiter.calculate(drivespeed));
     }
     /**
      * Applies deadband math and rate limiting to right X to give 'turn' power.
@@ -107,7 +108,7 @@ public class OCXboxController extends XboxController{
      * @return Percentage(-1 to 1)
      */
     public double getTurn(){
-        return turnLimiter.calculate(getX(Hand.kRight))*drivespeedLimiter.calculate(drivespeed);
+        return turnLimiter.calculate(getX(Hand.kRight)*drivespeedLimiter.calculate(drivespeed));
     }
     /**
      * Applies deadband math and rate limiting to right X to give 'turn' power.
@@ -119,7 +120,7 @@ public class OCXboxController extends XboxController{
     public double getScaledTurn(){
         double drivespeed = drivespeedLimiter.calculate(this.drivespeed);
         double adjustedDriveSpeed = Math.copySign(Math.pow(Math.abs(drivespeed), 0.2)*0.4, drivespeed);
-        return turnLimiter.calculate(getX(Hand.kRight))*adjustedDriveSpeed;
+        return turnLimiter.calculate(getX(Hand.kRight)*adjustedDriveSpeed);
     }
 
     public double[] getArcadeDrive(){
@@ -148,7 +149,7 @@ public class OCXboxController extends XboxController{
      */
     public double[] getCurvatureDrive(){
         double forward = getForward();
-        double turn = getTurn();
+        double turn = curveLimiter.calculate(-deadband(getRawAxis(4))*0.9);
         double left = 0;
         double right = 0;
         double forwardMagnitude = Math.abs(forward);

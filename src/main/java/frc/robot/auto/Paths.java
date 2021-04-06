@@ -7,6 +7,7 @@
 
 package frc.robot.auto;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +30,12 @@ public class Paths {
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
     //----- Paths
-    public final OCPath forward; // our different paths
-    public final OCPath example;
+    public final OCPath example; // our different paths
+    public final OCPath slalom;
+    public final OCPath bounce1;
+    public final OCPath bounce2;
+    public final OCPath bounce3;
+    public final OCPath bounce4;
     //-----
 
     private static boolean hasAbandonedTrajectory = false;
@@ -39,8 +44,27 @@ public class Paths {
      * Generates autonomous paths given drivetrain specifications.
      */
     public Paths(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
-        forward = new OCPath(PathsList.forward, feedforward, kinematics);
         example = new OCPath(PathsList.example, feedforward, kinematics);
+        slalom = quinticToCubic(PathsList.slalom, feedforward, kinematics);
+        bounce1 = new OCPath(PathsList.bounce1, feedforward, kinematics).getReversed();
+        bounce2 = new OCPath(PathsList.bounce2, feedforward, kinematics);
+        bounce3 = new OCPath(PathsList.bounce3, feedforward, kinematics).getReversed();
+        bounce4 = new OCPath(PathsList.bounce4, feedforward, kinematics);
+    }
+
+    public static OCPath quinticToCubic(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
+        List<Translation2d> interior = new ArrayList<>();
+        for(Pose2d pose : poses){ // create interior waypoints
+            interior.add(new Translation2d(pose.getX(), pose.getY()));
+        }
+        interior.remove(0); // trim start/end poses
+        interior.remove(interior.size()-1);
+        return new OCPath(
+            poses.get(0),
+            interior,
+            poses.get(poses.size()-1),
+            feedforward, kinematics
+        );
     }
 
     /**
@@ -50,26 +74,63 @@ public class Paths {
      */
     public static class PathsList{
         // All pose distance measurements are recorded in feet(but translated to meters)!
-        public static final List<Pose2d> forward = feetToMeters(
-            new Pose2d(),
-            new Pose2d(3, 0, new Rotation2d())  
-        );
-        public static final List<Pose2d> example = feetToMeters(
+        public static final List<Pose2d> example = feetToMeters(// dumb
             new Pose2d(),
             new Pose2d(4, 2, new Rotation2d()),
             new Pose2d(8, 0, new Rotation2d())
         );
-        public static final List<Pose2d> straightBack6feet = feetToMeters(
-            new Pose2d(),
-            new Pose2d(6,0,new Rotation2d())
+        public static final List<Pose2d> slalom = Arrays.asList(// clamped cubic
+            //--good values--
+            // velocity: 12.25
+            // accel: 16
+            // centripetal: 10.5
+            // sag: 12
+            toPose(3.1, 2, 30), // start
+            toPose(7.5, 5, 50),
+            toPose(10.75, 7.3, 0),
+            toPose(19.5, 7.1,  0),
+            toPose(22.5, 5, -60),
+            toPose(25, 2.75, 0),
+            toPose(27, 5, 90),
+            toPose(25, 7.3, 0),
+            toPose(22.5, 5, -130),
+            toPose(20, 2.9, 0),
+            toPose(15, 3, 180),
+            toPose(9, 3.5, 0),
+            toPose(6.75, 6, 0),
+            toPose(2.5, 10, 140)
         );
-        public static final List<Pose2d> nearTrenchTake3 = feetToMeters(
-            new Pose2d(),
-            new Pose2d(0, 0, new Rotation2d(-135))
+        public static final List<Pose2d> bounce1 = Arrays.asList(
+            // reversed
+            toPose(3.5, 7.5, 0),
+            toPose(7.5, 11.75, 90)  
         );
-
+        public static final List<Pose2d> bounce2 = Arrays.asList(
+            // forward
+            toPose(7.5, 11.5, -90),
+            toPose(10, 5, -70),
+            toPose(15, 5, 90),
+            toPose(15, 11, 90)
+        );
+        public static final List<Pose2d> bounce3 = Arrays.asList(
+            // reversed
+            toPose(15, 11, -90),
+            toPose(15, 5, -90),
+            toPose(22.5, 5, 90),
+            toPose(22.5, 12.5, 90)  
+        );
+        public static final List<Pose2d> bounce4 = Arrays.asList(
+            toPose(22.5, 12.5, -80),
+            toPose(27, 6.75, -30)
+        );
         
         
+        public static Pose2d toPose(double xFt, double yFt, double deg){
+            return new Pose2d(Units.feetToMeters(xFt),Units.feetToMeters(yFt),Rotation2d.fromDegrees(deg));
+        }
+        public static Translation2d toTran(double xFt, double yFt){
+            return new Translation2d(Units.feetToMeters(xFt), Units.feetToMeters(yFt));
+        }
         /**
          * Takes pose waypoints in feet, returning the list as poses in meters.
          */

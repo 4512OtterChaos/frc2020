@@ -56,6 +56,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private SimpleMotorFeedforward angularFF = new SimpleMotorFeedforward(kAngularStaticFF, kAngularVelocityFF, kAngularAccelerationFF);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
     private DifferentialDriveOdometry odometry;
+    private DifferentialDriveWheelSpeeds lastSpeeds = new DifferentialDriveWheelSpeeds();
+    private double lastTime = Timer.getFPGATimestamp();
     private Field2d field = new Field2d();
     private TreeMap<Double, Pose2d> poseHistory = new TreeMap<>();
     private final double poseHistoryWindow = 0.75; // seconds
@@ -145,9 +147,19 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * <p><b>! Note: All inputs are in meters and all outputs are in volts.
      */
     public void setVelocityMeters(double leftMetersPerSecond, double rightMetersPerSecond){
+        double nowTime = Timer.getFPGATimestamp();
+        double dt = nowTime - lastTime;
         DifferentialDriveWheelSpeeds speeds = getWheelSpeeds();
+        double leftMetersPerSecondSquared = (speeds.leftMetersPerSecond - lastSpeeds.leftMetersPerSecond)/dt;
+        double rightMetersPerSecondSquared = (speeds.rightMetersPerSecond - lastSpeeds.rightMetersPerSecond)/dt;
+
         double leftVolts = 0;
         double rightVolts = 0;
+
+        SmartDashboard.putNumber("Left DController Actual", Units.metersToFeet(speeds.leftMetersPerSecond));
+        SmartDashboard.putNumber("Right DController Actual", Units.metersToFeet(speeds.rightMetersPerSecond));
+        SmartDashboard.putNumber("Left DController Target", Units.metersToFeet(leftMetersPerSecond));
+        SmartDashboard.putNumber("Right DController Target", Units.metersToFeet(rightMetersPerSecond));
         
         leftVolts += linearFF.calculate(leftMetersPerSecond);
         rightVolts += linearFF.calculate(rightMetersPerSecond);
@@ -158,6 +170,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
             leftVolts,
             rightVolts
         );
+        lastSpeeds = speeds;
+        lastTime = nowTime;
     }
     /**
      * Uses percentage of the maximum robot velocity. See {@link Drivetrain#setVelocityMeters(double, double)}
@@ -249,12 +263,12 @@ public class Drivetrain extends SubsystemBase implements Testable{
         resetOdometry(getHeading());
     }
     public void resetOdometry(Rotation2d gyroAngle){
-        resetOdometry(new Pose2d(), gyroAngle);
+        //resetOdometry(new Pose2d(), gyroAngle);
     }
-    public void resetOdometry(Pose2d poseMeters, Rotation2d gyroAngle){
+    public void resetOdometry(Pose2d poseMeters){
         resetEncoders();
         resetGyro();
-        odometry.resetPosition(poseMeters, gyroAngle);
+        odometry.resetPosition(poseMeters, getHeading());
     }
     /**
      * Returns a previous recorded pose.
