@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.wpilibj.util.Units;
 
 /**
  * Extension of the {@link Trajectory} class that simplifies the construction and use of Trajectories.
@@ -34,7 +35,8 @@ public class OCPath extends Trajectory{
         DEFAULT,
         SLALOM,
         BOUNCE,
-        BARREL
+        BARREL,
+        GALACTIC
     }
 
     private TrajectoryConfig config; // Store config for reversing
@@ -138,13 +140,17 @@ public class OCPath extends Trajectory{
                 .setKinematics(kinematics)
                 .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
                 .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, kMaxAutoVoltage)); // Account for voltage sag
-            case SLALOM: return new TrajectoryConfig(12.25, 16)
+            case SLALOM: return new TrajectoryConfig(meters(12.25), meters(16))
                 .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(10.5))
+                .addConstraint(new CentripetalAccelerationConstraint(meters(10.5)))
                 .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
-            case BOUNCE: return new TrajectoryConfig(11, 14)
+            case BOUNCE: return new TrajectoryConfig(meters(13), meters(17))
                 .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(9))
+                .addConstraint(new CentripetalAccelerationConstraint(meters(10.25)))
+                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
+            case BARREL: return new TrajectoryConfig(meters(10.5), meters(13))
+                .setKinematics(kinematics)
+                .addConstraint(new CentripetalAccelerationConstraint(meters(8.75)))
                 .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
         }
     }
@@ -176,6 +182,9 @@ public class OCPath extends Trajectory{
         return cloneConfig(config);
     }
 
+    private static double meters(double feet){
+        return Units.feetToMeters(feet);
+    }
     public Pose2d getInitialPose(){
         return getStates().get(0).poseMeters;
     }

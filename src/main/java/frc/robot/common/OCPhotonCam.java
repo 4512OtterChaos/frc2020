@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPipelineResult;
 import org.photonvision.PhotonTrackedTarget;
 import org.photonvision.PhotonUtils;
 
@@ -16,6 +17,8 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.util.Units;
+import frc.robot.auto.Paths.GSType;
+import frc.robot.util.MathHelp;
 
 /**
  * Wrapper for PhotonCamera that provides convenience methods.
@@ -69,10 +72,38 @@ public class OCPhotonCam extends PhotonCamera{
     }
 
     public double getBestDistance(){
-        if(!hasTargets()) return 0;
-        PhotonTrackedTarget target = getLatestResult().getBestTarget();
+        PhotonPipelineResult result = getLatestResult();
+        if(!result.hasTargets()) return 0;
+        PhotonTrackedTarget target = result.getBestTarget();
         return PhotonUtils.calculateDistanceToTargetMeters(
             kCamHeight, kTargetHeight, kCamPitch, Units.degreesToRadians(target.getPitch()));
+    }
+
+    public GSType findGSType(){
+        PhotonPipelineResult result = getLatestResult();
+        if(!result.hasTargets() || MathHelp.isBetweenBounds(2, result.getTargets().size(), 3)) return GSType.FAIL;
+        List<PhotonTrackedTarget> targets = result.getTargets();
+
+        double firstPitch = targets.get(0).getPitch();
+        double secondYaw = targets.get(1).getYaw();
+        // determine path based on powercell position
+        if(firstPitch < -5){ // Red is close
+            if(secondYaw > 5){ // Red B is right
+                return GSType.RED_B;
+            }
+            else{ // Red A is left, but the second power cell might confuse
+                return GSType.RED_A;
+            }
+        }
+        else{ // Blue is far
+             // in both paths latter powercells are to the left
+            if(targets.size()==3){ // 3 more visible in A
+                return GSType.BLUE_A;
+            }
+            else{
+                return GSType.BLUE_B;
+            }
+        }
     }
 
     /**
@@ -81,8 +112,9 @@ public class OCPhotonCam extends PhotonCamera{
      * Requires target height. If no targets are seen, an empty list is returned.
      */
     public List<Translation2d> findTranslationsThroughTargets(){
-        if(!hasTargets()) return new ArrayList<>();
-        List<PhotonTrackedTarget> targets = getLatestResult().getTargets();
+        PhotonPipelineResult result = getLatestResult();
+        if(!result.hasTargets()) return new ArrayList<>();
+        List<PhotonTrackedTarget> targets = result.getTargets();
         List<Translation2d> translationList = new ArrayList<>();
 
         for(PhotonTrackedTarget target : targets){

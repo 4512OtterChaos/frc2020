@@ -18,8 +18,9 @@ public class OCXboxController extends XboxController{
 
     public enum DriveMode{
         ARCADE,
-        ARCADEVOLTS,
-        CURVATURE
+        TANKVOLTS,
+        CURVATURE,
+        CURVATUREVOLTS
     }
     private DriveMode mode;
 
@@ -56,25 +57,27 @@ public class OCXboxController extends XboxController{
     }
 
     /**
-     * Deadbands a value and re-scales it.
+     * Deadbands a value, re-scales it, and applies a power.
      * @param value Value to adjust
      * @return -1 to 1
      */
-    public static double scaledDeadband(double value){
-        return scaledDeadband(value, kDeadband);
+    public static double scaledPowerDeadband(double value){
+        return scaledPowerDeadband(value, 1);
     }
     /**
-     * Deadbands a value and re-scales it.
+     * Deadbands a value, re-scales it, and applies a power.
      * @param value Value to adjust
      * @param dead Deadband threshold
      * @return -1 to 1
      */
-    public static double scaledDeadband(double value, double dead){
+    public static double scaledPowerDeadband(double value, double exp){
+        final double dead = kDeadband;
         if(Math.abs(value) < dead) return 0;
         double scale = 1.0 / (1 - dead);
         double sign = Math.copySign(1.0, value);
         value = Math.abs(value);
-        double fixedValue = sign*(scale*((value-(sign*dead))*value));
+        double fixedValue = sign*(scale*(value-(dead)));
+        fixedValue = Math.copySign(1, fixedValue)*Math.pow(Math.abs(fixedValue), exp);
         return MathHelp.clamp(fixedValue, -1, 1);
     }
 
@@ -87,11 +90,19 @@ public class OCXboxController extends XboxController{
 
     public double getY(Hand hand){
         int y = hand == Hand.kRight ? 5 : 1;
-        return -scaledDeadband(getRawAxis(y));
+        return -scaledPowerDeadband(getRawAxis(y));
+    }
+    public double getY(Hand hand, double exponent){
+        int y = hand == Hand.kRight ? 5 : 1;
+        return -scaledPowerDeadband(getRawAxis(y), exponent);
     }
     public double getX(Hand hand){
         int x = hand == Hand.kRight ? 4 : 0;
-        return -scaledDeadband(getRawAxis(x));
+        return -scaledPowerDeadband(getRawAxis(x));
+    }
+    public double getX(Hand hand, double exponent){
+        int x = hand == Hand.kRight ? 4 : 0;
+        return -scaledPowerDeadband(getRawAxis(x), exponent);
     }
 
     /**
@@ -149,7 +160,7 @@ public class OCXboxController extends XboxController{
      */
     public double[] getCurvatureDrive(){
         double forward = getForward();
-        double turn = curveLimiter.calculate(-deadband(getRawAxis(4))*0.9);
+        double turn = curveLimiter.calculate(getX(Hand.kRight, 1.5)*0.7);
         double left = 0;
         double right = 0;
         double forwardMagnitude = Math.abs(forward);

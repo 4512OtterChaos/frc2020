@@ -111,6 +111,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * @return double[] outputs (0 left, 1 right)
      */
     public void tankDriveVolts(double leftVolts, double rightVolts){
+        SmartDashboard.putNumber("Left DT Volts", leftVolts);
+        SmartDashboard.putNumber("Right DT Volts", rightVolts);
         leftMaster.setVoltage(leftVolts);
         leftSlave.setVoltage(leftVolts);
         rightMaster.setVoltage(rightVolts);
@@ -250,13 +252,13 @@ public class Drivetrain extends SubsystemBase implements Testable{
         return xyz[0];
     }
     public Rotation2d getHeading(){
-        return odometry.getPoseMeters().getRotation();
+        return Rotation2d.fromDegrees(getYawPosition());
     }
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
     }
     public void updateOdometry(){
-        odometry.update(Rotation2d.fromDegrees(getYawPosition()), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
+        odometry.update(getHeading(), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
         updatePoseHistory(odometry.getPoseMeters());
     }
     public void resetOdometry(){
@@ -264,7 +266,8 @@ public class Drivetrain extends SubsystemBase implements Testable{
     }
     public void resetOdometry(Pose2d poseMeters){
         resetEncoders();
-        odometry.resetPosition(poseMeters, Rotation2d.fromDegrees(getYawPosition()));
+        resetGyro();
+        odometry.resetPosition(poseMeters, getHeading());
     }
     /**
      * Returns a previous recorded pose.

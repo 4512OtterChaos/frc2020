@@ -115,8 +115,10 @@ public class RobotContainer {
         
         autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, photonIntake, analysis, paths);
         driveModeChooser.setDefaultOption("Curvature Drive", OCXboxController.DriveMode.CURVATURE);
+        driveModeChooser.addOption("Curvature Volts", OCXboxController.DriveMode.CURVATUREVOLTS);
         driveModeChooser.addOption("Arcade Drive", OCXboxController.DriveMode.ARCADE);
-        driveModeChooser.addOption("Yeet Drive", OCXboxController.DriveMode.ARCADEVOLTS);
+        driveModeChooser.addOption("Tank Volts", OCXboxController.DriveMode.TANKVOLTS);
+        
 
         configureButtonBindings();
     }
@@ -139,14 +141,17 @@ public class RobotContainer {
         RunCommand teleopDrive = new RunCommand(()->{
             
             switch(getDriveMode()){
-                case ARCADE:
+                default:
                     drivetrain.setVelocityPercentage(driver.getLeftArcade(), driver.getRightArcade());
                 break;
                 case CURVATURE:
                     drivetrain.setVelocityPercentage(driver.getLeftCurvatureDrive(), driver.getRightCurvatureDrive());
                 break;
-                default:
-                    drivetrain.tankDrive(driver.getLeftArcade(), driver.getRightArcade());
+                case CURVATUREVOLTS:
+                    drivetrain.tankDrive(driver.getLeftCurvatureDrive(), driver.getRightCurvatureDrive());
+                break;
+                case TANKVOLTS:
+                    drivetrain.tankDrive(driver.getY(Hand.kLeft), driver.getY(Hand.kRight));
                 break;
             }
         }, drivetrain);
@@ -346,6 +351,9 @@ public class RobotContainer {
 
         if(auto){
             intake.setSliderIsExtended(false);
+            indexer.setBrakeOn(false);
+            shooter.setWristBrakeOn(false);
+            shooter.setShooterBrakeOn(false);
             //drivetrain.resetOdometry(new Pose2d(Units.feetToMeters(2.5), Units.feetToMeters(9.125), new Rotation2d()), new Rotation2d());
         }
     }
@@ -381,6 +389,7 @@ public class RobotContainer {
         shooter.log();
         lift.log();
         limelight.log();
+        SmartDashboard.putString("GS Type", photonIntake.findGSType().toString());
         /*
         if(photonIntake.hasTargets()){
             SmartDashboard.putNumber("PhotonIn Pitch", photonIntake.getLatestResult().getBestTarget().getPitch());

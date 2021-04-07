@@ -104,64 +104,11 @@ public class AutoOptions {
                 new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, new ShooterState(30, 3000))
             );
         }
-        // preset autos
+
+        //---------------- preset autos
+
         fullAutoOptions.setDefaultOption("Nothing",
             new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain)
-        );
-        
-        fullAutoOptions.addOption("Simple Long Backward",
-            new StartEndCommand(
-                ()->{
-                    drivetrain.setChassisSpeed(-0.3, 0);
-                },
-                ()->drivetrain.tankDrive(0, 0),
-                drivetrain
-            ).withTimeout(0.9)
-            .alongWith(
-                new SetIntakeLowered(intake, true)
-            )
-            .andThen(
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
-                .withTimeout(8)
-            )
-            .andThen(
-                new InstantCommand(
-                    ()->{
-                        drivetrain.tankDrive(0, 0);
-                        indexer.setVolts(0);
-                        shooter.setWristVolts(0);
-                        shooter.setShooterVelocity(0);
-                    },
-                    drivetrain, indexer, shooter
-                )
-            )
-        );
-        fullAutoOptions.addOption("Simple Short Backward",
-            new StartEndCommand(
-                ()->{
-                    drivetrain.setChassisSpeed(-0.3, 0);
-                },
-                ()->drivetrain.tankDrive(0, 0),
-                drivetrain
-            ).withTimeout(0.6)
-            .alongWith(
-                new SetIntakeLowered(intake, true)
-            )
-            .andThen(
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
-                .withTimeout(8)
-            )
-            .andThen(
-            new InstantCommand(
-                ()->{
-                    drivetrain.tankDrive(0, 0);
-                    indexer.setVolts(0);
-                    shooter.setWristVolts(0);
-                    shooter.setShooterVelocity(0);
-                },
-                drivetrain, indexer, shooter
-                )
-            )
         );
 
         fullAutoOptions.addOption("Example", 
@@ -175,7 +122,7 @@ public class AutoOptions {
             )
         );
         
-        fullAutoOptions.addOption("Galactic Search",
+        fullAutoOptions.addOption("Galactic Search B)",
             SuperstructureCommands.intakeIndexBalls(intake, indexer, 9, 8)
             .alongWith(
                 new WaitCommand(0.2).andThen(
@@ -198,8 +145,21 @@ public class AutoOptions {
             )
         );
 
+        fullAutoOptions.addOption("Barrel",
+            new StandardRamseteCommand(drivetrain, paths.barrel)
+            .beforeStarting(()->
+                drivetrain.resetOdometry(
+                    paths.barrel.getInitialPose()
+                ), drivetrain
+            )
+        );
+
         fullAutoOptions.addOption("Bounce", 
             new StandardRamseteCommand(drivetrain, paths.bounce1)
+            .alongWith(
+                new SetSliderExtended(intake, true)
+                .andThen(new SetIntakeLowered(intake, true))
+            )
             .beforeStarting(()->
                 drivetrain.resetOdometry(
                     paths.bounce1.getInitialPose()
@@ -207,16 +167,14 @@ public class AutoOptions {
             )
             .andThen(
                 new StandardRamseteCommand(drivetrain, paths.bounce2)
-                .alongWith(new SetIntakeLowered(intake, true))
+                .alongWith(new SetIntakeLowered(intake, false))
             )
             .andThen(
                 new StandardRamseteCommand(drivetrain, paths.bounce3)
-                .alongWith(
-                    new SetIntakeLowered(intake, false)
-                    .andThen(new SetSliderExtended(intake, false))
-                )
+                .alongWith(new SetIntakeLowered(intake, true))
             )
             .andThen(new StandardRamseteCommand(drivetrain, paths.bounce4))
+            .andThen(new SetIntakeLowered(intake, false),  new SetSliderExtended(intake, false))
         );
         
         // populate sendable choosers with constructed commands

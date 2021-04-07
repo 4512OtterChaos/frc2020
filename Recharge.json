@@ -874,26 +874,26 @@
               "_title": "SmartDashboard/TurnTo Error"
             }
           },
-          "6,1": {
+          "7,2": {
             "size": [
               1,
               1
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Right DController Target",
-              "_title": "/SmartDashboard/Right DController Target"
+              "_source0": "network_table:///SmartDashboard/Right DT Volts",
+              "_title": "SmartDashboard/Right DT Volts"
             }
           },
-          "5,1": {
+          "6,2": {
             "size": [
               1,
               1
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Left DController Target",
-              "_title": "/SmartDashboard/Left DController Target"
+              "_source0": "network_table:///SmartDashboard/Left DT Volts",
+              "_title": "SmartDashboard/Left DT Volts"
             }
           }
         }
