@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.auto.OCPath.Preset;
 /**
@@ -42,6 +43,7 @@ public class Paths {
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
     //----- Paths
+    public final OCPath nothing = new OCPath(Arrays.asList(new Trajectory.State()), new TrajectoryConfig(1, 1)); // do nothing
     public final OCPath example; // our different paths
     public final OCPath slalom;
     public final OCPath bounce1;
@@ -212,6 +214,19 @@ public class Paths {
                     Units.metersToFeet(pose.getTranslation().getY())),
                     pose.getRotation()))
                 .collect(Collectors.toList());
+        }
+    }
+
+    /**
+     * Get the path associated with the galactic search type
+     */
+    public OCPath getGSPath(GSType type){
+        switch(type){
+            default: return nothing; // fail
+            case RED_A: return gsRedA;
+            case RED_B: return gsRedB;
+            case BLUE_A: return gsBlueA;
+            case BLUE_B: return gsBlueB;
         }
     }
 

@@ -20,7 +20,9 @@ public class OCXboxController extends XboxController{
         ARCADE,
         TANKVOLTS,
         CURVATURE,
-        CURVATUREVOLTS
+        CURVATUREVOLTS,
+        HENRYDRIVEGAS,
+        HENRYDRIVEBRAKE
     }
     private DriveMode mode;
 

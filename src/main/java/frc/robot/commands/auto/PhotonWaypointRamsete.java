@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.auto.OCPath;
+import frc.robot.auto.OCPath.Preset;
 import frc.robot.common.OCPhotonCam;
 import frc.robot.common.Constants.AutoConstants;
 import frc.robot.subsystems.Drivetrain;
@@ -74,7 +75,7 @@ public class PhotonWaypointRamsete extends CommandBase {
             startPose, 
             relativeWaypoints,
             endPose, 
-            drivetrain.getLinearFF(), drivetrain.getKinematics()
+            drivetrain.getLinearFF(), drivetrain.getKinematics(), Preset.GALACTIC
         );
 
         ramseteCommand = new StandardRamseteCommand(drivetrain, path);

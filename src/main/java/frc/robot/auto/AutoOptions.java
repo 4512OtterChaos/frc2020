@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.auto.Paths.GSType;
 import frc.robot.commands.auto.PhotonWaypointRamsete;
 import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.commands.drive.TurnTo;
@@ -62,6 +63,8 @@ public class AutoOptions {
         )
     );
     SendableChooser<Command> fullAutoOptions = new SendableChooser<>();
+
+    private GSType gsType = GSType.FAIL; // we store this to increase scope at auto init
     
     // Maps of modular commands as well as complete preset auto command groups
     //HashMap<String, Command> stageOptions = new HashMap<>();
@@ -122,7 +125,7 @@ public class AutoOptions {
             )
         );
         
-        fullAutoOptions.addOption("Galactic Search B)",
+        fullAutoOptions.addOption("Galactic Search but COOL B)",
             SuperstructureCommands.intakeIndexBalls(intake, indexer, 9, 8)
             .alongWith(
                 new WaitCommand(0.2).andThen(
@@ -175,6 +178,21 @@ public class AutoOptions {
             )
             .andThen(new StandardRamseteCommand(drivetrain, paths.bounce4))
             .andThen(new SetIntakeLowered(intake, false),  new SetSliderExtended(intake, false))
+        );
+
+        fullAutoOptions.addOption("Galactic Search",
+            new InstantCommand(()->{
+                gsType = photonIntake.findGSType();
+                drivetrain.resetOdometry(
+                    paths.getGSPath(gsType).getInitialPose()
+                );
+            }, drivetrain)
+            .andThen(
+                new StandardRamseteCommand(drivetrain, paths.getGSPath(gsType))
+            )
+            .alongWith(
+                SuperstructureCommands.intakeIndexBalls(intake, indexer, 9.5, 8)
+            )
         );
         
         // populate sendable choosers with constructed commands

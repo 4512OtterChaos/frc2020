@@ -153,6 +153,12 @@ public class RobotContainer {
                 case TANKVOLTS:
                     drivetrain.tankDrive(driver.getY(Hand.kLeft), driver.getY(Hand.kRight));
                 break;
+                case HENRYDRIVEBRAKE:
+                    drivetrain.tankDrive(driver.getY(Hand.kLeft, 0.8)*0.75*(1-driver.getTriggerAxis(Hand.kLeft)*0.75), driver.getY(Hand.kLeft, 0.8)*0.75*(1-driver.getTriggerAxis(Hand.kRight)*0.75));
+                break;
+                case HENRYDRIVEGAS:
+                    drivetrain.tankDrive(driver.getTriggerAxis(Hand.kLeft)*0.75, driver.getTriggerAxis(Hand.kRight)*0.75);
+                break;
             }
         }, drivetrain);
         drivetrain.setDefaultCommand(teleopDrive.beforeStarting(driver::resetLimiters));
