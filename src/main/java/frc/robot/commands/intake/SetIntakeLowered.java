@@ -19,7 +19,7 @@ public class SetIntakeLowered extends SequentialCommandGroup{
             new ConditionalCommand(
                 new WaitCommand(0),
                 new InstantCommand(()->intake.setSliderIsExtended(true), intake)
-                    .andThen(new WaitCommand(0.05)),
+                    .andThen(new WaitCommand(0.1)),
                 intake::getSliderIsExtended
             ),
             new ConditionalCommand(

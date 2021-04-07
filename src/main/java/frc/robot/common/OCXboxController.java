@@ -17,12 +17,18 @@ import frc.robot.util.MathHelp;
 public class OCXboxController extends XboxController{
 
     public enum DriveMode{
-        ARCADE,
-        TANKVOLTS,
-        CURVATURE,
-        CURVATUREVOLTS,
-        HENRYDRIVEGAS,
-        HENRYDRIVEBRAKE
+        ARCADE(false),
+        TANKVOLTS(false),
+        CURVATURE(false),
+        CURVATUREVOLTS(false),
+        HENRYDRIVEGAS(true),
+        HENRYDRIVEBRAKE(true);
+
+        public final boolean hasTriggers;
+
+        private DriveMode(boolean hasTriggers){
+            this.hasTriggers = hasTriggers;
+        }
     }
     private DriveMode mode;
 

@@ -34,6 +34,7 @@ import frc.robot.auto.AutoOptions;
 import frc.robot.auto.Paths;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.intake.SetIntakeLowered;
+import frc.robot.commands.intake.SetSliderExtended;
 import frc.robot.commands.shoot.SetShooterState;
 import frc.robot.commands.superstructure.PrimeIntake;
 import frc.robot.commands.superstructure.PrimeShooter;
@@ -138,39 +139,9 @@ public class RobotContainer {
         configureDriverBindings();
     }
     private void configureDriverBindings(){
-        RunCommand teleopDrive = new RunCommand(()->{
-            
-            switch(getDriveMode()){
-                default:
-                    drivetrain.setVelocityPercentage(driver.getLeftArcade(), driver.getRightArcade());
-                break;
-                case CURVATURE:
-                    drivetrain.setVelocityPercentage(driver.getLeftCurvatureDrive(), driver.getRightCurvatureDrive());
-                break;
-                case CURVATUREVOLTS:
-                    drivetrain.tankDrive(driver.getLeftCurvatureDrive(), driver.getRightCurvatureDrive());
-                break;
-                case TANKVOLTS:
-                    drivetrain.tankDrive(driver.getY(Hand.kLeft), driver.getY(Hand.kRight));
-                break;
-                case HENRYDRIVEBRAKE:
-                    drivetrain.tankDrive(driver.getY(Hand.kLeft, 0.8)*0.75*(1-driver.getTriggerAxis(Hand.kLeft)*0.75), driver.getY(Hand.kLeft, 0.8)*0.75*(1-driver.getTriggerAxis(Hand.kRight)*0.75));
-                break;
-                case HENRYDRIVEGAS:
-                    drivetrain.tankDrive(driver.getTriggerAxis(Hand.kLeft)*0.75, driver.getTriggerAxis(Hand.kRight)*0.75);
-                break;
-            }
-        }, drivetrain);
-        drivetrain.setDefaultCommand(teleopDrive.beforeStarting(driver::resetLimiters));
+        configureDriveButtons(driver);
 
-        new JoystickButton(driver, XboxController.Button.kBumperRight.value)
-            .whenPressed(()->driver.setDriveSpeed(OCXboxController.kSpeedFast))
-            .whenReleased(()->driver.setDriveSpeed(OCXboxController.kSpeedDefault));
-
-        new JoystickButton(driver, XboxController.Button.kBumperLeft.value)
-            .whenPressed(()->driver.setDriveSpeed(OCXboxController.kSpeedMax))
-            .whenReleased(()->driver.setDriveSpeed(OCXboxController.kSpeedDefault));
-
+        /*
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
                 SuperstructureCommands.intakeIndexBalls(intake, indexer, 6, 8)
@@ -185,6 +156,7 @@ public class RobotContainer {
                     intake, indexer
                 )
             );
+        */
 
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(
@@ -204,6 +176,7 @@ public class RobotContainer {
             drivetrain, shooter, indexer
             );*/
         
+        /*
         new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
             .whenActive(
                 SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)  
@@ -216,6 +189,7 @@ public class RobotContainer {
             },
             drivetrain, shooter, indexer
             );
+        */
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
@@ -311,26 +285,56 @@ public class RobotContainer {
                 new TurnTo(drivetrain, 180)
             );
     }
-    
     private void configureOperatorBindings(){ 
         new JoystickButton(operator, XboxController.Button.kA.value)
             .whenPressed(
-                ()->lift.setRatchetEngaged(true)
+                new SetIntakeLowered(intake, true)  
             );
         new JoystickButton(operator, XboxController.Button.kB.value)
             .whenPressed(
-                ()->lift.setRatchetEngaged(false)
+                new SetIntakeLowered(intake, false)  
             );
-
         new JoystickButton(operator, XboxController.Button.kX.value)
             .whenPressed(
-                ()->intake.setRollerVolts(-8),
-                intake
-            )
-            .whenReleased(
-                ()->intake.setRollerVolts(0),
-                intake
+                new SetIntakeLowered(intake, false)
+                .andThen(new SetSliderExtended(intake, false))
             );
+    }
+    private void configureDriveButtons(OCXboxController controller){
+        RunCommand teleopDrive = new RunCommand(()->{
+
+            DriveMode mode = getDriveMode();
+            
+            switch(mode){
+                default:
+                    drivetrain.setVelocityPercentage(controller.getLeftArcade(), controller.getRightArcade());
+                break;
+                case CURVATURE:
+                    drivetrain.setVelocityPercentage(controller.getLeftCurvatureDrive(), controller.getRightCurvatureDrive());
+                break;
+                case CURVATUREVOLTS:
+                    drivetrain.tankDrive(controller.getLeftCurvatureDrive(), controller.getRightCurvatureDrive());
+                break;
+                case TANKVOLTS:
+                    drivetrain.tankDrive(controller.getY(Hand.kLeft), controller.getY(Hand.kRight));
+                break;
+                case HENRYDRIVEBRAKE:
+                    drivetrain.tankDrive(controller.getY(Hand.kLeft, 0.8)*0.75*(1-controller.getTriggerAxis(Hand.kLeft)*0.75), controller.getY(Hand.kLeft, 0.8)*0.75*(1-controller.getTriggerAxis(Hand.kRight)*0.75));
+                break;
+                case HENRYDRIVEGAS:
+                    drivetrain.tankDrive(controller.getTriggerAxis(Hand.kLeft)*0.75, controller.getTriggerAxis(Hand.kRight)*0.75);
+                break;
+            }
+        }, drivetrain);
+        drivetrain.setDefaultCommand(teleopDrive.beforeStarting(controller::resetLimiters));
+
+        new JoystickButton(controller, XboxController.Button.kBumperRight.value)
+            .whenPressed(()->controller.setDriveSpeed(OCXboxController.kSpeedFast))
+            .whenReleased(()->controller.setDriveSpeed(OCXboxController.kSpeedDefault));
+
+        new JoystickButton(controller, XboxController.Button.kBumperLeft.value)
+            .whenPressed(()->controller.setDriveSpeed(OCXboxController.kSpeedMax))
+            .whenReleased(()->controller.setDriveSpeed(OCXboxController.kSpeedDefault));
     }
 
     // ---------------------------------------------------------------------------------
