@@ -71,7 +71,7 @@ public class Paths {
         bounce4 = new OCPath(PathsList.bounce4, feedforward, kinematics, Preset.BOUNCE).getReversed();
         barrel = quinticToCubic(PathsList.barrel, feedforward, kinematics, Preset.BARREL);
         gsRedA = new OCPath(PathsList.gsRedA, feedforward, kinematics, Preset.GALACTIC);
-        gsRedB = new OCPath(PathsList.gsRedB, feedforward, kinematics, Preset.GALACTIC);
+        gsRedB = quinticToCubic(PathsList.gsRedB, feedforward, kinematics, Preset.GALACTIC);
         gsBlueA = new OCPath(PathsList.gsBlueA, feedforward, kinematics, Preset.GALACTIC);
         gsBlueB = new OCPath(PathsList.gsBlueB, feedforward, kinematics, Preset.GALACTIC);
     }
@@ -145,32 +145,45 @@ public class Paths {
             toPose(27, 6.75, -30)
         );
         public static final List<Pose2d> barrel = Arrays.asList(
-            toPose(3.5, 7.5, 0),
-            toPose(13, 6.6, -18), // enter 1
-            toPose(15.1, 4.5, -104),
-            toPose(14.15, 3.25, -162),
-            toPose(11.2, 3.3, 137),
-            toPose(11.5, 6.6, 25), // exit 1
-            toPose(20, 7.75, 17), // enter  2
-            toPose(22.3, 10.7, 108),
-            toPose(19.6, 12, -160),
-            toPose(17.8, 9.8, -63), // exit  2
-            toPose(22.5, 3.9, -26), // enter 3
-            toPose(26.6, 3.2, 18),
-            toPose(24.6, 7.1, 180), // exit 3
-            toPose(0.65, 8.25, 180)
+            toPose(3.5, 7.3, 0),
+            toPose(13, 6.9, -18), // enter 1
+            toPose(15, 4.5, -104),
+            toPose(14, 3.3, -162),
+            toPose(11, 3.2, 137),
+            toPose(11.2, 6.7, 25), // exit 1
+            toPose(20, 7.5, 17), // enter  2
+            toPose(21.5, 10.8, 108),
+            toPose(19.5, 12.2, -160),
+            toPose(17.5, 9.8, -63), // exit  2
+            toPose(22.6, 3.5, -26), // enter 3
+            toPose(26.5, 4.3, 30),
+            toPose(24.6, 7.7, 180), // exit 3
+            toPose(18, 9, 180),
+            toPose(0.65, 11, 180)
+            /*
+            toPose(3.5, 7.5, 0), // start
+            toPose(15, 5, -50), // 1
+            toPose(10, 4, 84),
+            toPose(20.7, 8, 20),
+            toPose(19.3, 12, -150),
+            toPose(24.8, 3, 0),
+            toPose(25.7, 7.3, 174),
+            toPose(1, 8.4, 180)
+            */
         );
         public static final List<Pose2d> gsRedA = Arrays.asList(
-            toPose(7.5, 7.5, 0), // ball 1
-            toPose(12.5, 5, 80), // ball 2
-            toPose(15, 12.5, 0), // ball 3
-            toPose(32, 12.5, 0) // end
+            toPose(3.69, 10.4, -30), // start
+            toPose(7, 6.75, -40), // ball 1
+            toPose(12.25, 6.8, 80), // ball 2
+            toPose(15.5, 11, 0), // ball 3
+            toPose(33, 10.75, 0) // end
         );
         public static final List<Pose2d> gsRedB = Arrays.asList(
-            toPose(7.5, 10, -10), // ball 1
-            toPose(12.5, 5, 50), // ball 2
-            toPose(17.5, 10, 5), // ball 3
-            toPose(32, 11, 0) // end
+            toPose(3.69, 10.4, -30), // start
+            toPose(7.6, 9.7, -10), // ball 1
+            toPose(12.1, 5.55, 50), // ball 2
+            toPose(17.5, 9.3, 5), // ball 3
+            toPose(33, 9.3, 0) // end
         );
         public static final List<Pose2d> gsBlueA = Arrays.asList(
             toPose(15, 2.5, 80), // ball 1

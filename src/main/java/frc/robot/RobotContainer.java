@@ -118,7 +118,10 @@ public class RobotContainer {
         driveModeChooser.setDefaultOption("Curvature Drive", OCXboxController.DriveMode.CURVATURE);
         driveModeChooser.addOption("Curvature Volts", OCXboxController.DriveMode.CURVATUREVOLTS);
         driveModeChooser.addOption("Arcade Drive", OCXboxController.DriveMode.ARCADE);
+        driveModeChooser.addOption("Arcade Volts", OCXboxController.DriveMode.ARCADEVOLTS);
         driveModeChooser.addOption("Tank Volts", OCXboxController.DriveMode.TANKVOLTS);
+        driveModeChooser.addOption("Henry Drive Brake", OCXboxController.DriveMode.HENRYDRIVEBRAKE);
+        driveModeChooser.addOption("Henry Drive Gas", OCXboxController.DriveMode.HENRYDRIVEGAS);
         
 
         configureButtonBindings();
@@ -305,9 +308,32 @@ public class RobotContainer {
 
             DriveMode mode = getDriveMode();
             
+            double leftTrigger = driver.getTriggerAxis(Hand.kLeft);
+                    double rightTrigger = driver.getTriggerAxis(Hand.kRight);
             switch(mode){
                 default:
                     drivetrain.setVelocityPercentage(controller.getLeftArcade(), controller.getRightArcade());
+                    if(leftTrigger > 0.2){
+                        driver.setDriveSpeed(leftTrigger/2.0+0.6);
+                    }
+                    else if(rightTrigger > 0.2){
+                        driver.setDriveSpeed(rightTrigger/4.0+0.4);
+                    }
+                    else{
+                        driver.setDriveSpeed(0.4);
+                    }
+                break;
+                case ARCADEVOLTS:
+                    drivetrain.tankDrive(controller.getLeftArcade(), controller.getRightArcade());
+                    if(leftTrigger > 0.2){
+                        driver.setDriveSpeed(leftTrigger/2.0+0.6);
+                    }
+                    else if(rightTrigger > 0.2){
+                        driver.setDriveSpeed(rightTrigger/4.0+0.4);
+                    }
+                    else{
+                        driver.setDriveSpeed(0.4);
+                    }
                 break;
                 case CURVATURE:
                     drivetrain.setVelocityPercentage(controller.getLeftCurvatureDrive(), controller.getRightCurvatureDrive());

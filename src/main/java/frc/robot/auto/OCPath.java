@@ -148,9 +148,13 @@ public class OCPath extends Trajectory{
                 .setKinematics(kinematics)
                 .addConstraint(new CentripetalAccelerationConstraint(meters(10.25)))
                 .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
-            case BARREL: return new TrajectoryConfig(meters(10.5), meters(13))
+            case BARREL: return new TrajectoryConfig(meters(14), meters(18))
                 .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(meters(8.75)))
+                .addConstraint(new CentripetalAccelerationConstraint(meters(10.5)))
+                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
+            case GALACTIC: return new TrajectoryConfig(meters(14.75), meters(21))
+                .setKinematics(kinematics)
+                .addConstraint(new CentripetalAccelerationConstraint(meters(12)))
                 .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
         }
     }

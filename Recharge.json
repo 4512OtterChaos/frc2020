@@ -707,6 +707,17 @@
               "_source0": "network_table:///SmartDashboard/Full Auto Options",
               "_title": "SmartDashboard/Full Auto Options"
             }
+          },
+          "3,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/GS Type",
+              "_title": "SmartDashboard/GS Type"
+            }
           }
         }
       }
@@ -1402,6 +1413,17 @@
               "_title": "/SmartDashboard/PAIN",
               "Colors/Color when true": "#7CFC00FF",
               "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "5,2": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/GS Type",
+              "_title": "SmartDashboard/GS Type"
             }
           }
         }

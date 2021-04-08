@@ -46,7 +46,7 @@ public class SuperstructureCommands {
                 new IndexHomeIntake(indexer)
                     .withTimeout(0.3)
             )*/
-            .andThen(
+            .alongWith(
                 new StartEndCommand(
                     ()->{
                         intake.setRollerVolts(rollerVolts);
@@ -55,8 +55,7 @@ public class SuperstructureCommands {
                     ()->{
                         intake.setRollerVolts(0);
                         intake.setFenceVolts(0);
-                    }, 
-                    intake
+                    }
                 )
                 .alongWith(
                     new IndexIncoming(indexer)

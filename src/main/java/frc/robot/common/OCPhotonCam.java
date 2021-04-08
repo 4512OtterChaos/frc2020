@@ -81,27 +81,32 @@ public class OCPhotonCam extends PhotonCamera{
 
     public GSType findGSType(){
         PhotonPipelineResult result = getLatestResult();
-        if(!result.hasTargets() || MathHelp.isBetweenBounds(2, result.getTargets().size(), 3)) return GSType.FAIL;
+        boolean tooMany = !MathHelp.isBetweenBounds(2, result.getTargets().size(), 3);
+        if(!result.hasTargets() || result.getTargets().size() < 2) return GSType.FAIL;
         List<PhotonTrackedTarget> targets = result.getTargets();
 
         double firstPitch = targets.get(0).getPitch();
+        double secondPitch = targets.get(0).getPitch();
         double secondYaw = targets.get(1).getYaw();
         // determine path based on powercell position
-        if(firstPitch < -5){ // Red is close
-            if(secondYaw > 5){ // Red B is right
+        if(firstPitch < 1){ // Red is close
+            if(secondYaw > 15){ // Red B is right
                 return GSType.RED_B;
             }
-            else{ // Red A is left, but the second power cell might confuse
-                return GSType.RED_A;
-            }
+            else return GSType.FAIL;
+        }
+        else if(Math.abs(firstPitch-secondPitch) < 3 && secondYaw < -20){
+            return GSType.RED_B;
         }
         else{ // Blue is far
              // in both paths latter powercells are to the left
-            if(targets.size()==3){ // 3 more visible in A
-                return GSType.BLUE_A;
+            if(result.getTargets().size() < 3) return GSType.FAIL;
+            double thirdYaw = targets.get(2).getYaw();
+            if(secondYaw < -15 && Math.abs(thirdYaw) < 5){ // if third center go b
+                return GSType.BLUE_B;
             }
             else{
-                return GSType.BLUE_B;
+                return GSType.BLUE_A;
             }
         }
     }

@@ -34,7 +34,7 @@ public class Constants {
         public static final int kFreeLimit = 40;
         public static final int kStallLimit = 75;
         
-        public static final double kRampRaw = 0.04; // seconds to full output(on the motor)
+        public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
         
         public static final double kLinearStaticFF = 0.23; // volts (Given from the characterization tool)
         public static final double kLinearVelocityFF = 2.3; // per meters per second

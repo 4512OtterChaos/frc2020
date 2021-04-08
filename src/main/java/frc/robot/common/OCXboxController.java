@@ -18,6 +18,7 @@ public class OCXboxController extends XboxController{
 
     public enum DriveMode{
         ARCADE(false),
+        ARCADEVOLTS(false),
         TANKVOLTS(false),
         CURVATURE(false),
         CURVATUREVOLTS(false),
@@ -36,15 +37,15 @@ public class OCXboxController extends XboxController{
     private static final double kArcadeThreshold = 0.2;
 
     
-    public static final double kSpeedDefault = 0.4;
-    public static final double kSpeedFast = 0.6;
-    public static final double kSpeedMax = 0.8;
+    public static final double kSpeedDefault = 0.45;
+    public static final double kSpeedFast = 0.65;
+    public static final double kSpeedMax = 0.95;
     private double drivespeed = kSpeedDefault;
     
-    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(3.5);
-    private SlewRateLimiter turnLimiter = new SlewRateLimiter(5);
-    private SlewRateLimiter curveLimiter = new SlewRateLimiter(5);
-    private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(2);
+    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(7);
+    private SlewRateLimiter turnLimiter = new SlewRateLimiter(7);
+    private SlewRateLimiter curveLimiter = new SlewRateLimiter(6);
+    private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(5);
 
     /**
      * Constructs XboxController on DS joystick port.
@@ -144,7 +145,7 @@ public class OCXboxController extends XboxController{
 
     public double[] getArcadeDrive(){
         double forward = getForward();
-        double turn = getScaledTurn();
+        double turn = getScaledTurn()*0.8;
 
         return new double[]{forward-turn,forward+turn};
     }
@@ -168,13 +169,13 @@ public class OCXboxController extends XboxController{
      */
     public double[] getCurvatureDrive(){
         double forward = getForward();
-        double turn = curveLimiter.calculate(getX(Hand.kRight, 1.5)*0.7);
+        double turn = curveLimiter.calculate(getX(Hand.kRight, 1)*0.7);
         double left = 0;
         double right = 0;
         double forwardMagnitude = Math.abs(forward);
 
         if(forwardMagnitude<kArcadeThreshold){
-            return new double[]{getLeftArcade(),getRightArcade()};
+            return new double[]{forward-turn*0.6,forward+turn*0.6};
         }
         else{
             left = forward - forwardMagnitude*turn;

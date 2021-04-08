@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.auto.Paths.GSType;
+import frc.robot.commands.auto.GalacticSearchRamsete;
 import frc.robot.commands.auto.PhotonWaypointRamsete;
 import frc.robot.commands.auto.StandardRamseteCommand;
 import frc.robot.commands.drive.TurnTo;
@@ -188,10 +189,15 @@ public class AutoOptions {
                 );
             }, drivetrain)
             .andThen(
-                new StandardRamseteCommand(drivetrain, paths.getGSPath(gsType))
+                new WaitCommand(0.25)
+            )
+            .andThen(
+                new GalacticSearchRamsete(drivetrain, paths, photonIntake)
             )
             .alongWith(
-                SuperstructureCommands.intakeIndexBalls(intake, indexer, 9.5, 8)
+                new SetSliderExtended(intake, true).andThen(
+                    SuperstructureCommands.intakeIndexBalls(intake, indexer, 12, 8.5)
+                )
             )
         );
         
