@@ -113,7 +113,7 @@ public class Shooter extends SubsystemBase implements Testable{
         }
 
         calculateShooterVolts(shooterTarget);
-        if(shootLeft.getOutputCurrent() >= 40) lastShotTime = Timer.getFPGATimestamp();
+        if(shootLeft.getOutputCurrent() >= 35) lastShotTime = Timer.getFPGATimestamp();
 
         rpmAccel = rpmAccelFilter.calculate(getRPM());
     }

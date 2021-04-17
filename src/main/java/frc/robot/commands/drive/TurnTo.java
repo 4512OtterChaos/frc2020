@@ -50,10 +50,10 @@ public class TurnTo extends ProfiledPIDCommand {
         () -> target,
         (output, setpoint) -> {
             drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
-        }
+        },
+        drivetrain
         );
         this.drivetrain = drivetrain;
-        addRequirements(drivetrain);
     }
     public TurnTo(Drivetrain drivetrain, DoubleSupplier target) {
         super(
@@ -62,10 +62,10 @@ public class TurnTo extends ProfiledPIDCommand {
         target,
         (output, setpoint) -> {
             drivetrain.setChassisSpeed(new ChassisSpeeds(0,0,Units.degreesToRadians(setpoint.velocity + output)));
-        }
+        },
+        drivetrain
         );
         this.drivetrain = drivetrain;
-        addRequirements(drivetrain);
     }
     
     

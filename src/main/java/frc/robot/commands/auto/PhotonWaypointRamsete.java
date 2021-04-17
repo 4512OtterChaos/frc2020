@@ -56,11 +56,6 @@ public class PhotonWaypointRamsete extends CommandBase {
             );
         }
 
-        
-        // use the last waypoint as the end pose with 0 heading
-        //Pose2d endPose = new Pose2d(relativeWaypoints.get(relativeWaypoints.size()-1), new Rotation2d());
-        //relativeWaypoints.remove(relativeWaypoints.size()-1);
-
         NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
         
         List<Pose2d> ballPoses = relativeWaypoints.stream().map(
@@ -68,8 +63,12 @@ public class PhotonWaypointRamsete extends CommandBase {
         ).collect(Collectors.toList());
         liveTable.getEntry("visionTargets").setValue(ballPoses.toArray());
 
-        Translation2d lastTran = relativeWaypoints.get(relativeWaypoints.size()-1);
-        Pose2d endPose = new Pose2d(new Translation2d(Units.feetToMeters(32), lastTran.getY()), new Rotation2d());
+        //Translation2d lastTran = relativeWaypoints.get(relativeWaypoints.size()-1);
+        //Pose2d endPose = new Pose2d(new Translation2d(Units.feetToMeters(32), lastTran.getY()), new Rotation2d());
+
+        // use the last waypoint as the end pose with 0 heading
+        Pose2d endPose = new Pose2d(relativeWaypoints.get(relativeWaypoints.size()-1), new Rotation2d());
+        relativeWaypoints.remove(relativeWaypoints.size()-1);
 
         OCPath path = new OCPath(
             startPose, 

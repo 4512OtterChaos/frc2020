@@ -28,9 +28,9 @@ public class SAS {
     private double lastOuterTime = Timer.getFPGATimestamp();
     private double innerConfidentTime = 0;
     private double lastInnerTime = Timer.getFPGATimestamp();
-    private final double confidentTimeThreshold = 0.3;
+    private final double confidentTimeThreshold = 0.4;
     
-    private final double confidenceThreshold = 0.8;
+    private final double confidenceThreshold = 0.7;
     
     
     public SAS(){
@@ -45,16 +45,16 @@ public class SAS {
     }
     
     /**
-    * Returns a {@link ShooterState} at inchesDist from the outer port.
+    * Returns a {@link ShooterState} at distanceInches from the outer port.
     */
-    public ShooterState findShot(double inchesDist){
+    public ShooterState findShot(double distanceInches){
         double minDist = shotTable.firstKey();
         double maxDist = shotTable.lastKey();
-        inchesDist = MathHelp.clamp(inchesDist, minDist, maxDist);
-        Double close = shotTable.floorKey(inchesDist);
-        Double far = shotTable.ceilingKey(inchesDist);
+        distanceInches = MathHelp.clamp(distanceInches, minDist, maxDist);
+        Double close = shotTable.floorKey(distanceInches);
+        Double far = shotTable.ceilingKey(distanceInches);
         double boundDiff = far - close;
-        double actualDiff = inchesDist - close;
+        double actualDiff = distanceInches - close;
         double percent;
         if(boundDiff != 0.0){
             percent = actualDiff / boundDiff;
@@ -67,10 +67,10 @@ public class SAS {
     
     /**
      * Percentage confidence in current shooter angle based on target angle based on distance
-     * @param distance Inches dist from powerport
+     * @param distanceInches Inches dist from powerport
      */
-    public double getAngleConfidence(double distance, Shooter shooter){
-        double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
+    public double getAngleConfidence(double distanceInches, Shooter shooter){
+        double distPercent = MathHelp.findPercentage(distanceInches, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
         double angleTolerance = MathHelp.lerp(distPercent, 3, 2);
         
         ShooterState error = shooter.getTargetState().minus(shooter.getCurrentState());
@@ -82,10 +82,10 @@ public class SAS {
     }
     /**
      * Percentage confidence in current RPM versus target RPM based on distance
-     * @param distance Inches dist from powerport
+     * @param distanceInches Inches dist from powerport
      */
-    public double getRPMConfidence(double distance, Shooter shooter){
-        double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
+    public double getRPMConfidence(double distanceInches, Shooter shooter){
+        double distPercent = MathHelp.findPercentage(distanceInches, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
         double rpmTolerance = MathHelp.lerp(distPercent, 300, 100);
         
         ShooterState error = shooter.getTargetState().minus(shooter.getCurrentState());
@@ -97,10 +97,10 @@ public class SAS {
     }
     /**
      * Percentage confidence in current heading versus target heading(uses TurnTo if available)
-     * @param distance Inches dist from powerport
+     * @param distanceInches Inches dist from powerport
      */
-    public double getHeadingConfidence(double distance, Drivetrain drivetrain){
-        double distPercent = MathHelp.findPercentage(distance, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
+    public double getHeadingConfidence(double distanceInches, Drivetrain drivetrain){
+        double distPercent = MathHelp.findPercentage(distanceInches, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
         double headingTolerance = MathHelp.lerp(distPercent, 7, 5);
 
         double headingError = Math.abs(drivetrain.getTurnToError().getDegrees());
@@ -111,22 +111,28 @@ public class SAS {
     }
 
     /**
-     * Returns if confident in all variables and ready to shoot
-     * @param distance
+     * Returns if confident in all shot variables
+     * @param distanceInches
      */
-    public boolean getIsReady(double distance, Shooter shooter, Drivetrain drivetrain){
+    public boolean getIsConfident(double distanceInches, Shooter shooter, Drivetrain drivetrain){
         boolean isConfident = MathHelp.min(
-            getAngleConfidence(distance, shooter),
-            getRPMConfidence(distance, shooter),
-            getHeadingConfidence(distance, drivetrain)
+            getAngleConfidence(distanceInches, shooter),
+            getRPMConfidence(distanceInches, shooter),
+            getHeadingConfidence(distanceInches, drivetrain)
         ) > confidenceThreshold;
-        
+                
+        return isConfident;
+    }
+    /**
+     * Returns if confident in all shot variables and is ready to shoot(cooldown between shots)
+     * @param distanceInches
+     */
+    public boolean getIsReady(double distanceInches, Shooter shooter, Drivetrain drivetrain){
         double now = Timer.getFPGATimestamp();
-        
         // Require a short time to pass before the system returns confident
-        boolean isReadyAndConfident = (now - shooter.getLastShotTime() > confidentTimeThreshold) && isConfident; // I believe in you SAS
-        
-        return isReadyAndConfident;
+        boolean isReady = (now - shooter.getLastShotTime() > confidentTimeThreshold);
+
+        return getIsConfident(distanceInches, shooter, drivetrain) && isReady; // I believe in you SAS
     }
     
     public void log(){
