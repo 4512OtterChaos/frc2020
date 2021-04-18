@@ -28,20 +28,20 @@ public class SAS {
     private double lastOuterTime = Timer.getFPGATimestamp();
     private double innerConfidentTime = 0;
     private double lastInnerTime = Timer.getFPGATimestamp();
-    private final double confidentTimeThreshold = 0.4;
+    private final double confidentTimeThreshold = 0.2;
     
     private final double confidenceThreshold = 0.7;
     
     
     public SAS(){
         // populate lookup table (inches, angle, rpm)
-        shotTable.put(50.0, new ShooterState(64, 2000));
-        shotTable.put(80.0, new ShooterState(50, 2100));
-        shotTable.put(110.0, new ShooterState(45, 2200));
-        shotTable.put(140.0, new ShooterState(38, 2400));
-        shotTable.put(175.0, new ShooterState(35, 2500));
-        shotTable.put(200.0, new ShooterState(32, 2800));
-        shotTable.put(235.0, new ShooterState(30, 2900));
+        shotTable.put(50.0, new ShooterState(56, 1900));
+        shotTable.put(80.0, new ShooterState(42, 2000));
+        shotTable.put(110.0, new ShooterState(40, 2100));
+        shotTable.put(140.0, new ShooterState(35, 2300));
+        shotTable.put(175.0, new ShooterState(34, 2400));
+        shotTable.put(200.0, new ShooterState(28, 2600));
+        shotTable.put(235.0, new ShooterState(27, 2700));
     }
     
     /**
@@ -101,7 +101,7 @@ public class SAS {
      */
     public double getHeadingConfidence(double distanceInches, Drivetrain drivetrain){
         double distPercent = MathHelp.findPercentage(distanceInches, shotTable.firstKey(), shotTable.lastKey()); // At longer distances we want smaller tolerances
-        double headingTolerance = MathHelp.lerp(distPercent, 7, 5);
+        double headingTolerance = MathHelp.lerp(distPercent, 9, 6);
 
         double headingError = Math.abs(drivetrain.getTurnToError().getDegrees());
         

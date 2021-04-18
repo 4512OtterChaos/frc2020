@@ -42,7 +42,7 @@ public class Shooter extends SubsystemBase implements Testable{
     private CANSparkMax wrist = new CANSparkMax(7, MotorType.kBrushless);
 
     private double wristVolts = 0;
-    private double wristTarget = ShooterWristConstants.kClearIntakeDegrees;
+    private double wristTarget = ShooterState.kIdleState.angle;
     private boolean wristLimp = false;
 
     private double shooterTarget = 0;
@@ -93,13 +93,14 @@ public class Shooter extends SubsystemBase implements Testable{
         shootRight.setInverted(true);
         wrist.setInverted(false);
 
-        wristController.setTolerance(0.4, 1);
+        wristController.setTolerance(0.4, 2);
+        wristController.setIntegratorRange(-0.2, 0.2);
 
         rpmAccelFilter = LinearFilter.highPass(0.08, kRobotDelta);
     }
     
     public void periodic() {
-        if(wristTarget > -10){
+        if(wristTarget > -10 || getWristDegrees() > 0){
             if(wristLimp){
                 wristLimp = false;
                 setWristBrakeOn(true);
@@ -109,7 +110,7 @@ public class Shooter extends SubsystemBase implements Testable{
         else{
             wristLimp = true;
             setWristBrakeOn(false);
-            setWristVolts(0);
+            setWristVolts(-1);
         }
 
         calculateShooterVolts(shooterTarget);

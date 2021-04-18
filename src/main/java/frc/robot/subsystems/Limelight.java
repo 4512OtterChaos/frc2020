@@ -78,6 +78,10 @@ public class Limelight implements Testable{
         setConfiguration(state);
     }
 
+    public void nuke(){
+        visionTable = NetworkTableInstance.getDefault().getTable("limelight");
+    }
+
     public void setConfiguration(Configuration configuration){
         currConfiguration = configuration;
         changeTimer.reset();

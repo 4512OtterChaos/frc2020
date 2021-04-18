@@ -119,10 +119,7 @@ public class RobotContainer {
         driveModeChooser.addOption("Curvature Volts", OCXboxController.DriveMode.CURVATUREVOLTS);
         driveModeChooser.addOption("Arcade Drive", OCXboxController.DriveMode.ARCADE);
         driveModeChooser.addOption("Arcade Volts", OCXboxController.DriveMode.ARCADEVOLTS);
-        driveModeChooser.addOption("Tank Volts", OCXboxController.DriveMode.TANKVOLTS);
-        driveModeChooser.addOption("Henry Drive Brake", OCXboxController.DriveMode.HENRYDRIVEBRAKE);
-        driveModeChooser.addOption("Henry Drive Gas", OCXboxController.DriveMode.HENRYDRIVEGAS);
-        
+        driveModeChooser.addOption("Tank Volts", OCXboxController.DriveMode.TANKVOLTS);        
 
         configureButtonBindings();
     }
@@ -144,10 +141,10 @@ public class RobotContainer {
     private void configureDriverBindings(){
         configureDriveButtons(driver);
 
-        /*
+        
         new Trigger(()->driver.getTriggerAxis(Hand.kRight) > 0.3)
             .whenActive(
-                SuperstructureCommands.intakeIndexBalls(intake, indexer, 6, 8)
+                SuperstructureCommands.intakeIndexBalls(intake, indexer, 7, 8)
             )
             .whenInactive(
                 new InstantCommand(
@@ -159,7 +156,7 @@ public class RobotContainer {
                     intake, indexer
                 )
             );
-        */
+        
 
         new JoystickButton(driver, XboxController.Button.kB.value)
             .whenPressed(
@@ -179,7 +176,6 @@ public class RobotContainer {
             drivetrain, shooter, indexer
             );*/
         
-        /*
         new Trigger(()->driver.getTriggerAxis(Hand.kLeft) > 0.3)
             .whenActive(
                 SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)  
@@ -192,7 +188,6 @@ public class RobotContainer {
             },
             drivetrain, shooter, indexer
             );
-        */
 
         new JoystickButton(driver, XboxController.Button.kA.value)
             .whenPressed(
@@ -215,13 +210,13 @@ public class RobotContainer {
         new JoystickButton(driver, XboxController.Button.kY.value)
             .whenPressed(
                 TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
-                    .alongWith(new SetShooterState(shooter, analysis, limelight).withTimeout(0.75))
+                    .alongWith(new SetShooterState(shooter, analysis, limelight).withTimeout(1))
                     .andThen(
-                        SuperstructureCommands.feedShooter(indexer, intake, ()->true, 3)
+                        SuperstructureCommands.feedShooter(indexer, intake, ()->true, 2.75)
                         .alongWith(
                             //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
-                            new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
-                            new PerpetualCommand(new SetShooterState(shooter, analysis, limelight))
+                            //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
+                            new PerpetualCommand(new SetShooterState(shooter))
                         )
                     )
             )
@@ -287,6 +282,11 @@ public class RobotContainer {
             .whenPressed(
                 new TurnTo(drivetrain, 180)
             );
+        new Trigger(()->driver.getPOV(0)==180)
+            .whenActive(
+                new SetShooterState(shooter, ShooterState.kLimp)
+            );
+
     }
     private void configureOperatorBindings(){ 
         new JoystickButton(operator, XboxController.Button.kA.value)
@@ -383,13 +383,16 @@ public class RobotContainer {
         shooter.reset();
         shooter.setState(ShooterState.kIdleState);
 
-        limelight.setConfiguration(Configuration.BASIC);
+        limelight.nuke();
+        limelight.setConfiguration(Configuration.PNP);
 
         if(auto){
+            /*
             intake.setSliderIsExtended(false);
             indexer.setBrakeOn(false);
             shooter.setWristBrakeOn(false);
             shooter.setShooterBrakeOn(false);
+            */
             //drivetrain.resetOdometry(new Pose2d(Units.feetToMeters(2.5), Units.feetToMeters(9.125), new Rotation2d()), new Rotation2d());
         }
     }

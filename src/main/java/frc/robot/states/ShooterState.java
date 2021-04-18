@@ -34,7 +34,7 @@ public class ShooterState {
      */
     public ShooterState(Shooter shooter){
         this.angle = shooter.getWristDegrees();
-        this.rpm = 2900;
+        this.rpm = shooter.getRPM();
     }
 
     /**

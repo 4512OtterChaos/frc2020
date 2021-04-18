@@ -132,16 +132,16 @@ public class SuperstructureCommands {
                 .andThen(
                     primeShooter(indexer, intake)
                     .alongWith(
-                        new SetShooterState(shooter, analysis, limelight).withTimeout(0.75)
+                        new SetShooterState(shooter, analysis, limelight).withTimeout(1.75)
                     )
                 )
             )
             .andThen(
-                feedShooter(indexer, intake, ()->analysis.getIsReady(limelight.getTrigDistance(), shooter, drivetrain), 3.25)
+                feedShooter(indexer, intake, ()->analysis.getIsReady(limelight.getTrigDistance(), shooter, drivetrain), 3)
                 .alongWith(
                     //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
-                    new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
-                    new PerpetualCommand(new SetShooterState(shooter, analysis, limelight))
+                    //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
+                    new PerpetualCommand(new SetShooterState(shooter))
                 )
             );
     }

@@ -33,13 +33,13 @@ public class TurnTo extends ProfiledPIDCommand {
     
     private final Drivetrain drivetrain;
     
-    private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians*0.4);
+    private static final double kCruiseVelocityDegrees = Units.radiansToDegrees(kMaxVelocityRadians*0.3);
     
-    private static final double kPositionToleranceDegrees = 2;
-    private static final double kVelocityToleranceDegrees = 5;
+    private static final double kPositionToleranceDegrees = 0.8;
+    private static final double kVelocityToleranceDegrees = 4;
     
-    private static ProfiledPIDController controller = new ProfiledPIDController(0.6, 0, 0, 
-        new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.5),
+    private static ProfiledPIDController controller = new ProfiledPIDController(0.45, 0.075, 0, 
+        new TrapezoidProfile.Constraints(kCruiseVelocityDegrees, kCruiseVelocityDegrees*1.75),
         Constants.kRobotDelta
     );
     

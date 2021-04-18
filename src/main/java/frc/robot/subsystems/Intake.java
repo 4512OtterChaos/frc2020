@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase implements Testable{
     private DoubleSolenoid arm = new DoubleSolenoid(0, 1);
     private DoubleSolenoid slider = new DoubleSolenoid(2, 3);
     private boolean armWantsExtended = false;
-    private boolean sliderWantsExtended = false;
+    private boolean sliderWantsExtended = true;
     
     private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
         

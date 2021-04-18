@@ -78,7 +78,7 @@ public class Constants {
         public static final double kVelocityFF = 0; // per meters per second
         public static final double kAccelerationFF = 0; // per meters per second squared
         
-        public static final double kP = 0.22; // PID Gains (For one meter/second of error, kP volts are applied)
+        public static final double kP = 0.35; // PID Gains (For one meter/second of error, kP volts are applied)
         public static final double kI = 0; // Only P should be used for velocity control
         public static final double kD = 0;
         
@@ -88,8 +88,8 @@ public class Constants {
         public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
         
         // Constraints
-        public static final double kLowestSafeDegrees = 10; // above is safe
-        public static final double kClearIntakeDegrees = 30;
+        public static final double kLowestSafeDegrees = -15; // above is safe
+        //public static final double kClearIntakeDegrees = 30;
         public static final double kHighestSafeDegrees = 64; // below is safe
         public static final double kBufferDegrees = 1; // amount to clear "safe" bounds by
     }
@@ -153,6 +153,8 @@ public class Constants {
     }
     
     public static class VisionConstants{
+        // 10.45.12.13 = shooter
+        // 10.45.12.14 = intake
         public static final double kShootPitch = 30; // Vertical angle of camera offset from 
         public static final double kIntakePitch = -20;
         public static final double kShootHeight = 26.75; // inches
