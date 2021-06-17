@@ -144,6 +144,7 @@ public class RobotContainer {
 
         driver.bButton.whenPressed(new SetIntakeLowered(intake, false));
 
+        /*
         driver.leftTriggerButton.whenPressed(
             SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
         )
@@ -153,6 +154,39 @@ public class RobotContainer {
             shooter.setShooterVelocity(0);
             shooter.setState(ShooterState.kIdleState);
         }, drivetrain, shooter, indexer);
+        */
+        // manual shooting
+        driver.leftTriggerButton.whenPressed(
+            new RunCommand(()->{
+                // proportional to left trigger
+                shooter.setShooterVelocity(3500*driver.getTriggerAxis(Hand.kLeft));
+            }, shooter)
+            .alongWith(
+                new WaitCommand(0.75)
+                .andThen(
+                    new RunCommand(()->{
+                        indexer.setVolts(3);
+                    },indexer)
+                )  
+            )
+        )
+        .whenReleased(() -> {
+            indexer.setVolts(0);
+            shooter.setShooterVelocity(0);
+            shooter.setState(ShooterState.kIdleState);
+        }, shooter, indexer);
+        driver.bumperRightButton.whileHeld(()->{
+            shooter.setWristPosition(shooter.getWristDegrees()+5);
+        },shooter)
+        .whenReleased(()->{
+            shooter.setWristPosition(shooter.getWristDegrees());
+        },shooter);
+        driver.bumperLeftButton.whileHeld(()->{
+            shooter.setWristPosition(shooter.getWristDegrees()-5);
+        },shooter)
+        .whenReleased(()->{
+            shooter.setWristPosition(shooter.getWristDegrees());
+        },shooter);
 
         driver.aButton.whenPressed(
             new SetShooterState(shooter, new ShooterState(30, 600))
@@ -166,6 +200,17 @@ public class RobotContainer {
 
         driver.xButton.whenPressed(SuperstructureCommands.safeIntake(intake));
 
+        driver.yButton.whenPressed(
+            SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
+        )
+        .whenReleased(() -> {
+            drivetrain.tankDrive(0, 0);
+            indexer.setVolts(0);
+            shooter.setShooterVelocity(0);
+            shooter.setState(ShooterState.kIdleState);
+        }, drivetrain, shooter, indexer);
+
+        /*
         driver.yButton.whenPressed(
             TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
             .alongWith(new SetShooterState(shooter, analysis, limelight).withTimeout(1))
@@ -184,6 +229,7 @@ public class RobotContainer {
             indexer.setVolts(0);
             shooter.setState(ShooterState.kIdleState);
         }, drivetrain, shooter, indexer);
+        */
 
         /*
         driver.povUpButton.whenPressed(() -> lift.setVolts(12), lift).whenReleased(() -> lift.setVolts(0), lift);
@@ -245,6 +291,7 @@ public class RobotContainer {
         }, drivetrain);
         drivetrain.setDefaultCommand(teleopDrive.beforeStarting(controller::resetLimiters));
 
+        /*
         controller.bumperLeftButton
         .whenPressed(() -> controller.setDriveSpeed(OCXboxController.kSpeedFast))
         .whenReleased(() -> controller.setDriveSpeed(OCXboxController.kSpeedDefault));
@@ -252,6 +299,7 @@ public class RobotContainer {
         controller.bumperRightButton
         .whenPressed(() -> controller.setDriveSpeed(OCXboxController.kSpeedMax))
         .whenReleased(() -> controller.setDriveSpeed(OCXboxController.kSpeedDefault));
+        */
     }
 
     // ---------------------------------------------------------------------------------
