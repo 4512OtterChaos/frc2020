@@ -61,15 +61,22 @@ public final class OCConfig {
      * @param isRightInverted
      */
     public static void configureDrivetrain(CANSparkMax[] leftMotors, CANSparkMax[] rightMotors, boolean isRightInverted){
-        //boolean inverted = (isRightInverted && !isInverted) || (!isRightInverted&&isInverted);
-
-        for(int i=0; i<leftMotors.length; i++){
-            if(i>0) setFollower(leftMotors[0], false, leftMotors[i]);
-            else leftMotors[0].setInverted(!isRightInverted);         
+        if(leftMotors.length != rightMotors.length){
+            System.out.println("OCConfig - Invalid drivetrain motors!");
+            return;
         }
-        for(int i=0; i<rightMotors.length; i++){
-            if(i>0) setFollower(rightMotors[0], false, rightMotors[i]);
-            else rightMotors[0].setInverted(isRightInverted);
+
+        for(int i=0;i<leftMotors.length;i++){
+            if(i>0){
+                // set followers
+                setFollower(leftMotors[0], false, leftMotors[i]);
+                setFollower(rightMotors[0], false, rightMotors[i]);
+            }
+            else{
+                // set leaders
+                leftMotors[0].setInverted(!isRightInverted);
+                rightMotors[0].setInverted(isRightInverted);
+            }
         }
     }
 
@@ -160,15 +167,15 @@ public final class OCConfig {
     public static void setIdleMode(NeutralMode mode, WPI_TalonSRX... motors){
         for(WPI_TalonSRX motor : motors) motor.setNeutralMode(mode);
     }
-    public static void setFollower(CANSparkMax master, boolean inverted, CANSparkMax... followers){
+    public static void setFollower(CANSparkMax leader, boolean inverted, CANSparkMax... followers){
         for(CANSparkMax motor : followers){
-            motor.follow(master, inverted);
+            motor.follow(leader, inverted);
         }
         setStatusSlow(followers);
     }
-    public static void setFollower(WPI_TalonSRX master, boolean inverted, WPI_TalonSRX... followers){
+    public static void setFollower(WPI_TalonSRX leader, boolean inverted, WPI_TalonSRX... followers){
         for(WPI_TalonSRX motor : followers){
-            motor.follow(master);
+            motor.follow(leader);
             motor.setInverted(inverted ? InvertType.OpposeMaster : InvertType.FollowMaster);
             motor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
             motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
@@ -179,13 +186,13 @@ public final class OCConfig {
         for(CANSparkMax motor:motors){
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
         }
     }
     public static void setStatusNormal(CANSparkMax... motors){
         for(CANSparkMax motor:motors){
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
-            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 10);
+            motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 20);
             motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
         }
     }
