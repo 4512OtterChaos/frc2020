@@ -66,7 +66,7 @@ public class Limelight implements Testable{
     private final double kLatencyMs;
 
     public Limelight(Configuration state, Translation2d camTranslation, double cameraHeight, double cameraPitch, Translation2d targTranslation, double targHeight, double latency){
-        visionTable = NetworkTableInstance.getDefault().getTable("limelight");
+        visionTable = NetworkTableInstance.getDefault().getTable("limelight-shoot");
 
         kCameraTranslation = camTranslation;
         kCameraHeight = cameraHeight;
@@ -79,7 +79,7 @@ public class Limelight implements Testable{
     }
 
     public void nuke(){
-        visionTable = NetworkTableInstance.getDefault().getTable("limelight");
+        visionTable = NetworkTableInstance.getDefault().getTable("limelight-shoot");
     }
 
     public void setConfiguration(Configuration configuration){

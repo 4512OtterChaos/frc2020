@@ -46,9 +46,9 @@ public class OCXboxController extends XboxController {
     private static final double kDeadband = 0.12;
     private static final double kArcadeThreshold = 0.2;
 
-    public static final double kSpeedDefault = 0.45;
-    public static final double kSpeedFast = 0.65;
-    public static final double kSpeedMax = 0.95;
+    public static final double kSpeedDefault = 0.35;
+    public static final double kSpeedFast = 0.55;
+    public static final double kSpeedMax = 0.9;
     private double drivespeed = kSpeedDefault;
 
     private SlewRateLimiter forwardLimiter = new SlewRateLimiter(7);
