@@ -239,26 +239,37 @@ public class Drivetrain extends SubsystemBase implements Testable{
         return getKinematics().toChassisSpeeds(getWheelSpeeds());
     }
     
+    /**
+     * Gyro + accelerometer fused yaw. For robot field heading, use {@link #getHeading()} instead.
+     * @return Yaw reported by pigeon imu: [-368,640 to +368,640] degrees
+     */
     public double getYawPosition(){
         pigeon.getYawPitchRoll(ypr);
         pigeon.getRawGyro(xyz);
         return ypr[0];
     }
+    /**
+     * Gyro + accelerometer fused yaw. For robot field heading, use {@link #getHeading()} instead.
+     * @return Yaw reported by pigeon imu and wrapped: [-180 to +180] degrees
+     */
     public double getContinuousYawPosition(){
         return MathHelp.getContinuousError(getYawPosition(), 360);
     }
+    /**
+     * @return Yaw velocity in degrees per second
+     */
     public double getYawVelocity(){
         pigeon.getRawGyro(xyz);
-        return xyz[0];
-    }
-    public Rotation2d getHeading(){
-        return Rotation2d.fromDegrees(getYawPosition());
+        return xyz[2];
     }
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
     }
+    public Rotation2d getHeading(){
+        return odometry.getPoseMeters().getRotation();
+    }
     public void updateOdometry(){
-        odometry.update(getHeading(), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
+        odometry.update(Rotation2d.fromDegrees(getYawPosition()), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
         updatePoseHistory(odometry.getPoseMeters());
     }
     public void resetOdometry(){
@@ -267,7 +278,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     public void resetOdometry(Pose2d poseMeters){
         resetEncoders();
         resetGyro();
-        odometry.resetPosition(poseMeters, getHeading());
+        odometry.resetPosition(poseMeters, Rotation2d.fromDegrees(getYawPosition()));
     }
     /**
      * Returns a previous recorded pose.
@@ -309,20 +320,16 @@ public class Drivetrain extends SubsystemBase implements Testable{
     }
 
     public void log(){
-        SmartDashboard.putNumber("Heading", getContinuousYawPosition());
+        SmartDashboard.putNumber("Heading", getHeading().getDegrees());
         SmartDashboard.putNumber("Angular Velocity", Units.radiansToDegrees(kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond));
-        SmartDashboard.putNumber("Gyro Velocity", xyz[2]);
+        SmartDashboard.putNumber("Gyro Velocity", getYawVelocity());
         SmartDashboard.putNumber("Linear Velocity", kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond);
     }
 
     @Override
     public TestableResult test(){
-        resetEncoders();
-        resetGyro();
-        Timer.delay(1);
-        boolean nonZero = (Math.abs(leftEncoder.getPosition()+rightEncoder.getPosition())>2) || (getHeading().getDegrees()>1);
-        Status result = nonZero ? Status.WARNING : Status.PASSED;
-        return new TestableResult("Drivetrain", result);
+        // not implemented
+        return new TestableResult("Drivetrain", Status.PASSED);
     }
     
 }
