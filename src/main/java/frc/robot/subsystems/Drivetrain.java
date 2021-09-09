@@ -274,7 +274,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
      * @param age Seconds to go back
      */
     public Pose2d getPoseFromHistory(Double age){
-        Pose2d pastPose = new Pose2d();
+        Pose2d pastPose = odometry.getPoseMeters();
         if(poseHistory.size()>1){
             double now = Timer.getFPGATimestamp();
             double timestamp = now - age;
@@ -284,7 +284,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
 
             Double early = poseHistory.ceilingKey(timestamp);
             Double late = poseHistory.floorKey(timestamp);
-            if(timestamp-late<early-timestamp) pastPose = poseHistory.get(late);
+            if(Math.abs(timestamp-late) < Math.abs(early-timestamp)) pastPose = poseHistory.get(late);
             else pastPose = poseHistory.get(early);
         }
         return pastPose;
@@ -295,7 +295,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private void updatePoseHistory(Pose2d pose){
         poseHistory.put(Timer.getFPGATimestamp(), pose);
         Double oldestTime = poseHistory.firstKey();
-        if(getPoseHistoryDuration()>poseHistoryWindow){ // if the pose history spans more than 0.75 seconds
+        while(getPoseHistoryDuration()>poseHistoryWindow){ // if the pose history spans more than 0.75 seconds
             poseHistory.remove(oldestTime);
         }
         SmartDashboard.putNumber("1 Second old Yaw", getPoseFromHistory(1.0).getRotation().getDegrees());
