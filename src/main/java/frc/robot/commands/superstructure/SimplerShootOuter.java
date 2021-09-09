@@ -14,19 +14,18 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.index.IndexFeedShooter;
 import frc.robot.commands.shoot.SetShooterState;
+import frc.robot.common.OCPhotonCam;
 import frc.robot.states.ShooterState;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Limelight.Configuration;
 
 public class SimplerShootOuter extends SequentialCommandGroup {
     
-    public SimplerShootOuter(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, ShooterState shooterState) {
+    public SimplerShootOuter(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, OCPhotonCam camera, ShooterState shooterState) {
         super(
-            TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
+            TurnTo.createSimplerTurnToTarget(drivetrain, camera)
             .alongWith(
                 new PrimeShooter(indexer, intake),
                 new StartEndCommand(

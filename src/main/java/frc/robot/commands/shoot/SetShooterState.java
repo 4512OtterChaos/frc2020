@@ -10,8 +10,8 @@ package frc.robot.commands.shoot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.common.OCPhotonCam;
 import frc.robot.states.ShooterState;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.util.SAS;
 
@@ -20,7 +20,7 @@ public class SetShooterState extends CommandBase {
     private final Shooter shooter;
     private ShooterState state;
     private SAS analysis;
-    private Limelight limelight;
+    private OCPhotonCam camera;
     private boolean current = false; //using current wrist position
     private boolean started = false;
     
@@ -30,11 +30,11 @@ public class SetShooterState extends CommandBase {
         
         addRequirements(shooter);
     }
-    public SetShooterState(Shooter shooter, SAS analysis, Limelight limelight) {
+    public SetShooterState(Shooter shooter, SAS analysis, OCPhotonCam camera) {
         this.shooter = shooter;
         this.analysis = analysis;
-        this.limelight = limelight;
-        this.state = analysis.findShot(limelight.getTrigDistance());
+        this.camera = camera;
+        this.state = analysis.findShot(camera.getBestDistanceInches());
         
         addRequirements(shooter);
     }
@@ -56,8 +56,8 @@ public class SetShooterState extends CommandBase {
     
     @Override
     public void execute() {
-        if(limelight != null){
-            shooter.setState(analysis.findShot(limelight.getTrigDistance()));
+        if(camera != null){
+            shooter.setState(analysis.findShot(camera.getBestDistanceInches()));
         }
     }
     

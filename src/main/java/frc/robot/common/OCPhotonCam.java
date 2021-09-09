@@ -71,7 +71,7 @@ public class OCPhotonCam extends PhotonCamera{
         kTargetHeight = Units.inchesToMeters(heightInches);
     }
 
-    public double getBestDistance(){
+    public double getBestDistanceInches(){
         PhotonPipelineResult result = getLatestResult();
         if(!result.hasTargets()) return 0;
         PhotonTrackedTarget target = result.getBestTarget();

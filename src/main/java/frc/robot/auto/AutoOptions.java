@@ -34,7 +34,6 @@ import frc.robot.commands.superstructure.SimplerShootOuter;
 import frc.robot.commands.superstructure.SuperstructureCommands;
 import frc.robot.common.OCPhotonCam;
 import frc.robot.states.ShooterState;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -74,7 +73,7 @@ public class AutoOptions {
     /**
     * Constructs different auto options given subsystems.
     */
-    public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, OCPhotonCam photonIntake, SAS analysis, Paths paths){
+    public AutoOptions(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, OCPhotonCam photonShoot, SAS analysis, Paths paths){
         
         SimpleMotorFeedforward driveFF = drivetrain.getLinearFF();
         DifferentialDriveKinematics driveKin = drivetrain.getKinematics();
@@ -105,7 +104,7 @@ public class AutoOptions {
             );
             
             chooser.addOption("Simpler Shoot", 
-                new SimplerShootOuter(drivetrain, intake, indexer, shooter, limelight, new ShooterState(30, 3000))
+                new SimplerShootOuter(drivetrain, intake, indexer, shooter, photonShoot, new ShooterState(30, 3000))
             );
         }
 
@@ -126,6 +125,7 @@ public class AutoOptions {
             )
         );
         
+        /*
         fullAutoOptions.addOption("Galactic Search but COOL B)",
             SuperstructureCommands.intakeIndexBalls(intake, indexer, 9, 8)
             .alongWith(
@@ -139,6 +139,7 @@ public class AutoOptions {
                 new InstantCommand(()->drivetrain.setBrakeOn(false))
             )
         );
+        
 
         fullAutoOptions.addOption("Slalom",
             new StandardRamseteCommand(drivetrain, paths.slalom)
@@ -200,6 +201,7 @@ public class AutoOptions {
                 )
             )
         );
+        */
         
         // populate sendable choosers with constructed commands
         //putStageDefaultOption("Nothing", nothing);

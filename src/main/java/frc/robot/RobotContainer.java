@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import org.photonvision.LEDMode;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -60,9 +62,9 @@ public class RobotContainer {
     private Indexer indexer;
     private Shooter shooter;
     private Lift lift;
-    private Limelight limelight;
+    //private Limelight limelight;
     private OCPhotonCam photonShoot;
-    private OCPhotonCam photonIntake;
+    //private OCPhotonCam photonIntake;
     private OCLEDManager manager;
 
     private Paths paths;
@@ -85,13 +87,17 @@ public class RobotContainer {
         indexer = new Indexer();
         shooter = new Shooter();
         lift = new Lift();
+        /*
         limelight = new Limelight(Configuration.PNP, VisionConstants.kTranslation, VisionConstants.kShootHeight,
                 VisionConstants.kShootPitch, VisionConstants.kTargetTranslation, VisionConstants.kTargetHeight,
                 VisionConstants.kLatencyMsLime);
+        */
         photonShoot = new OCPhotonCam("photon-shoot", VisionConstants.kShootHeight, VisionConstants.kShootPitch,
                 VisionConstants.kTargetHeight);
+        /*
         photonIntake = new OCPhotonCam("photon-intake", VisionConstants.kIntakeHeight, VisionConstants.kIntakePitch,
                 3.75);
+        */
 
         manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPYSPLIT);
 
@@ -103,7 +109,7 @@ public class RobotContainer {
 
         testableSystems = new Testable[] { drivetrain };
 
-        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, limelight, photonIntake, analysis, paths);
+        autoOptions = new AutoOptions(drivetrain, intake, indexer, shooter, photonShoot, analysis, paths);
         driveModeChooser.addOption("Curvature Drive", OCXboxController.DriveMode.CURVATURE);
         driveModeChooser.setDefaultOption("Curvature Volts", OCXboxController.DriveMode.CURVATUREVOLTS);
         driveModeChooser.addOption("Arcade Drive", OCXboxController.DriveMode.ARCADE);
@@ -146,7 +152,7 @@ public class RobotContainer {
 
         
         driver.rightTriggerButton.whenPressed(
-            SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
+            SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
         )
         .whenReleased(() -> {
             drivetrain.tankDrive(0, 0);
@@ -333,8 +339,8 @@ public class RobotContainer {
         shooter.reset();
         shooter.setState(ShooterState.kIdleState);
 
-        limelight.nuke();
-        limelight.setConfiguration(Configuration.PNP);
+        photonShoot.setDriverMode(false);
+        photonShoot.setLED(LEDMode.kOn);
 
         if (auto) {
             /*
@@ -347,7 +353,8 @@ public class RobotContainer {
     }
 
     public void disable() {
-        limelight.setConfiguration(Configuration.DRIVE);
+        photonShoot.setDriverMode(true);
+        photonShoot.setLED(LEDMode.kOff);
     }
 
     public void setAllBrake(boolean is) {
@@ -380,8 +387,7 @@ public class RobotContainer {
         indexer.log();
         shooter.log();
         lift.log();
-        limelight.log();
-        SmartDashboard.putString("GS Type", photonIntake.findGSType().toString());
+        //SmartDashboard.putString("GS Type", photonIntake.findGSType().toString());
         /*
          * if(photonIntake.hasTargets()){ SmartDashboard.putNumber("PhotonIn Pitch",
          * photonIntake.getLatestResult().getBestTarget().getPitch());

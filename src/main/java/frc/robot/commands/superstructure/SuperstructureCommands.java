@@ -5,25 +5,22 @@
 package frc.robot.commands.superstructure;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PerpetualCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.drive.TurnTo;
 import frc.robot.commands.index.IndexFeedShooter;
-import frc.robot.commands.index.IndexHomeIntake;
 import frc.robot.commands.index.IndexHomeShooter;
 import frc.robot.commands.index.IndexIncoming;
 import frc.robot.commands.intake.SetIntakeLowered;
 import frc.robot.commands.intake.SetSliderExtended;
 import frc.robot.commands.shoot.SetShooterState;
-import frc.robot.states.ShooterState;
+import frc.robot.common.OCPhotonCam;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -124,49 +121,25 @@ public class SuperstructureCommands {
     /**
      * Turns to target while priming the indexer to feed and setting optimal shooter state, then fires when ready
      */
-    public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight, SAS analysis){
-        return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
-        //return TurnTo.createTensionedTurnToTarget(drivetrain, limelight)
+    public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, OCPhotonCam camera, SAS analysis){
+        return TurnTo.createSimplerTurnToTarget(drivetrain, camera)
+        //return TurnTo.createTensionedTurnToTarget(drivetrain, camera)
             .alongWith(
                 clearShooter(shooter, indexer)
                 .andThen(
                     primeShooter(indexer, intake)
                     .alongWith(
-                        new SetShooterState(shooter, analysis, limelight).withTimeout(1.75)
+                        new SetShooterState(shooter, analysis, camera).withTimeout(1.75)
                     )
                 )
             )
             .andThen(
-                feedShooter(indexer, intake, ()->analysis.getIsReady(limelight.getTrigDistance(), shooter, drivetrain), 3)
+                feedShooter(indexer, intake, ()->analysis.getIsReady(camera.getBestDistanceInches(), shooter, drivetrain), 3)
                 .alongWith(
-                    //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
-                    //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, limelight)),
+                    //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, camera)),
+                    //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, camera)),
                     new PerpetualCommand(new SetShooterState(shooter))
                 )
             );
     }
-
-    /**
-     * shoots with current shooter angle(needs initialization work)
-     */
-    /*
-    public static Command shoot(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, Limelight limelight){
-        return TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
-            .alongWith(
-                clearShooter(shooter, indexer)
-                .andThen(
-                    new PrimeShooter(indexer, intake)
-                    .alongWith(
-                        new SetShooterState(shooter).withTimeout(1.25)
-                    )
-                )
-            )
-            .andThen(
-                new IndexFeedShooter(indexer, ()->shooter.checkIfStable())
-                .alongWith(
-                    new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight))
-                )
-            );
-    }
-    */
 }
