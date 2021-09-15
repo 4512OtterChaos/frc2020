@@ -56,7 +56,8 @@ public class SetShooterState extends CommandBase {
     
     @Override
     public void execute() {
-        if(camera != null){
+        // Update our desired shooter state based on visible target
+        if(camera != null && camera.hasTargets()){
             shooter.setState(analysis.findShot(camera.getBestDistanceInches()));
         }
     }

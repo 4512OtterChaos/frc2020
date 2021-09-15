@@ -100,13 +100,16 @@ public class Shooter extends SubsystemBase implements Testable{
     }
     
     public void periodic() {
+        // Active shooting range
         if(wristTarget > -10 || getWristDegrees() > 0){
+            // un-limp
             if(wristLimp){
                 wristLimp = false;
                 setWristBrakeOn(true);
             }
             setWristVolts(calculateWristVolts(wristTarget));
         }
+        // Limp zone
         else{
             wristLimp = true;
             setWristBrakeOn(false);
