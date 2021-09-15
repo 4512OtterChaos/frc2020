@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -65,7 +66,7 @@ public class RobotContainer {
     //private Limelight limelight;
     private OCPhotonCam photonShoot;
     //private OCPhotonCam photonIntake;
-    private OCLEDManager manager;
+    private OCLEDManager ledManager;
 
     private Paths paths;
 
@@ -99,7 +100,7 @@ public class RobotContainer {
                 3.75);
         */
 
-        manager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPYSPLIT);
+        ledManager = new OCLEDManager(0, 120, OCLEDManager.Configuration.COPYSPLIT);
 
         shooter.setShooterBrakeOn(false);
 
@@ -129,18 +130,21 @@ public class RobotContainer {
             SmartDashboard.putData("Driving Mode", driveModeChooser);
         }
 
-        manager.periodic();
+        ledManager.periodic();
     }
 
     private void configureButtonBindings() {
         configureDriverBindings();
+        //configureOperatorBindings();
     }
 
+    // Controls for main driver controller
     private void configureDriverBindings() {
         configureDriveButtons(driver);
-        //Left trigger command
+
+        // Left trigger - intake/index
         driver.leftTriggerButton.whenPressed(
-            SuperstructureCommands.intakeIndexBalls(intake, indexer, 7, 8)
+            SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
         )
         .whenReleased(new InstantCommand(() -> {
             intake.setRollerVolts(0);
@@ -148,116 +152,94 @@ public class RobotContainer {
             indexer.setVolts(0);
         }, intake, indexer));
 
-        driver.bButton.whenPressed(new SetIntakeLowered(intake, false));
-
-        
+        // Right trigger - automatic shooting
         driver.rightTriggerButton.whenPressed(
             SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
+            .alongWith(
+                new RunCommand(()->{
+                    if(!photonShoot.hasTargets()) driver.setRumble(RumbleType.kRightRumble, 0.5);
+                })
+            )
         )
-        .whenReleased(() -> {
-            drivetrain.tankDrive(0, 0);
-            indexer.setVolts(0);
-            shooter.setShooterVelocity(0);
-            shooter.setState(ShooterState.kIdleState);
-        }, drivetrain, shooter, indexer);
-        
-        
-        
-        // manual shooting
-        /*
-        driver.rightTriggerButton.whenPressed(
-            new SetShooterState(shooter, new ShooterState(35, 1600))
-            .alongWith(SuperstructureCommands.feedShooter(indexer, intake, () -> shooter.checkIfStable(), 3))
-        )
-        .whenReleased(() -> {
-            indexer.setVolts(0);
-            shooter.setShooterVelocity(0);
-            shooter.setState(ShooterState.kIdleState);
-        }, shooter, indexer);
-        
-        
-        /*
-        driver.bumperRightButton.whileHeld(()->{
-            shooter.setWristPosition(shooter.getWristDegrees()+5);
-        },shooter)
-        .whenReleased(()->{
-            shooter.setWristPosition(shooter.getWristDegrees());
-        },shooter);
-        driver.bumperLeftButton.whileHeld(()->{
-            shooter.setWristPosition(shooter.getWristDegrees()-5);
-        },shooter)
-        .whenReleased(()->{
-            shooter.setWristPosition(shooter.getWristDegrees());
-        },shooter);
-        */
-
-        //Dispense balls A
-        driver.aButton.whenPressed(
-            new SetShooterState(shooter, new ShooterState(30, 650))
-            .alongWith(SuperstructureCommands.feedShooter(indexer, intake, () -> true, 3))
-        )
-        .whenReleased(() -> {
-            drivetrain.tankDrive(0, 0);
-            indexer.setVolts(0);
-            shooter.setShooterVelocity(0);
-        }, drivetrain, shooter, indexer);
-        //Safe mode X
-        driver.xButton.whenPressed(SuperstructureCommands.safeIntake(intake));
-        /*
-        driver.yButton.whenPressed(
-            new SetShooterState(shooter, new ShooterState(30, 3500))
-            .alongWith(SuperstructureCommands.feedShooter(indexer, intake, () -> shooter.checkIfStable(), 3))
-        )
-        .whenReleased(() -> {
-            indexer.setVolts(0);
-            shooter.setShooterVelocity(0);
-            shooter.setState(ShooterState.kIdleState);
-        }, shooter, indexer);
-        */
-        /*
-        driver.yButton.whenPressed(
-            SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, limelight, analysis)
-        )
-        .whenReleased(() -> {
-            drivetrain.tankDrive(0, 0);
-            indexer.setVolts(0);
-            shooter.setShooterVelocity(0);
-            shooter.setState(ShooterState.kIdleState);
-        }, drivetrain, shooter, indexer);
-        */
-
-        /*
-        driver.yButton.whenPressed(
-            TurnTo.createSimplerTurnToTarget(drivetrain, limelight)
-            .alongWith(new SetShooterState(shooter, analysis, limelight).withTimeout(1))
+        // wind down shooter briefly, then fully restore it to idle state on release
+        .whenReleased(
+            new InstantCommand(()->{
+                shooter.setShooterVelocity(1000);
+                indexer.setVolts(0);
+                driver.setRumble(RumbleType.kRightRumble, 0);
+            }, shooter, indexer)
             .andThen(
-                SuperstructureCommands.feedShooter(indexer, intake, () -> true, 2.75)
-                .alongWith(
-                    // new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, limelight)),
-                    // new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain,
-                    // limelight)),
-                    new PerpetualCommand(new SetShooterState(shooter))
+                new WaitCommand(0.8)
+            )
+            .andThen(
+                new SetShooterState(shooter, ShooterState.kIdleState)
+            )
+        );
+
+        // A button - Shoot very close (manual alignment)
+        driver.aButton.whenPressed(
+            new SetShooterState(shooter, analysis.findShot(0))
+            .alongWith(
+                new WaitCommand(1)
+                .andThen(
+                    SuperstructureCommands.feedShooter(indexer, intake, () -> true, 3)
                 )
             )
         )
-        .whenReleased(() -> {
-            drivetrain.tankDrive(0, 0);
-            indexer.setVolts(0);
-            shooter.setState(ShooterState.kIdleState);
-        }, drivetrain, shooter, indexer);
-        */
+        // wind down shooter briefly, then fully restore it to idle state on release
+        .whenReleased(
+            new InstantCommand(()->{
+                shooter.setShooterVelocity(1000);
+                indexer.setVolts(0);
+            }, shooter, indexer)
+            .andThen(
+                new WaitCommand(0.8)
+            )
+            .andThen(
+                new SetShooterState(shooter, ShooterState.kIdleState)
+            )
+        );
 
+        // Y button - Shoot slightly behind auto line (manual alignment)
         /*
-        driver.povUpButton.whenPressed(() -> lift.setVolts(12), lift).whenReleased(() -> lift.setVolts(0), lift);
-        driver.povDownButton.whenPressed(() -> lift.setVolts(-12), lift).whenReleased(() -> lift.setVolts(0), lift);
+        driver.yButton.whenPressed(
+            new SetShooterState(shooter, analysis.findShot(140))
+            .alongWith(
+                new WaitCommand(0.8)
+                .andThen(
+                    SuperstructureCommands.feedShooter(indexer, intake, () -> true, 3)
+                )
+            )
+        )
+        // wind down shooter briefly, then fully restore it to idle state on release
+        .whenReleased(
+            new InstantCommand(()->{
+                shooter.setShooterVelocity(1000);
+                indexer.setVolts(0);
+            }, shooter, indexer)
+            .andThen(
+                new WaitCommand(0.8)
+            )
+            .andThen(
+                new SetShooterState(shooter, ShooterState.kIdleState)
+            )
+        );
         */
 
+        // B - Set intake up
+        driver.bButton.whenPressed(new SetIntakeLowered(intake, false));
+
+        // X - Safe intake (intake up, slide in)
+        driver.xButton.whenPressed(SuperstructureCommands.safeIntake(intake));
+
+        // Right stick button - Reverse intake
         driver.stickRightButton.whenPressed(() -> {
             intake.setRollerVolts(-6);
         }, intake).whenReleased(() -> {
             intake.setRollerVolts(0);
         }, intake);
 
+        // Left stick button - Reverse indexer
         driver.stickLeftButton.whenPressed(() -> {
             intake.setSliderIsExtended(true);
             indexer.setVolts(-5);
@@ -267,21 +249,28 @@ public class RobotContainer {
             intake.setFenceVolts(0);
         }, intake, indexer);
 
+        // Old lift controls
+        /*
+        driver.povUpButton.whenPressed(() -> lift.setVolts(12), lift).whenReleased(() -> lift.setVolts(0), lift);
+        driver.povDownButton.whenPressed(() -> lift.setVolts(-12), lift).whenReleased(() -> lift.setVolts(0), lift);
+        */
+
+        // TurnTo testing (forward, backward)
         driver.startButton.whenPressed(new TurnTo(drivetrain, 0));
         driver.backButton.whenPressed(new TurnTo(drivetrain, 180));
+        // Down D-PAD - Put shooter wrist all the way down and deactivate PID
         driver.povDownButton.whenPressed(new SetShooterState(shooter, ShooterState.kLimp));
 
     }
 
+    // Controls for operator controller
     private void configureOperatorBindings() {
         operator.aButton.whenPressed(new SetIntakeLowered(intake, true));
         operator.bButton.whenPressed(new SetIntakeLowered(intake, false));
-        operator.xButton.whenPressed(
-            new SetIntakeLowered(intake, false)
-            .andThen(new SetSliderExtended(intake, false))
-        );
+        operator.xButton.whenPressed(SuperstructureCommands.safeIntake(intake));
     }
 
+    // Configure default driving behavior and speed control buttons
     private void configureDriveButtons(OCXboxController controller) {
         RunCommand teleopDrive = new RunCommand(() -> {
 
@@ -307,7 +296,7 @@ public class RobotContainer {
         }, drivetrain);
         drivetrain.setDefaultCommand(teleopDrive.beforeStarting(controller::resetLimiters));
 
-        
+        // Drive speed control
         controller.bumperLeftButton
         .whenPressed(() -> controller.setDriveSpeed(OCXboxController.kSpeedFast))
         .whenReleased(() -> controller.setDriveSpeed(OCXboxController.kSpeedDefault));
