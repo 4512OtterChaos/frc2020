@@ -113,7 +113,7 @@ public class Shooter extends SubsystemBase implements Testable{
         else{
             wristLimp = true;
             setWristBrakeOn(false);
-            setWristVolts(-1);
+            setWristVolts(-0.5);
         }
 
         calculateShooterVolts(shooterTarget);
@@ -195,7 +195,8 @@ public class Shooter extends SubsystemBase implements Testable{
             wrist.setVoltage(volts);
         }
         else{
-            wrist.setVoltage(-1);
+            wrist.setVoltage(0);
+            setWristBrakeOn(false);
         }
     }
     
