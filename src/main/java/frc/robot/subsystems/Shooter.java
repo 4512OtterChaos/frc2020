@@ -190,7 +190,13 @@ public class Shooter extends SubsystemBase implements Testable{
         volts = MathHelp.clamp(volts, minVolts, maxVolts);
         volts += ShooterWristConstants.kCounterGravityFF*Math.cos(Units.degreesToRadians(getWristDegrees()));
         SmartDashboard.putNumber("Wrist Volts", volts);
-        wrist.setVoltage(volts);
+        // encoder safety
+        if(wristEncoder.isConnected()){
+            wrist.setVoltage(volts);
+        }
+        else{
+            wrist.setVoltage(-1);
+        }
     }
     
     public void setWristPosition(double degrees){
