@@ -342,7 +342,6 @@ public class RobotContainer {
     }
 
     public void disable() {
-        photonShoot.setDriverMode(true);
         photonShoot.setLED(LEDMode.kOff);
     }
 
