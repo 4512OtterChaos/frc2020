@@ -306,7 +306,7 @@ public class Drivetrain extends SubsystemBase implements Testable{
     private void updatePoseHistory(Pose2d pose){
         poseHistory.put(Timer.getFPGATimestamp(), pose);
         Double oldestTime = poseHistory.firstKey();
-        while(getPoseHistoryDuration()>poseHistoryWindow){ // if the pose history spans more than 0.75 seconds
+        if(getPoseHistoryDuration()>poseHistoryWindow){ // if the pose history spans more than 0.75 seconds
             poseHistory.remove(oldestTime);
         }
         SmartDashboard.putNumber("1 Second old Yaw", getPoseFromHistory(1.0).getRotation().getDegrees());
