@@ -375,6 +375,7 @@ public class RobotContainer {
         indexer.log();
         shooter.log();
         lift.log();
+        SmartDashboard.putNumber("Camera Dist Inches", photonShoot.getBestDistanceInches());
         //SmartDashboard.putString("GS Type", photonIntake.findGSType().toString());
         /*
          * if(photonIntake.hasTargets()){ SmartDashboard.putNumber("PhotonIn Pitch",
