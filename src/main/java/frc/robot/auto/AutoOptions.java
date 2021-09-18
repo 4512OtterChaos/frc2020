@@ -20,7 +20,9 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -131,7 +133,7 @@ public class AutoOptions {
         );
         */
 
-        fullAutoOptions.addOption("Simple Back then Shoot(Timed)",
+        fullAutoOptions.addOption("Timed Back then Shoot, no camera means no turning",
             new StartEndCommand(
                 ()->{
                     drivetrain.setChassisSpeed(-0.3, 0);
@@ -139,14 +141,154 @@ public class AutoOptions {
                 ()->drivetrain.tankDrive(0, 0),
                 drivetrain
             ).withTimeout(0.75)
+            .andThen(new SetIntakeLowered(intake, true))
             .andThen(
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
+                new ConditionalCommand(
+                    // with camera
+                    SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis),
+                    // or blind (no turning)
+                    SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 140, analysis),
+
+                    ()->photonShoot.hasTargets()
+                ).withTimeout(8.5)
                 .alongWith(
                     new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
                 )
                 .andThen(
                     new SetShooterState(shooter, ShooterState.kIdleState)
                 )
+            )
+        );
+
+        // back up, shoot 3, pick up 3 trench, return, shoot 3
+        fullAutoOptions.addOption("Back up shoot 3 then alliance control panel 3 more and shoot",
+            new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
+            .andThen(
+                new InstantCommand(
+                    ()->{
+                        drivetrain.resetOdometry(new Pose2d(
+                            Units.feetToMeters(12),
+                            Units.feetToMeters(22.5),
+                            Rotation2d.fromDegrees(180)
+                            )
+                        );
+                    }
+                )
+            )
+            // back up timed
+            .andThen(
+                new StartEndCommand(
+                    ()->{
+                        drivetrain.setChassisSpeed(-0.3, 0);
+                    },
+                    ()->drivetrain.tankDrive(0, 0),
+                    drivetrain
+                ).withTimeout(0.5)
+            )
+            .andThen(new SetIntakeLowered(intake, true))
+            // shoot with camera or blind
+            .andThen(
+                new ConditionalCommand(
+                    // with camera
+                    SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis),
+                    // or blind
+                    new TurnTo(drivetrain, 200).withTimeout(1.2)
+                    .andThen(
+                        SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 140, analysis)
+                    ),
+
+                    ()->photonShoot.hasTargets()
+                ).withTimeout(5)
+                .andThen(
+                    new SetShooterState(shooter, ShooterState.kIdleState)
+                )
+            )
+            // pickup more powercells and return
+            .andThen(
+                // orient to power cells
+                new TurnTo(drivetrain, paths.allianceControlPanel.getInitialPose().getRotation().getDegrees()).withTimeout(1.2),
+                // pickup path
+                new StandardRamseteCommand(drivetrain, paths.allianceControlPanel)
+                .deadlineWith(
+                    SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
+                ),
+                // return from pickup path
+                new StandardRamseteCommand(drivetrain, paths.allianceControlPanel.getInverted()),
+                // orient to power port
+                new TurnTo(drivetrain, 200).withTimeout(0.8)
+            )
+            // shoot with camera or blind
+            .andThen(
+                new ConditionalCommand(
+                    // with camera
+                    SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis),
+                    // or blind
+                    new TurnTo(drivetrain, 200).withTimeout(0.5)
+                    .andThen(
+                        SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 140, analysis)
+                    ),
+
+                    ()->photonShoot.hasTargets()
+                ).withTimeout(7)
+                .andThen(
+                    new SetShooterState(shooter, ShooterState.kIdleState)
+                )
+            )
+        );
+
+        // pick up 2 opponent control panel, go mid field, shoot 5, pickup 5 rendezvous and go next to alliance control panel, shoot 5
+        fullAutoOptions.addOption("Opponent control panel pickup 2 then shoot midfield then pickup 5 rendezvous then shoot near trench",
+            new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
+            .andThen(
+                new InstantCommand(
+                    ()->drivetrain.resetOdometry(paths.opponentControlPanel1.getInitialPose())
+                )
+            )
+            .andThen(
+                // drop intake
+                new SetIntakeLowered(intake, true),
+                // pickup 2 from opponent control panel
+                new StandardRamseteCommand(drivetrain, paths.opponentControlPanel1)
+                .deadlineWith(
+                    SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
+                ),
+                // backwards to mid field
+                new StandardRamseteCommand(drivetrain, paths.opponentControlPanel2),
+                // orient to power port
+                new TurnTo(drivetrain, 162).withTimeout(0.5),
+                // shoot 5
+                new ConditionalCommand(
+                    // with camera
+                    SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis),
+                    // or blind
+                    new TurnTo(drivetrain, 162).withTimeout(0.5)
+                    .andThen(
+                        SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 210, analysis)
+                    ),
+
+                    ()->photonShoot.hasTargets()
+                ).withTimeout(4.5),
+                new InstantCommand(()->shooter.setShooterVelocity(0), shooter),
+                // orient to rendezvous
+                new TurnTo(drivetrain, paths.opponentControlPanel3.getInitialPose().getRotation().getDegrees()).withTimeout(0.6),
+                // pickup 5 rendezvous and end left of alliance trench
+                new StandardRamseteCommand(drivetrain, paths.opponentControlPanel3)
+                .deadlineWith(
+                    SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
+                ),
+                // shoot 5
+                new ConditionalCommand(
+                    // with camera
+                    SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis),
+                    // or blind
+                    new TurnTo(drivetrain, -170).withTimeout(1)
+                    .andThen(
+                        SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 210, analysis)
+                    ),
+
+                    ()->photonShoot.hasTargets()
+                ).withTimeout(6),
+                new SetShooterState(shooter, ShooterState.kIdleState)
             )
         );
         

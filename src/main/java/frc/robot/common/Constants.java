@@ -167,9 +167,9 @@ public class Constants {
     
     public static class AutoConstants{
         public static final double kMaxAutoVoltage = 12; // Avoid voltage sag and maintain accuracy
-        public static final double kMaxVelocityMeters = Units.feetToMeters(11);
-        public static final double kMaxAccelerationMeters = Units.feetToMeters(14);
-        public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(9); // Turning acceleration given radius
+        public static final double kMaxVelocityMeters = Units.feetToMeters(10);
+        public static final double kMaxAccelerationMeters = Units.feetToMeters(13.5);
+        public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(8.5); // Turning acceleration given radius
         public static final Pose2d kAcceptablePoseError = new Pose2d(0.5, 0.5, new Rotation2d(Units.degreesToRadians(35))); // trajectory completion/crash handling
         public static final double kReferenceFailureWindow = 1.25; // seconds till trajectory abandons when off tolerence
     }

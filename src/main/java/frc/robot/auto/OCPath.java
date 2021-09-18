@@ -33,10 +33,7 @@ public class OCPath extends Trajectory{
 
     public enum Preset{
         DEFAULT,
-        SLALOM,
-        BOUNCE,
-        BARREL,
-        GALACTIC
+        FASTER
     }
 
     private TrajectoryConfig config; // Store config for reversing
@@ -140,22 +137,10 @@ public class OCPath extends Trajectory{
                 .setKinematics(kinematics)
                 .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
                 .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, kMaxAutoVoltage)); // Account for voltage sag
-            case SLALOM: return new TrajectoryConfig(meters(12.25), meters(16))
+            case FASTER: return new TrajectoryConfig(Units.feetToMeters(13), Units.feetToMeters(16))
                 .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(meters(10.5)))
-                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
-            case BOUNCE: return new TrajectoryConfig(meters(13), meters(17))
-                .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(meters(10.25)))
-                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
-            case BARREL: return new TrajectoryConfig(meters(14), meters(18))
-                .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(meters(10.5)))
-                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
-            case GALACTIC: return new TrajectoryConfig(meters(14.75), meters(21))
-                .setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(meters(12)))
-                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, 12));
+                .addConstraint(new CentripetalAccelerationConstraint(Units.feetToMeters(9.75)))
+                .addConstraint(new DifferentialDriveVoltageConstraint(feedforward, kinematics, kMaxAutoVoltage));
         }
     }
     /**

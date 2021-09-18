@@ -45,6 +45,10 @@ public class Paths {
     //----- Paths
     public final OCPath nothing = new OCPath(Arrays.asList(new Trajectory.State()), new TrajectoryConfig(1, 1)); // do nothing
     public final OCPath example; // our different paths
+    public final OCPath allianceControlPanel;
+    public final OCPath opponentControlPanel1;
+    public final OCPath opponentControlPanel2;
+    public final OCPath opponentControlPanel3;
 
     /*
     public final OCPath slalom;
@@ -68,6 +72,10 @@ public class Paths {
     public Paths(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
         example = new OCPath(PathsList.example, feedforward, kinematics);
 
+        allianceControlPanel = new OCPath(PathsList.allianceControlPanel, feedforward, kinematics);
+        opponentControlPanel1 = new OCPath(PathsList.opponentControlPanel1, feedforward, kinematics, Preset.FASTER);
+        opponentControlPanel2 = new OCPath(PathsList.opponentControlPanel2, feedforward, kinematics, Preset.FASTER).getReversed();
+        opponentControlPanel3 = new OCPath(PathsList.opponentControlPanel3, feedforward, kinematics, Preset.FASTER);
         /*
         slalom = quinticToCubic(PathsList.slalom, feedforward, kinematics, Preset.SLALOM);
         bounce1 = new OCPath(PathsList.bounce1, feedforward, kinematics, Preset.BOUNCE);
@@ -110,6 +118,30 @@ public class Paths {
             new Pose2d(8, 0, new Rotation2d())
         );
 
+        public static final List<Pose2d> allianceControlPanel = Arrays.asList(
+            toPose(15, 22.5, 20),
+            toPose(26.5, 24.5, 0)
+        );
+
+        // pickup 2 opponent control panel
+        public static final List<Pose2d> opponentControlPanel1 = Arrays.asList(
+            toPose(12, 4.5, 0),
+            toPose(20.5, 2.5, -10)
+        );
+        // go to shoot mid field
+        public static final List<Pose2d> opponentControlPanel2 = Arrays.asList(
+            toPose(20.5, 2.5, -10),
+            toPose(16.5, 12.5, -90)
+        );
+        // pickup 5 rendezvous, shoot left of alliance trench
+        public static final List<Pose2d> opponentControlPanel3 = Arrays.asList(
+            toPose(16.5, 12.5, 0),
+            toPose(22, 13.5, 25),
+            toPose(21, 16, 25),
+            toPose(23, 18.5, 115),
+            toPose(19, 21, -170)
+        );
+            
 
         /*
         public static final List<Pose2d> slalom = Arrays.asList(
