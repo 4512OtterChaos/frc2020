@@ -156,7 +156,7 @@ public class RobotContainer {
         driver.rightTriggerButton.whenPressed(
             SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
             .alongWith(
-                new InstantCommand(()->photonShoot.setLED(LEDMode.kOn))
+                new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
             )
             .alongWith(
                 new RunCommand(()->{
@@ -332,7 +332,7 @@ public class RobotContainer {
         shooter.setState(ShooterState.kIdleState);
 
         photonShoot.setDriverMode(false);
-        photonShoot.setLED(LEDMode.kOn);
+        photonShoot.setLED(LEDMode.kDefault);
 
         if (auto) {
             /*

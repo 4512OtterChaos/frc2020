@@ -142,7 +142,7 @@ public class AutoOptions {
             .andThen(
                 SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
                 .alongWith(
-                    new InstantCommand(()->photonShoot.setLED(LEDMode.kOn))
+                    new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
                 )
                 .andThen(
                     new SetShooterState(shooter, ShooterState.kIdleState)
