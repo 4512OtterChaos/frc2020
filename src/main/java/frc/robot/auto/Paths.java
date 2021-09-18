@@ -45,6 +45,8 @@ public class Paths {
     //----- Paths
     public final OCPath nothing = new OCPath(Arrays.asList(new Trajectory.State()), new TrajectoryConfig(1, 1)); // do nothing
     public final OCPath example; // our different paths
+
+    /*
     public final OCPath slalom;
     public final OCPath bounce1;
     public final OCPath bounce2;
@@ -55,6 +57,7 @@ public class Paths {
     public final OCPath gsRedB;
     public final OCPath gsBlueA;
     public final OCPath gsBlueB;
+    */
     //-----
 
     private static boolean hasAbandonedTrajectory = false;
@@ -64,6 +67,8 @@ public class Paths {
      */
     public Paths(SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics){
         example = new OCPath(PathsList.example, feedforward, kinematics);
+
+        /*
         slalom = quinticToCubic(PathsList.slalom, feedforward, kinematics, Preset.SLALOM);
         bounce1 = new OCPath(PathsList.bounce1, feedforward, kinematics, Preset.BOUNCE);
         bounce2 = new OCPath(PathsList.bounce2, feedforward, kinematics, Preset.BOUNCE).getReversed();
@@ -74,6 +79,7 @@ public class Paths {
         gsRedB = quinticToCubic(PathsList.gsRedB, feedforward, kinematics, Preset.GALACTIC);
         gsBlueA = new OCPath(PathsList.gsBlueA, feedforward, kinematics, Preset.GALACTIC);
         gsBlueB = new OCPath(PathsList.gsBlueB, feedforward, kinematics, Preset.GALACTIC);
+        */
     }
 
     public static OCPath quinticToCubic(List<Pose2d> poses, SimpleMotorFeedforward feedforward, DifferentialDriveKinematics kinematics, Preset preset){
@@ -103,6 +109,9 @@ public class Paths {
             new Pose2d(4, 2, new Rotation2d()),
             new Pose2d(8, 0, new Rotation2d())
         );
+
+
+        /*
         public static final List<Pose2d> slalom = Arrays.asList(
             // clamped cubic
             toPose(3.1, 2, 30), // start
@@ -160,17 +169,10 @@ public class Paths {
             toPose(24.6, 7.7, 180), // exit 3
             toPose(18, 9, 180),
             toPose(0.65, 11, 180)
-            /*
-            toPose(3.5, 7.5, 0), // start
-            toPose(15, 5, -50), // 1
-            toPose(10, 4, 84),
-            toPose(20.7, 8, 20),
-            toPose(19.3, 12, -150),
-            toPose(24.8, 3, 0),
-            toPose(25.7, 7.3, 174),
-            toPose(1, 8.4, 180)
-            */
         );
+        */
+
+        /*
         public static final List<Pose2d> gsRedA = Arrays.asList(
             toPose(3.69, 10.4, -30), // start
             toPose(7, 6.75, -40), // ball 1
@@ -197,6 +199,7 @@ public class Paths {
             toPose(25, 5, -5), // ball 3
             toPose(32, 4, 0) // end
         );
+        */
         
         
         public static Pose2d toPose(double xFt, double yFt, double deg){
@@ -230,18 +233,22 @@ public class Paths {
         }
     }
 
+    
     /**
      * Get the path associated with the galactic search type
      */
     public OCPath getGSPath(GSType type){
         switch(type){
             default: return nothing; // fail
+            /*
             case RED_A: return gsRedA;
             case RED_B: return gsRedB;
             case BLUE_A: return gsBlueA;
             case BLUE_B: return gsBlueB;
+            */
         }
     }
+    
 
     /**
      * Returns true if the last trajectory followed was abandoned due to being outside acceptable tolerance for too long.

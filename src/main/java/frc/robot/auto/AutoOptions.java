@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.photonvision.LEDMode;
+
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -84,7 +86,7 @@ public class AutoOptions {
             chooser.setDefaultOption("Nothing",
                 new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain)
             );
-            chooser.addOption("Short Backward", 
+            chooser.addOption("1m Backward", 
                 new StandardRamseteCommand(drivetrain, new OCPath(
                     List.of(
                         new Pose2d(0, 0, new Rotation2d()),
@@ -93,7 +95,7 @@ public class AutoOptions {
                 )
             );
             
-            chooser.addOption("Simple Short Backward",
+            chooser.addOption("Simple Short Backward(Timed)",
                 new StartEndCommand(
                     ()->{
                         drivetrain.setChassisSpeed(-0.3, 0);
@@ -103,9 +105,11 @@ public class AutoOptions {
                 ).withTimeout(0.75)
             );
             
+            /*
             chooser.addOption("Simpler Shoot", 
                 new SimplerShootOuter(drivetrain, intake, indexer, shooter, photonShoot, new ShooterState(30, 3000))
             );
+            */
         }
 
         //---------------- preset autos
@@ -114,6 +118,7 @@ public class AutoOptions {
             new InstantCommand(()->drivetrain.tankDrive(0,0), drivetrain)
         );
 
+        /*
         fullAutoOptions.addOption("Example", 
             new StandardRamseteCommand(drivetrain, paths.example)
         );
@@ -122,6 +127,26 @@ public class AutoOptions {
             new StandardRamseteCommand(drivetrain, paths.example)
             .andThen(
                 new StandardRamseteCommand(drivetrain, paths.example.getInverted())
+            )
+        );
+        */
+
+        fullAutoOptions.addOption("Simple Back then Shoot(Timed)",
+            new StartEndCommand(
+                ()->{
+                    drivetrain.setChassisSpeed(-0.3, 0);
+                },
+                ()->drivetrain.tankDrive(0, 0),
+                drivetrain
+            ).withTimeout(0.75)
+            .andThen(
+                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
+                .alongWith(
+                    new InstantCommand(()->photonShoot.setLED(LEDMode.kOn))
+                )
+                .andThen(
+                    new SetShooterState(shooter, ShooterState.kIdleState)
+                )
             )
         );
         
