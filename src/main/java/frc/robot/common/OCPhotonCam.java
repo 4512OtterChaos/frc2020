@@ -79,8 +79,8 @@ public class OCPhotonCam extends PhotonCamera{
         PhotonPipelineResult result = getLatestResult();
         if(!result.hasTargets()) return 0;
         PhotonTrackedTarget target = result.getBestTarget();
-        return PhotonUtils.calculateDistanceToTargetMeters(
-            kCamHeight, kTargetHeight, kCamPitch, Units.degreesToRadians(target.getPitch()));
+        return Units.metersToInches(PhotonUtils.calculateDistanceToTargetMeters(
+            kCamHeight, kTargetHeight, kCamPitch, Units.degreesToRadians(target.getPitch())));
     }
 
     public GSType findGSType(){
