@@ -156,6 +156,9 @@ public class RobotContainer {
         driver.rightTriggerButton.whenPressed(
             SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
             .alongWith(
+                new InstantCommand(()->photonShoot.setLED(LEDMode.kOn))
+            )
+            .alongWith(
                 new RunCommand(()->{
                     if(!photonShoot.hasTargets()) driver.setRumble(RumbleType.kRightRumble, 0.5);
                 })
