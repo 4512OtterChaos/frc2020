@@ -246,7 +246,7 @@ public class Shooter extends SubsystemBase implements Testable{
     public void log(){
         SmartDashboard.putNumber("Wrist Degrees", getWristDegrees());
         SmartDashboard.putNumber("Wrist Setpoint", wristController.getSetpoint().position);
-        
+        SmartDashboard.putNumber("Wrist Value", wristEncoder.get());
         SmartDashboard.putNumber("Shooter RPM", getRPM());
         SmartDashboard.putNumber("Shooter Target RPM", getTargetRPM());
         SmartDashboard.putNumber("Shooter Accel", rpmAccel);

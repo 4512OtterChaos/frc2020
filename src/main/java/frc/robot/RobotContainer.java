@@ -144,7 +144,7 @@ public class RobotContainer {
 
         // Left trigger - intake/index
         driver.leftTriggerButton.whenPressed(
-            SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
+            SuperstructureCommands.intakeIndexBalls(intake, indexer, 7, 8)
         )
         .whenReleased(new InstantCommand(() -> {
             intake.setRollerVolts(0);
@@ -204,7 +204,7 @@ public class RobotContainer {
         );
 
         // Y button - Shoot slightly behind auto line (manual alignment)
-        /*
+        
         driver.yButton.whenPressed(
             new SetShooterState(shooter, analysis.findShot(140))
             .alongWith(
@@ -227,7 +227,7 @@ public class RobotContainer {
                 new SetShooterState(shooter, ShooterState.kIdleState)
             )
         );
-        */
+        
 
         // B - Set intake up
         driver.bButton.whenPressed(new SetIntakeLowered(intake, false));
@@ -345,7 +345,7 @@ public class RobotContainer {
     }
 
     public void disable() {
-        photonShoot.setLED(LEDMode.kOff);
+        //photonShoot.setLED(LEDMode.kOff);
     }
 
     public void setAllBrake(boolean is) {

@@ -85,7 +85,7 @@ public class Constants {
         public static final int kVelocityConstraint = 120; // Cruise Velocity Degrees
         public static final int kAccelerationConstraint = 160;
         
-        public static final double kEncoderOffset = -0.36; // Add this to encoder value to make "0" flat
+        public static final double kEncoderOffset = -.538; // Add this to encoder value to make "0" flat
         
         // Constraints
         public static final double kLowestSafeDegrees = -15; // above is safe

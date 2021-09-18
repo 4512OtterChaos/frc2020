@@ -122,7 +122,7 @@ public class TurnTo extends ProfiledPIDCommand {
     */
     public static TurnTo createHomeToTarget(Drivetrain drivetrain, Translation2d targetTranslation){
         double relativeAngle = FieldUtil.getRelativeAngle(drivetrain.getOdometry().getPoseMeters().getTranslation(), targetTranslation).getDegrees();
-        return new TurnTo(drivetrain, drivetrain.getHeading().plus(Rotation2d.fromDegrees(relativeAngle)).getDegrees());
+        return new TurnTo(drivetrain, drivetrain.getHeading().minus(Rotation2d.fromDegrees(relativeAngle)).getDegrees());
     }
     
     /**
@@ -136,7 +136,7 @@ public class TurnTo extends ProfiledPIDCommand {
             PhotonPipelineResult visionResult = camera.getLatestResult();
             PhotonTrackedTarget visionTarget = visionResult.getBestTarget();
             if(!visionResult.hasTargets()) return drivetrain.getHeading().getDegrees();
-            double heading = drivetrain.getPoseFromHistory(visionResult.getLatencyMillis()/1000.0).getRotation().plus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
+            double heading = drivetrain.getPoseFromHistory(visionResult.getLatencyMillis()/1000.0).getRotation().minus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(camera.getTrigDistance()));
             return heading;
         });
@@ -160,7 +160,7 @@ public class TurnTo extends ProfiledPIDCommand {
             PhotonPipelineResult visionResult = camera.getLatestResult();
             PhotonTrackedTarget visionTarget = visionResult.getBestTarget();
             if(!visionResult.hasTargets()) return drivetrain.getHeading().getDegrees();
-            double heading = drivetrain.getPoseFromHistory(visionResult.getLatencyMillis()/1000.0).getRotation().plus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
+            double heading = drivetrain.getPoseFromHistory(visionResult.getLatencyMillis()/1000.0).getRotation().minus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(camera.getTrigDistance()));
             return heading;
         });
@@ -175,7 +175,7 @@ public class TurnTo extends ProfiledPIDCommand {
             PhotonPipelineResult visionResult = camera.getLatestResult();
             PhotonTrackedTarget visionTarget = visionResult.getBestTarget();
             if(!visionResult.hasTargets()) return drivetrain.getHeading().getDegrees();
-            double heading = drivetrain.getHeading().plus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
+            double heading = drivetrain.getHeading().minus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
             //FieldUtil.getRelativePose(Rotation2d.fromDegrees(heading), Units.inchesToMeters(camera.getTrigDistance()));
             return heading;
         });
@@ -193,7 +193,7 @@ public class TurnTo extends ProfiledPIDCommand {
             PhotonPipelineResult visionResult = camera.getLatestResult();
             PhotonTrackedTarget visionTarget = visionResult.getBestTarget();
             if(!visionResult.hasTargets()) return drivetrain.getHeading().getDegrees();
-            return drivetrain.getHeading().plus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
+            return drivetrain.getHeading().minus(Rotation2d.fromDegrees(visionTarget.getYaw())).getDegrees();
         },
         (output, setpoint) -> {
             double tensionVolts = drivetrain.getLinearFF().ks * 0.4; // slight voltage for putting in tension
