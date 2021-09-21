@@ -28,7 +28,7 @@ public class SAS {
     private double lastOuterTime = Timer.getFPGATimestamp();
     private double innerConfidentTime = 0;
     private double lastInnerTime = Timer.getFPGATimestamp();
-    private final double confidentTimeThreshold = 0.2;
+    private final double confidentTimeThreshold = 0.15;
     
     private final double confidenceThreshold = 0.7;
     

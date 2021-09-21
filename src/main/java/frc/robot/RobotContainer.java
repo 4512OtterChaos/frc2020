@@ -167,12 +167,12 @@ public class RobotContainer {
         // wind down shooter briefly, then fully restore it to idle state on release
         .whenReleased(
             new InstantCommand(()->{
-                shooter.setShooterVelocity(1000);
+                shooter.setShooterVelocity(1500);
                 indexer.setVolts(0);
                 driver.setRumble(RumbleType.kRightRumble, 0);
             }, shooter, indexer)
             .andThen(
-                new WaitCommand(0.8)
+                new WaitCommand(0.5)
             )
             .andThen(
                 new SetShooterState(shooter, ShooterState.kLimp)
@@ -181,22 +181,16 @@ public class RobotContainer {
 
         // A button - Shoot very close (manual alignment)
         driver.aButton.whenPressed(
-            new SetShooterState(shooter, analysis.findShot(0))
-            .alongWith(
-                new WaitCommand(1)
-                .andThen(
-                    SuperstructureCommands.feedShooter(indexer, intake, () -> true, 3)
-                )
-            )
+            SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 0, analysis)
         )
         // wind down shooter briefly, then fully restore it to idle state on release
         .whenReleased(
             new InstantCommand(()->{
-                shooter.setShooterVelocity(1000);
+                shooter.setShooterVelocity(1500);
                 indexer.setVolts(0);
             }, shooter, indexer)
             .andThen(
-                new WaitCommand(0.8)
+                new WaitCommand(0.5)
             )
             .andThen(
                 new SetShooterState(shooter, ShooterState.kLimp)
@@ -206,22 +200,16 @@ public class RobotContainer {
         // Y button - Shoot slightly behind auto line (manual alignment)
         
         driver.yButton.whenPressed(
-            new SetShooterState(shooter, analysis.findShot(140))
-            .alongWith(
-                new WaitCommand(0.8)
-                .andThen(
-                    SuperstructureCommands.feedShooter(indexer, intake, () -> true, 3)
-                )
-            )
+            SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 140, analysis)
         )
         // wind down shooter briefly, then fully restore it to idle state on release
         .whenReleased(
             new InstantCommand(()->{
-                shooter.setShooterVelocity(1000);
+                shooter.setShooterVelocity(1500);
                 indexer.setVolts(0);
             }, shooter, indexer)
             .andThen(
-                new WaitCommand(0.8)
+                new WaitCommand(0.5)
             )
             .andThen(
                 new SetShooterState(shooter, ShooterState.kIdleState)

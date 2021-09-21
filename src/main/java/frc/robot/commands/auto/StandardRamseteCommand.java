@@ -80,7 +80,7 @@ public class StandardRamseteCommand extends RamseteCommand{
             timeOffReference += dt;
         }
         else{
-            timeOffReference = Math.max(0, timeOffReference-3*dt);
+            timeOffReference = Math.max(0, timeOffReference-1.75*dt);
         }
         if(timeOffReference>kReferenceFailureWindow){
             Paths.abandonTrajectory();

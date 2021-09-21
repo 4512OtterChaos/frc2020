@@ -134,12 +134,33 @@ public class SuperstructureCommands {
                 )
             )
             .andThen(
-                feedShooter(indexer, intake, ()->analysis.getIsReady(camera.getBestDistanceInches(), shooter, drivetrain), 3)
+                feedShooter(indexer, intake, ()->analysis.getIsReady(camera.getBestDistanceInches(), shooter, drivetrain), 3.5)
                 .alongWith(
                     //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, camera)),
                     //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, camera)),
                     new PerpetualCommand(new SetShooterState(shooter))
                 )
             );
+    }
+
+    /**
+     * Primes the indexer to feed and sets optimal shooter state based on given distance, then fires when ready
+     */
+    public static Command shootManual(Drivetrain drivetrain, Intake intake, Indexer indexer, Shooter shooter, double distInches, SAS analysis){
+        return clearShooter(shooter, indexer)
+        .andThen(
+            primeShooter(indexer, intake)
+            .alongWith(
+                new SetShooterState(shooter, analysis.findShot(distInches)).withTimeout(1.75)
+            )
+        )
+        .andThen(
+            feedShooter(indexer, intake, ()->analysis.getIsReady(distInches, shooter, drivetrain), 3.5)
+            .alongWith(
+                //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, camera)),
+                //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, camera)),
+                new PerpetualCommand(new SetShooterState(shooter, analysis.findShot(distInches)))
+            )
+        );
     }
 }

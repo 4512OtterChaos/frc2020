@@ -20,7 +20,9 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -131,7 +133,7 @@ public class AutoOptions {
         );
         */
 
-        fullAutoOptions.addOption("Simple Back then Shoot(Timed)",
+        fullAutoOptions.addOption("Timed Back then Shoot, no camera means no turning",
             new StartEndCommand(
                 ()->{
                     drivetrain.setChassisSpeed(-0.25, 0);
@@ -139,9 +141,16 @@ public class AutoOptions {
                 ()->drivetrain.tankDrive(0, 0),
                 drivetrain
             ).withTimeout(0.75)
+            .andThen(new SetIntakeLowered(intake, true))
             .andThen(
-                new SetIntakeLowered(intake, true),
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis).withTimeout(5)
+                new ConditionalCommand(
+                    // with camera
+                    SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis),
+                    // or blind (no turning)
+                    SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 140, analysis),
+
+                    ()->photonShoot.hasTargets()
+                ).withTimeout(8.5)
                 .alongWith(
                     new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
                 )

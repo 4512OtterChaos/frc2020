@@ -74,7 +74,7 @@ public class PhotonWaypointRamsete extends CommandBase {
             startPose, 
             relativeWaypoints,
             endPose, 
-            drivetrain.getLinearFF(), drivetrain.getKinematics(), Preset.GALACTIC
+            drivetrain.getLinearFF(), drivetrain.getKinematics(), Preset.FASTER
         );
 
         ramseteCommand = new StandardRamseteCommand(drivetrain, path);
