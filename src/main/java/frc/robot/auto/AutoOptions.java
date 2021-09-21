@@ -134,13 +134,14 @@ public class AutoOptions {
         fullAutoOptions.addOption("Simple Back then Shoot(Timed)",
             new StartEndCommand(
                 ()->{
-                    drivetrain.setChassisSpeed(-0.3, 0);
+                    drivetrain.setChassisSpeed(-0.25, 0);
                 },
                 ()->drivetrain.tankDrive(0, 0),
                 drivetrain
             ).withTimeout(0.75)
             .andThen(
-                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis)
+                new SetIntakeLowered(intake, true),
+                SuperstructureCommands.shoot(drivetrain, intake, indexer, shooter, photonShoot, analysis).withTimeout(5)
                 .alongWith(
                     new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
                 )
@@ -148,6 +149,15 @@ public class AutoOptions {
                     new SetShooterState(shooter, ShooterState.kIdleState)
                 )
             )
+        );
+        fullAutoOptions.addOption("Simple Back(Timed)",
+            new StartEndCommand(
+                ()->{
+                    drivetrain.setChassisSpeed(-0.3, 0);
+                },
+                ()->drivetrain.tankDrive(0, 0),
+                drivetrain
+            ).withTimeout(0.75)
         );
         
         /*

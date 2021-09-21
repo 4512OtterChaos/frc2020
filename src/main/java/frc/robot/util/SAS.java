@@ -39,9 +39,9 @@ public class SAS {
         shotTable.put(80.0, new ShooterState(42, 2000));
         shotTable.put(110.0, new ShooterState(38, 2100));
         shotTable.put(140.0, new ShooterState(35, 2300));
-        shotTable.put(175.0, new ShooterState(34, 2400));
-        shotTable.put(200.0, new ShooterState(28, 2600));
-        shotTable.put(235.0, new ShooterState(27, 2700));
+        shotTable.put(175.0, new ShooterState(30, 2400));
+        shotTable.put(200.0, new ShooterState(24, 2600));
+        shotTable.put(235.0, new ShooterState(24, 2700));
     }
     
     /**
