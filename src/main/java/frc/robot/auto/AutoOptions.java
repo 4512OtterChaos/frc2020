@@ -140,7 +140,7 @@ public class AutoOptions {
                 },
                 ()->drivetrain.tankDrive(0, 0),
                 drivetrain
-            ).withTimeout(0.75)
+            ).withTimeout(0.55)
             .andThen(new SetIntakeLowered(intake, true))
             .andThen(
                 new ConditionalCommand(
@@ -150,7 +150,7 @@ public class AutoOptions {
                     SuperstructureCommands.shootManual(drivetrain, intake, indexer, shooter, 140, analysis),
 
                     ()->photonShoot.hasTargets()
-                ).withTimeout(8.5)
+                ).withTimeout(7)
                 .alongWith(
                     new InstantCommand(()->photonShoot.setLED(LEDMode.kDefault))
                 )
@@ -162,11 +162,11 @@ public class AutoOptions {
         fullAutoOptions.addOption("Simple Back(Timed)",
             new StartEndCommand(
                 ()->{
-                    drivetrain.setChassisSpeed(-0.3, 0);
+                    drivetrain.setChassisSpeed(-0.25, 0);
                 },
                 ()->drivetrain.tankDrive(0, 0),
                 drivetrain
-            ).withTimeout(0.75)
+            ).withTimeout(0.55)
         );
 
         // back up, shoot 3, pick up 3 trench, return, shoot 3
