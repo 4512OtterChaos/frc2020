@@ -144,7 +144,7 @@ public class RobotContainer {
 
         // Left trigger - intake/index
         driver.leftTriggerButton.whenPressed(
-            SuperstructureCommands.intakeIndexBalls(intake, indexer, 7, 8)
+            SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
         )
         .whenReleased(new InstantCommand(() -> {
             intake.setRollerVolts(0);
@@ -175,7 +175,7 @@ public class RobotContainer {
                 new WaitCommand(0.5)
             )
             .andThen(
-                new SetShooterState(shooter, ShooterState.kIdleState)
+                new SetShooterState(shooter, ShooterState.kLimp)
             )
         );
 
@@ -193,7 +193,7 @@ public class RobotContainer {
                 new WaitCommand(0.5)
             )
             .andThen(
-                new SetShooterState(shooter, ShooterState.kIdleState)
+                new SetShooterState(shooter, ShooterState.kLimp)
             )
         );
 
@@ -215,7 +215,11 @@ public class RobotContainer {
                 new SetShooterState(shooter, ShooterState.kIdleState)
             )
         );
-        
+        /*
+        driver.yButton.whenPressed(
+            new InstantCommand(()->intake.setSliderIsExtended(true), intake)
+        );
+        */
 
         // B - Set intake up
         driver.bButton.whenPressed(new SetIntakeLowered(intake, false));

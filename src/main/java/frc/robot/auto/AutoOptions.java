@@ -136,7 +136,7 @@ public class AutoOptions {
         fullAutoOptions.addOption("Timed Back then Shoot, no camera means no turning",
             new StartEndCommand(
                 ()->{
-                    drivetrain.setChassisSpeed(-0.3, 0);
+                    drivetrain.setChassisSpeed(-0.25, 0);
                 },
                 ()->drivetrain.tankDrive(0, 0),
                 drivetrain
@@ -158,6 +158,15 @@ public class AutoOptions {
                     new SetShooterState(shooter, ShooterState.kIdleState)
                 )
             )
+        );
+        fullAutoOptions.addOption("Simple Back(Timed)",
+            new StartEndCommand(
+                ()->{
+                    drivetrain.setChassisSpeed(-0.3, 0);
+                },
+                ()->drivetrain.tankDrive(0, 0),
+                drivetrain
+            ).withTimeout(0.75)
         );
 
         // back up, shoot 3, pick up 3 trench, return, shoot 3

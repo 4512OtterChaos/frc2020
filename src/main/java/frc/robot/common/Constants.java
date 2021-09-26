@@ -96,7 +96,7 @@ public class Constants {
     
     public static class IntakeConstants{
         public static final int kFreeLimit = 25;
-        public static final int kStallLimit = 32;
+        public static final int kStallLimit = 35;
         
         public static final double kRampRaw = 0.12; // seconds to full output(on the motor)
         
@@ -107,7 +107,7 @@ public class Constants {
     }
     public static class IntakeSlideConstants{
         public static final int kFreeLimit = 25;
-        public static final int kStallLimit = 32;
+        public static final int kStallLimit = 38;
         
         public static final double kRampRaw = 0.15; // seconds to full output(on the motor)
     }
