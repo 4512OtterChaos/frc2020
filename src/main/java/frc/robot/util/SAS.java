@@ -38,7 +38,7 @@ public class SAS {
         shotTable.put(50.0, new ShooterState(56, 1900));
         shotTable.put(80.0, new ShooterState(42, 2000));
         shotTable.put(110.0, new ShooterState(38, 2100));
-        shotTable.put(140.0, new ShooterState(35, 2300));
+        shotTable.put(140.0, new ShooterState(35, 2100));
         shotTable.put(175.0, new ShooterState(30, 2400));
         shotTable.put(200.0, new ShooterState(24, 2600));
         shotTable.put(235.0, new ShooterState(24, 2700));
@@ -133,6 +133,23 @@ public class SAS {
         boolean isReady = (now - shooter.getLastShotTime() > confidentTimeThreshold);
 
         return getIsConfident(distanceInches, shooter, drivetrain) && isReady; // I believe in you SAS
+    }
+    //Nolan check ur edge cases :)
+    public boolean getIsReadyManual(double distanceInches, Shooter shooter){
+        double now = Timer.getFPGATimestamp();
+        // Require a short time to pass before the system returns confident
+        boolean isReady = (now - shooter.getLastShotTime() > confidentTimeThreshold);
+
+        return getIsConfidentManual(distanceInches, shooter) && isReady; // I believe in you SAS
+    }
+
+    public boolean getIsConfidentManual(double distanceInches, Shooter shooter){
+        boolean isConfident = MathHelp.min(
+            getAngleConfidence(distanceInches, shooter),
+            getRPMConfidence(distanceInches, shooter)
+        ) > confidenceThreshold;
+                
+        return isConfident;
     }
     
     public void log(){

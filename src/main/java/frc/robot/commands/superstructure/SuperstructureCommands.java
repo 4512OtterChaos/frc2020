@@ -155,7 +155,7 @@ public class SuperstructureCommands {
             )
         )
         .andThen(
-            feedShooter(indexer, intake, ()->analysis.getIsReady(distInches, shooter, drivetrain), 3.5)
+            feedShooter(indexer, intake, ()->analysis.getIsReadyManual((double) 0, shooter), 3.5)
             .alongWith(
                 //new PerpetualCommand(TurnTo.createSimpleTurnToTarget(drivetrain, camera)),
                 //new PerpetualCommand(TurnTo.createTensionedTurnToTarget(drivetrain, camera)),
