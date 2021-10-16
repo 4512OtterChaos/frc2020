@@ -144,7 +144,7 @@ public class RobotContainer {
 
         // Left trigger - intake/index
         driver.leftTriggerButton.whenPressed(
-            SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
+            SuperstructureCommands.intakeIndexBalls(intake, indexer, 7, 7)
         )
         .whenReleased(new InstantCommand(() -> {
             intake.setRollerVolts(0);
@@ -215,6 +215,7 @@ public class RobotContainer {
                 new SetShooterState(shooter, ShooterState.kIdleState)
             )
         );
+        //Troubleshooting Slider Command
         /*
         driver.yButton.whenPressed(
             new InstantCommand(()->intake.setSliderIsExtended(true), intake)
@@ -260,9 +261,27 @@ public class RobotContainer {
 
     // Controls for operator controller
     private void configureOperatorBindings() {
-        operator.aButton.whenPressed(new SetIntakeLowered(intake, true));
-        operator.bButton.whenPressed(new SetIntakeLowered(intake, false));
+        
         operator.xButton.whenPressed(SuperstructureCommands.safeIntake(intake));
+
+        operator.leftTriggerButton.whenPressed(
+            SuperstructureCommands.intakeIndexBalls(intake, indexer, 8, 8)
+        )
+        .whenReleased(new InstantCommand(() -> {
+            intake.setRollerVolts(0);
+            intake.setFenceVolts(0);
+            indexer.setVolts(0);
+        }, intake, indexer));
+
+        operator.aButton.whenPressed(
+            new SetShooterState(shooter, new ShooterState(30, 650))
+            .alongWith(SuperstructureCommands.feedShooter(indexer, intake, () -> true, 3))
+        )
+        .whenReleased(() -> {
+            drivetrain.tankDrive(0, 0);
+            indexer.setVolts(0);
+            shooter.setShooterVelocity(0);
+        }, drivetrain, shooter, indexer);
     }
 
     // Configure default driving behavior and speed control buttons

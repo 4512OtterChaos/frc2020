@@ -96,7 +96,7 @@ public class Constants {
     
     public static class IntakeConstants{
         public static final int kFreeLimit = 25;
-        public static final int kStallLimit = 35;
+        public static final int kStallLimit = 30;
         
         public static final double kRampRaw = 0.12; // seconds to full output(on the motor)
         
@@ -113,7 +113,7 @@ public class Constants {
     }
     
     public static class IndexerConstants{
-        public static final int kFreeLimit = 38;
+        public static final int kFreeLimit = 42;
         public static final int kStallLimit = 45;
         
         public static final double kRampRaw = 0.04; // seconds to full output(on the motor)
